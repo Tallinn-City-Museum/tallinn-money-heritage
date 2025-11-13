@@ -1,5 +1,3 @@
-// src/components/specific/coin-flipper/InfoBottomSheet.tsx
-
 import React from "react";
 import {
     View,

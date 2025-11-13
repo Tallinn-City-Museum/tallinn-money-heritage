@@ -32,8 +32,8 @@ import {
     TutorialStepKey,
 } from "../components/tutorial/first-run-tutorial";
 
-// *** NEW IMPORT ***
-import { InfoBottomSheet } from "../components/common/InfoBottomSheet"; // Adjust path if needed
+// Bottom sheet component import
+import { InfoBottomSheet } from "../components/common/InfoBottomSheet"; 
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
@@ -365,7 +365,6 @@ export default function Flipper() {
     };
 
     // --- Bottom sheet animations ---
-    // THIS LOGIC REMAINS in Flipper
     const openInfoSheet = () => {
         // If a flip is in progress (or just ended), force a stable, upright coin
         if (isFlipping) {
@@ -375,7 +374,7 @@ export default function Flipper() {
             forceCoinUpright();
         }
 
-        setIsInfoVisible(true); // Mount the component
+        setIsInfoVisible(true); // Mount the bottom sheet component
 
         // TUTORIAL: mark info opened
         if (!tutorial.openedInfo) {
@@ -413,7 +412,7 @@ export default function Flipper() {
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            setIsInfoVisible(false); // Unmount component after animation
+            setIsInfoVisible(false); // Unmount bottom sheet component after animation
             dragY.setValue(0); // Reset drag value
         });
     };
@@ -426,7 +425,6 @@ export default function Flipper() {
         Math.abs(panOffset.current.y) < 0.5;
 
     // --- Swipe-up gesture anywhere on screen ---
-    // THIS REMAINS in Flipper as it applies to the main <View>
     const swipeResponder = useRef(
         PanResponder.create({
             // Don't claim the gesture at start
@@ -454,8 +452,7 @@ export default function Flipper() {
     ).current;
 
     // --- Drag-down gesture on the sheet ---
-    // THIS REMAINS in Flipper, as it controls the animation
-    // state that is passed to the new component.
+    // state that is passed to the bottom sheet component.
     const sheetPanResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
@@ -619,8 +616,7 @@ export default function Flipper() {
                         </View>
                     </Modal>
 
-                    {/* *** REFACTORED BOTTOM SHEET *** */}
-                    {/* The old JSX block (lines 438-491) is replaced with this component */}
+                    {/* BOTTOM SHEET */}
                     {isInfoVisible && (
                         <InfoBottomSheet
                             coin={coin}
