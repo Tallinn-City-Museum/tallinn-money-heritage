@@ -32,6 +32,9 @@ import {
     TutorialStepKey,
 } from "../components/tutorial/first-run-tutorial";
 
+// *** NEW IMPORT ***
+import { InfoBottomSheet } from "../components/common/InfoBottomSheet"; // Adjust path if needed
+
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
 
@@ -262,6 +265,8 @@ export default function Flipper() {
     };
 
     // --- Bottom sheet state ---
+    // THIS LOGIC REMAINS in Flipper, as it controls both
+    // the sheet and the coin's position.
     const [isInfoVisible, setIsInfoVisible] = useState(false);
     const bottomSheetAnim = useRef(new Animated.Value(0)).current;
     const coinShiftAnim = useRef(new Animated.Value(0)).current; // 0 = normal, 1 = shifted up, for info sheet
@@ -360,6 +365,7 @@ export default function Flipper() {
     };
 
     // --- Bottom sheet animations ---
+    // THIS LOGIC REMAINS in Flipper
     const openInfoSheet = () => {
         // If a flip is in progress (or just ended), force a stable, upright coin
         if (isFlipping) {
@@ -369,7 +375,7 @@ export default function Flipper() {
             forceCoinUpright();
         }
 
-        setIsInfoVisible(true);
+        setIsInfoVisible(true); // Mount the component
 
         // TUTORIAL: mark info opened
         if (!tutorial.openedInfo) {
@@ -378,13 +384,13 @@ export default function Flipper() {
 
         Animated.parallel([
             Animated.timing(bottomSheetAnim, {
-                toValue: 1,
+                toValue: 1, // Animate sheet
                 duration: 300,
                 easing: Easing.out(Easing.quad),
                 useNativeDriver: true,
             }),
             Animated.timing(coinShiftAnim, {
-                toValue: 1, // move coin up
+                toValue: 1, // Animate coin
                 duration: 300,
                 easing: Easing.out(Easing.quad),
                 useNativeDriver: true,
@@ -395,18 +401,21 @@ export default function Flipper() {
     const closeInfoSheet = () => {
         Animated.parallel([
             Animated.timing(bottomSheetAnim, {
-                toValue: 0,
+                toValue: 0, // Animate sheet
                 duration: 300,
                 easing: Easing.in(Easing.quad),
                 useNativeDriver: true,
             }),
             Animated.timing(coinShiftAnim, {
-                toValue: 0, // move coin back down
+                toValue: 0, // Animate coin
                 duration: 300,
                 easing: Easing.in(Easing.quad),
                 useNativeDriver: true,
             }),
-        ]).start(() => setIsInfoVisible(false));
+        ]).start(() => {
+            setIsInfoVisible(false); // Unmount component after animation
+            dragY.setValue(0); // Reset drag value
+        });
     };
 
     // Coin must be at its initial state to allow info swipe
@@ -417,6 +426,7 @@ export default function Flipper() {
         Math.abs(panOffset.current.y) < 0.5;
 
     // --- Swipe-up gesture anywhere on screen ---
+    // THIS REMAINS in Flipper as it applies to the main <View>
     const swipeResponder = useRef(
         PanResponder.create({
             // Don't claim the gesture at start
@@ -444,6 +454,8 @@ export default function Flipper() {
     ).current;
 
     // --- Drag-down gesture on the sheet ---
+    // THIS REMAINS in Flipper, as it controls the animation
+    // state that is passed to the new component.
     const sheetPanResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
@@ -607,68 +619,18 @@ export default function Flipper() {
                         </View>
                     </Modal>
 
-                    {/* Bottom sheet (animated) */}
+                    {/* *** REFACTORED BOTTOM SHEET *** */}
+                    {/* The old JSX block (lines 438-491) is replaced with this component */}
                     {isInfoVisible && (
-                        <Animated.View
-                            {...sheetPanResponder.panHandlers}
-                            style={[
-                                styles.bottomSheet,
-                                {
-                                    transform: [
-                                        {
-                                            translateY: Animated.add(
-                                                bottomSheetAnim.interpolate({
-                                                    inputRange: [0, 1],
-                                                    outputRange: [400, 0],
-                                                }),
-                                                dragY
-                                            ),
-                                        },
-                                    ],
-                                },
-                            ]}
-                        >
-                            {/* Handle and Close Button */}
-                            <View style={styles.sheetHeader}>
-                                <View style={styles.sheetHandle} />
-                                <TouchableOpacity onPress={closeInfoSheet} style={styles.sheetCloseBtn}>
-                                    <Text style={styles.sheetCloseIcon}>✕</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Scrollable info content */}
-                            <View style={{ width: "100%", paddingHorizontal: 20 }}>
-                                <View style={styles.infoCard}>
-                                    <Text style={styles.infoTitle}>Aasta</Text>
-                                    <Text style={styles.infoValue}>{coin.date ?? "—"}</Text>
-                                </View>
-
-                                <View style={styles.infoCard}>
-                                    <Text style={styles.infoTitle}>Mõõdud</Text>
-                                    <Text style={styles.infoValue}>
-                                        Läbimõõt: {coin.diameterMm ?? "—"} mm{"\n"}Kaal: {coin.weight ?? "—"} g
-                                    </Text>
-                                </View>
-
-                                <View style={styles.infoCard}>
-                                    <Text style={styles.infoTitle}>Materjal</Text>
-                                    <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
-                                </View>
-
-                                <View style={styles.infoCard}>
-                                    <Text style={styles.infoTitle}>Kirjeldus</Text>
-                                    <Text style={styles.infoValue}>
-                                        <Text style={{ fontWeight: "bold" }}>Kull pool: </Text>
-                                        {coin.headDescription ?? "—"}
-                                        {"\n"}
-                                        <Text style={{ fontWeight: "bold" }}>Kiri pool: </Text>
-                                        {coin.tailsDescription ?? "—"}
-                                    </Text>
-                                </View>
-                            </View>
-                        </Animated.View>
+                        <InfoBottomSheet
+                            coin={coin}
+                            onClose={closeInfoSheet}
+                            bottomSheetAnim={bottomSheetAnim}
+                            dragY={dragY}
+                            sheetPanResponder={sheetPanResponder}
+                        />
                     )}
-
+                    
                     {/* TUTORIAL OVERLAY */}
                     <FirstRunTutorial
                         progress={tutorial}

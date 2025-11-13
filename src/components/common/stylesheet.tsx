@@ -157,7 +157,7 @@ export const styles = StyleSheet.create({
     },
 
     infoTitle: {
-        fontWeight: "100",
+        fontWeight: "700",
         fontSize: 16,
         marginBottom: 6,
     },
