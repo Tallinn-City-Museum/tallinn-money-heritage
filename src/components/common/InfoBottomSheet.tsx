@@ -6,8 +6,8 @@ import {
     Animated,
     PanResponderInstance,
 } from "react-native";
-import { Coin } from "../../data/entity/coin"; // Adjust path if needed
-import { styles } from "./stylesheet"; // Adjust path if needed
+import { Coin } from "../../data/entity/coin"; 
+import { styles } from "./stylesheet";
 
 type InfoBottomSheetProps = {
     coin: Coin | null;
