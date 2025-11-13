@@ -5,11 +5,11 @@ import {
     TouchableOpacity,
     Animated,
     Modal,
-    Image,
     Pressable,
     Easing,
     PanResponder,
     ActivityIndicator,
+    Button,
 } from "react-native";
 import {
     TapGestureHandler,
@@ -52,6 +52,9 @@ export default function Flipper() {
     const [coin, setCoin] = useState<Coin | null>(null);
     const [coinSize, setCoinSize] = useState<number>(200);
     const fetchData = async () => {
+        setCoin(null);
+        setLastResult(null);
+        setPendingPrediction(null);
         const generatedCoin = await coinService.generateNewCoin();
         setCoin(generatedCoin);
         setCoinSize(160 * generatedCoin.diameterMm / 25.4)
@@ -475,9 +478,15 @@ export default function Flipper() {
             {coin === null && <ActivityIndicator size={64} />}
             {coin !== null && (
                 <>
-                    <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff" }}>
-                        {coin?.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
-                    </Text>
+                    <View>
+                        <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff" }}>
+                            {coin?.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
+                        </Text>
+                        <Button
+                            onPress={fetchData}
+                            title="Uus"
+                        />
+                    </View>
 
                     {/* top spacer keeps coin centered even when result appears */}
                     <View style={{ flex: 1 }} />
