@@ -4,16 +4,19 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { WalletProvider } from "../context/wallet-context";
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState } from 'react';
 
 export default function RootLayout() {
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <WalletProvider>
-        <Tabs>
-          <Tabs.Screen name="index" options={{ title: "Kodu" }} />
-          <Tabs.Screen name="coin-flipper" options={{ title: "Viska Münti" }}/>
-          <Tabs.Screen name="wallet" options={{ title: "Rahakott" }}/>
+        <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}>
+          <Tabs.Screen name="index" options={{ href: null, title: "Kodu" }} />
+          <Tabs.Screen name="coin-flipper" options={{ href: null, title: "Viska Münti" }}/>
+          <Tabs.Screen name="wallet" options={{ href: null, title: "Rahakott" }}/>
         </Tabs>
         </WalletProvider>
       </SafeAreaProvider>
@@ -21,3 +24,4 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+

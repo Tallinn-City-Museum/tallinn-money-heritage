@@ -3,6 +3,7 @@ import { View, Text, Image, Animated, PanResponder, Dimensions } from "react-nat
 import { useWallet } from "../context/wallet-context";
 import { styles } from "../components/common/stylesheet";
 import { CoinSide } from "../data/entity/coin";
+import {LinearGradient} from "expo-linear-gradient";
 
 // Get screen dimensions for centering coin
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -15,6 +16,7 @@ export default function Wallet() {
 
     return (
         <View style={styles.container}>
+            
             {/* Screen title*/}
             <Text style={styles.walletTitle}>Minu Rahakott</Text>
     

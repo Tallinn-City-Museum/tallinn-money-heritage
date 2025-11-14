@@ -30,6 +30,8 @@ import {
     TutorialProgress,
     TutorialStepKey,
 } from "../components/tutorial/first-run-tutorial";
+import { LinearGradient } from "expo-linear-gradient";
+
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
@@ -51,7 +53,7 @@ export default function Flipper() {
     const [pendingPrediction, setPendingPrediction] = useState<CoinSide | null>(null);
 
     // last flip result (null until the first flip finishes)
-    const [lastResult, setLastResult] = useState<CoinSide | null>(initialSide);
+    const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
 
     // ZOOM / PAN / ROTATE state
@@ -450,10 +452,17 @@ export default function Flipper() {
 
     // --- Render ---
     return (
+        
         <View style={styles.container} {...swipeResponder.panHandlers}>
-            <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff" }}>
-                {coin.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
-            </Text>
+             
+            {lastResult !== null && (
+    <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff", marginTop:100
+     }}>
+        {coin.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
+    </Text>
+)}
+
+
 
             {/* top spacer keeps coin centered even when result appears */}
             <View style={{ flex: 1 }} />
@@ -539,6 +548,7 @@ export default function Flipper() {
                     </PinchGestureHandler>
                 </TapGestureHandler>
             </TapGestureHandler>
+            
 
             {/* bottom area holds the result; hidden while zoomed */}
             <View style={styles.bottomArea}>
@@ -644,10 +654,10 @@ export default function Flipper() {
                         <View style={styles.infoCard}>
                             <Text style={styles.infoTitle}>Kirjeldus</Text>
                             <Text style={styles.infoValue}>
-                                <Text style={{ fontWeight: "bold" }}>Kull pool: </Text>
+                                <Text style={{ fontWeight: "bold" }}>Revers pool: </Text>
                                 {coin.headDescription ?? "—"}
                                 {"\n"}
-                                <Text style={{ fontWeight: "bold" }}>Kiri pool: </Text>
+                                <Text style={{ fontWeight: "bold" }}>Avers pool: </Text>
                                 {coin.tailsDescription ?? "—"}
                             </Text>
                         </View>
@@ -662,5 +672,6 @@ export default function Flipper() {
                 onSkipAll={handleSkipAll}
             />
         </View>
+        
     );
 }
