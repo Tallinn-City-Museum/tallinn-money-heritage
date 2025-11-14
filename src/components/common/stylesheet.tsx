@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "rgb(23, 24, 35)",
+        backgroundColor: "rgb(29, 31, 31)",
     },
     coinLayer: {
         // default layer for coin
@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
         maxWidth: "48%",
         minWidth: 120, // safety for very small phones
         alignItems: "center",
-        backgroundColor: "rgb(23, 24, 35)",
+        backgroundColor: "rgb(29, 31, 31)",
         borderRadius: 14,
         padding: 12,
         borderWidth: 1,
@@ -108,7 +108,7 @@ export const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "rgba(23, 24, 35, 0.85)", // ← semi-transparent white
+        backgroundColor: "rgba(29, 31, 31, 0.85)", // ← semi-transparent white
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
         paddingTop: 10,
@@ -146,20 +146,21 @@ export const styles = StyleSheet.create({
 
     sheetCloseIcon: {
         fontSize: 18,
-        color: "#333",
+        color: "#ccc",
     },
 
     infoCard: {
-        backgroundColor: "rgba(173, 216, 216, 0.7)",
+        backgroundColor: "rgba(254, 237, 186, 0.7)",
         borderRadius: 20,
         padding: 15,
-        marginTop: 12,
+        marginTop: 20,
     },
 
     infoTitle: {
         fontWeight: "700",
         fontSize: 16,
         marginBottom: 6,
+        marginTop: 12,
     },
 
     infoValue: {
@@ -186,7 +187,7 @@ export const styles = StyleSheet.create({
     },
     walletArea: {
         flex: 1,
-        backgroundColor: "rgb(23, 24, 35)",
+        backgroundColor: "rgb(29, 31, 31)",
         margin: 16,
         borderRadius: 16,
         position: "relative",

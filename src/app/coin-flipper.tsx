@@ -526,7 +526,10 @@ export default function Flipper() {
                                     >
                                         <Animated.View
                                             pointerEvents="box-none"
-                                            style={[styles.coinLayer, isInfoVisible && styles.coinLayerRaised]}
+                                            style={[
+                                                styles.coinLayer, isInfoVisible && styles.coinLayerRaised,
+                                                {zIndex: isInfoVisible ? 1 : 2}
+                                            ]}
                                         >
                                             <Animated.Image
                                                 source={{ uri: coinSide === CoinSide.HEADS ? coin.headImageResource : coin.tailsImageResource }}

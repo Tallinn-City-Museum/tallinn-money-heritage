@@ -48,6 +48,7 @@ export const InfoBottomSheet = ({
                             ),
                         },
                     ],
+                    zIndex: 10, // so that the sheet is above other elements
                 },
             ]}
         >
@@ -60,33 +61,28 @@ export const InfoBottomSheet = ({
             </View>
 
             {/* Scrollable info content */}
-            <View style={{ width: "100%", paddingHorizontal: 20 }}>
+            <View style={{ width: "100%", paddingHorizontal: 20}}>
                 <View style={styles.infoCard}>
+                    <Text style={styles.infoTitle}>Nimi</Text>
+                    <Text style={styles.infoValue}>{coin.title ?? "—"}</Text>
+
+                    <Text style={styles.infoTitle}>Museaali nr</Text>
+                    <Text style={styles.infoValue}>{coin.muisId ?? "—"}</Text>
+
                     <Text style={styles.infoTitle}>Aasta</Text>
                     <Text style={styles.infoValue}>{coin.date ?? "—"}</Text>
-                </View>
 
-                <View style={styles.infoCard}>
-                    <Text style={styles.infoTitle}>Mõõdud</Text>
-                    <Text style={styles.infoValue}>
-                        Läbimõõt: {coin.diameterMm ?? "—"} mm{"\n"}Kaal: {coin.weight ?? "—"} g
-                    </Text>
-                </View>
+                    <Text style={styles.infoTitle}>Riik</Text>
+                    <Text style={styles.infoValue}>{coin.country ?? "—"}</Text>
 
-                <View style={styles.infoCard}>
+                    <Text style={styles.infoTitle}>Läbimõõt</Text>
+                    <Text style={styles.infoValue}>{coin.diameterMm ?? "—"}</Text>
+
+                    <Text style={styles.infoTitle}>Kaal</Text>
+                    <Text style={styles.infoValue}>{coin.weight ?? "—"}</Text>
+
                     <Text style={styles.infoTitle}>Materjal</Text>
                     <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
-                </View>
-
-                <View style={styles.infoCard}>
-                    <Text style={styles.infoTitle}>Kirjeldus</Text>
-                    <Text style={styles.infoValue}>
-                        <Text style={{ fontWeight: "bold" }}>Kull pool: </Text>
-                        {coin.headDescription ?? "—"}
-                        {"\n"}
-                        <Text style={{ fontWeight: "bold" }}>Kiri pool: </Text>
-                        {coin.tailsDescription ?? "—"}
-                    </Text>
                 </View>
             </View>
         </Animated.View>
