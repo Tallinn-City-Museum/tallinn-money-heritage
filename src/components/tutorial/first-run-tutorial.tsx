@@ -13,9 +13,10 @@ export type TutorialProgress = {
     swipeWallet: boolean;
     dragCoin: boolean;
     walletInfo: boolean;
+    last: boolean,
 };
 
-export type TutorialStepKey = "tapTwice" | "zoomedIn" | "rotated" | "zoomedOut" | "doubleTapped" | "openedInfo" | "swipeWallet" | "dragCoin" | "walletInfo";
+export type TutorialStepKey = "tapTwice" | "zoomedIn" | "rotated" | "zoomedOut" | "doubleTapped" | "openedInfo" | "swipeWallet" | "dragCoin" | "walletInfo" | "last";
 
 type Props = {
     progress: TutorialProgress;
@@ -23,12 +24,14 @@ type Props = {
     onSkipAll: () => void;
     // Optional: force show (for testing)
     visibleOverride?: boolean;
+    // Optional: called when the final screen's CTA ("Mine mängima") is pressed
+    onFinish?: () => void;
 };
 
 const STORAGE_DONE_KEY = "tutorial.done";
 const STORAGE_SKIPS_KEY = "tutorial.skips";
 
-const ORDER: TutorialStepKey[] = ["tapTwice", "zoomedIn", "rotated", "zoomedOut", "doubleTapped", "openedInfo", "swipeWallet", "dragCoin", "walletInfo"];
+const ORDER: TutorialStepKey[] = ["tapTwice", "zoomedIn", "rotated", "zoomedOut", "doubleTapped", "openedInfo", "swipeWallet", "dragCoin", "walletInfo", "last"];
 
 const TEXTS: Record<TutorialStepKey, string> = {
     tapTwice:
@@ -49,6 +52,8 @@ const TEXTS: Record<TutorialStepKey, string> = {
         "Lohista münti mööda ekraani.",
     walletInfo:
         "Rahakotis mündile vajutades liigud tagasi mündi info juurde.\nKui tahad uut münti visata, libista ekraanil vasakult paremale.",
+    last:
+        "Oled valmis!\nHead mündi viskamist ja ajaloo avastamist!",
 };
 
 export function FirstRunTutorial({
@@ -56,6 +61,7 @@ export function FirstRunTutorial({
     onSkipStep,
     onSkipAll,
     visibleOverride,
+    onFinish,
 }: Props) {
     const [done, setDone] = useState<boolean>(false);
     const [skips, setSkips] = useState<Record<TutorialStepKey, boolean>>({
@@ -68,6 +74,7 @@ export function FirstRunTutorial({
         swipeWallet: false,
         dragCoin: false,
         walletInfo: false,
+        last: false,
     });
 
     // top-level component state
@@ -146,16 +153,31 @@ export function FirstRunTutorial({
             {nextStep === "tapTwice" && (<Text style={styles.tutorialTitle}>Kuidas alustada</Text>)}
             <Text style={styles.tutorialText}>{TEXTS[nextStep]}</Text>
 
+            {/* Last step */}
+            {nextStep === "last" && (
+                <View style={styles.tutorialActions}>
+                    <TouchableOpacity
+                        onPress={onFinish}
+                        style={styles.tutorialSkipStepBtn}
+                        accessibilityLabel="Mine mängima"
+                    >
+                        <Text style={styles.tutorialSkipStepText}>Mine mängima</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             {/* Bottom-right: skip current step */}
-            <View style={styles.tutorialActions}>
-            <TouchableOpacity
-                onPress={handleSkipStep}
-                style={styles.tutorialSkipStepBtn}
-                accessibilityLabel="Jäta see samm vahele"
-            >
-                <Text style={styles.tutorialSkipStepText}>Jäta samm vahele</Text>
-            </TouchableOpacity>
-            </View>
+            {nextStep !== "last" && (
+                <View style={styles.tutorialActions}>
+                    <TouchableOpacity
+                        onPress={handleSkipStep}
+                        style={styles.tutorialSkipStepBtn}
+                        accessibilityLabel="Jäta samm vahele"
+                    >
+                        <Text style={styles.tutorialSkipStepText}>Jäta samm vahele</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {/* Top-right global close (Jäta õpetus vahele = X) */}
             <TouchableOpacity
