@@ -105,7 +105,7 @@ export default function Flipper() {
     const [pendingPrediction, setPendingPrediction] = useState<CoinSide | null>(null);
 
     // last flip result (null until the first flip finishes)
-    const [lastResult, setLastResult] = useState<CoinSide | null>(initialSide);
+    const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
 
     // ZOOM / PAN / ROTATE state
@@ -591,14 +591,21 @@ export default function Flipper() {
 
     // --- Render ---
     return (
+        
         <View style={styles.container} {...swipeResponder.panHandlers}>
             {coin === null && <ActivityIndicator size={64} />}
             {coin !== null && (
                 <>
                     <View>
-                        <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff" }}>
-                            {coin?.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
-                        </Text>
+                         
+            {lastResult !== null && (
+    <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff", marginTop:100
+     }}>
+                    {coin?.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
+                </Text>
+)}
+
+
                         <Button
                             onPress={fetchData}
                             title="Uus"

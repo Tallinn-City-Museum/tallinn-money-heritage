@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
         borderColor: "#ffffff0f",
     },
     modalTitle: {
-        color: "#91603A",
+        color: "rgba(0, 0, 0, 1)",
         fontSize: 18,
         fontWeight: "700",
         textAlign: "center",
@@ -66,14 +66,14 @@ export const styles = StyleSheet.create({
         maxWidth: "48%",
         minWidth: 120, // safety for very small phones
         alignItems: "center",
-        backgroundColor: "rgb(29, 31, 31)",
-        borderRadius: 14,
+        backgroundColor: "rgb(23, 24, 35)",
         padding: 12,
         borderWidth: 1,
         borderColor: "#ffffff14",
+        borderRadius: 999,
     },
     choiceLabel: {
-        color: "#91603A",
+        color: "#ccd9d5ff",
         fontWeight: "600"
     },
     separator: {
@@ -98,7 +98,7 @@ export const styles = StyleSheet.create({
         padding: 8
     },
     closeBtnText: {
-        color: "#747678ff",
+        color: "#5c5c5cff",
         fontWeight: "600"
     },
 
@@ -176,7 +176,7 @@ export const styles = StyleSheet.create({
         textAlign: "center",
         marginTop: 20,
         marginBottom: 8,
-        color: "#e7e3e3ff",
+        color: "#B4CECC",
     },
     walletSubtitle: {
         fontSize: 16,
@@ -207,12 +207,12 @@ export const styles = StyleSheet.create({
     walletEmptyText: {
         fontSize: 20,
         fontWeight: "600",
-        color: "#d68f59ff",
+        color: "#B4CECC",
         marginBottom: 8,
     },
     walletEmptySubtext: {
         fontSize: 14,
-        color: "#747678",
+        color: "#ffffffff",
     },
     walletCoinCenterArea: {
         flex: 1,
@@ -228,7 +228,7 @@ export const styles = StyleSheet.create({
         // don't cover bottom so user can swipe from bottom edge comfortably
         alignItems: "center",
         justifyContent: "flex-start",
-        paddingTop: 12,
+        paddingTop: 40,
         paddingHorizontal: 12,
         zIndex: 30, // sits above coin
         elevation: 30,
@@ -241,7 +241,7 @@ export const styles = StyleSheet.create({
         padding: 16,
         paddingTop: 20,
         borderWidth: 1,
-        borderColor: "#ffffff0f",
+        borderColor: "",
         // subtle elevation
         shadowColor: "#000",
         shadowOpacity: 0.15,
@@ -253,13 +253,15 @@ export const styles = StyleSheet.create({
         color: "#2b2b2bff",
         fontSize: 16,
         fontWeight: "800",
-        textAlign: "center",
+        textAlign: "left",
         marginBottom: 6,
+        paddingRight: 44,
+        paddingLeft: 44,
     },
     tutorialText: {
         fontSize: 14,
         color: "#2b2b2bff",
-        textAlign: "center",
+        textAlign: "left",
         lineHeight: 20,
         paddingRight: 44,
         paddingLeft: 44,
@@ -296,4 +298,6 @@ export const styles = StyleSheet.create({
         fontWeight: "800",
         lineHeight: 20,
     },
+
+    
 });
