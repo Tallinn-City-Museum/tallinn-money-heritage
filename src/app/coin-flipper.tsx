@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import {
+    import { useState, useRef, useEffect, useCallback } from "react";
+    import {
     View,
     Text,
     TouchableOpacity,
@@ -10,37 +10,41 @@ import {
     PanResponder,
     ActivityIndicator,
     Button,
-} from "react-native";
-import {
+    } from "react-native";
+    import {
     TapGestureHandler,
     PinchGestureHandler,
     PanGestureHandler,
     RotationGestureHandler,
     State,
-} from "react-native-gesture-handler";
-import { coinService, CoinService } from "../service/coin-service";
-import { Coin, CoinSide } from "../data/entity/coin";
-import { styles } from "../components/common/stylesheet";
-import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
-import Toast from "react-native-toast-message";
-import { useWallet } from "../context/wallet-context";
-// TUTORIAL: imports
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
+    } from "react-native-gesture-handler";
+    import { coinService, CoinService } from "../service/coin-service";
+    import { Coin, CoinSide } from "../data/entity/coin";
+    import { styles } from "../components/common/stylesheet";
+    import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
+    import Toast from "react-native-toast-message";
+    import { useWallet } from "../context/wallet-context";
+    import { WalletCoin } from "../service/wallet-service";
+    // TUTORIAL: imports
+    import AsyncStorage from "@react-native-async-storage/async-storage";
+    import {
     FirstRunTutorial,
     TutorialProgress,
     TutorialStepKey,
-} from "../components/tutorial/first-run-tutorial";
+    } from "../components/tutorial/first-run-tutorial";
 
-// Bottom sheet component import
-import { InfoBottomSheet } from "../components/common/InfoBottomSheet"; 
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
 
-const MIN_SCALE = 1;
-const MAX_SCALE = 8;
+    // Bottom sheet component import
+    import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
+    import { useLocalSearchParams, useRouter } from "expo-router";
+    import { useFocusEffect } from "@react-navigation/native";
 
-export default function Flipper() {
+
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 8;
+
+
+    export default function Flipper() {
     const { addCoin, coins } = useWallet();
     const router = useRouter();
     const routeParams = useLocalSearchParams<{
@@ -56,30 +60,45 @@ export default function Flipper() {
     const [flipped, setFlipped] = useState(1);
     const [isFlipping, setIsFlipping] = useState(false);
 
+
     const flipAnimation = useRef(new Animated.Value(0)).current;
 
-    const [coin, setCoin] = useState<Coin | null>(null);
+    const [coin, setCoin] = useState<WalletCoin | null>(null);
     const [coinSize, setCoinSize] = useState<number>(200);
+    
     const fetchData = async () => {
         // If it came from Wallet with a specific coinId, do not generate a new coin
         if (routeParams?.coinId) return;
-        setCoin(null);
-        setLastResult(null);
-        setPendingPrediction(null);
-        const generatedCoin = await coinService.generateNewCoin();
-        setCoin(generatedCoin);
+            setCoin(null);
+            setLastResult(null);
+            setPendingPrediction(null);
+            const generatedCoin = await coinService.generateNewCoin();
+
+            const initialCoin: WalletCoin = {
+            ...generatedCoin,
+            flippedAt: '', // Empty string for date
+            prediction: null, // Default null for prediction
+            x: 0, // Default position
+            y: 0,
+            side: initialSide // Ensure side is set for type compliance
+            };
+    
+        setCoin(initialCoin);
         setCoinSize(160 * generatedCoin.diameterMm / 25.4)
     };
+
 
     // Load a specific coin from Wallet when coinId is provided via route params
     useEffect(() => {
         const coinIdParam = routeParams?.coinId;
         if (!coinIdParam) return;
 
+
         // Compare as strings to avoid number vs string mismatch
         const fromWallet = coins.find((c) => String(c.id) === String(coinIdParam));
         if (fromWallet) {
             setCoin(fromWallet);
+
 
             // diameterMm can be string/number or absent; coerce safely to number
             const diameterMm =
@@ -89,10 +108,12 @@ export default function Flipper() {
                         ? Number((fromWallet as any).diameter)
                         : 25.4; // sensible fallback
 
+
             setCoinSize((160 * diameterMm) / 25.4);
         }
         // if not found, do nothing; fetchData() doesn't run when coinId exists
     }, [routeParams?.coinId, coins]);
+
 
     // Only fetch a random coin if it didn't come from Wallet with a coinId
     useEffect(() => {
@@ -100,13 +121,18 @@ export default function Flipper() {
         fetchData();
     }, [routeParams?.coinId]);
 
+
     // prediction dialog
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [pendingPrediction, setPendingPrediction] = useState<CoinSide | null>(null);
+    const pendingPredictionRef = useRef<CoinSide | null>(null);
+
+
 
     // last flip result (null until the first flip finishes)
     const [lastResult, setLastResult] = useState<CoinSide | null>(initialSide);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
+
 
     // ZOOM / PAN / ROTATE state
     // ZOOM (pinch) state
@@ -114,13 +140,16 @@ export default function Flipper() {
     const lastScaleRef = useRef(1);
     const [isZoomed, setIsZoomed] = useState(false);
 
+
     // PAN (drag) while zoomed
     const translate = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
     const panOffset = useRef({ x: 0, y: 0 });
 
+
     // ROTATION (two-finger)
     const renderRotation = useRef(new Animated.Value(0)).current;
     const lastRotationRef = useRef(0);
+
 
     // Gesture handler refs to control priority/simultaneity
     const pinchRef = useRef<any>(null);
@@ -129,12 +158,14 @@ export default function Flipper() {
     const doubleTapRef = useRef<any>(null);
     const singleTapRef = useRef<any>(null);
 
+
     // flip timers management
     const timersRef = useRef<number[]>([]);
     const clearFlipTimers = () => {
         timersRef.current.forEach((id) => clearTimeout(id));
         timersRef.current = [];
     };
+
 
     // TUTORIAL: progress & helpers
     const [tutorial, setTutorial] = useState<TutorialProgress>({
@@ -150,6 +181,7 @@ export default function Flipper() {
         last: false,
     });
     const tapCounterRef = useRef(0);
+
 
     const handleSkipStep = (step: TutorialStepKey) => {
         setTutorial((prev) => ({ ...prev, [step]: true }));
@@ -174,6 +206,7 @@ export default function Flipper() {
         AsyncStorage.getItem("tutorial.done").then(() => { });
     }, []);
 
+
     // If returning from Wallet, normalize wallet steps and show "last" here (unless caller says done)
     useEffect(() => {
         if (routeParams?.fromWallet) {
@@ -189,8 +222,10 @@ export default function Flipper() {
         }
     }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
 
+
     // Re-open info whenever a fresh infoReq token arrives (even for the same coin).
     const lastInfoReqRef = useRef<string | undefined>(undefined);
+
 
     useFocusEffect(
         useCallback(() => {
@@ -198,9 +233,11 @@ export default function Flipper() {
             const token = routeParams?.infoReq ?? "";
             if (!wantsInfo) return;
 
+
             // Only act on a new token
             if (lastInfoReqRef.current === token) return;
             lastInfoReqRef.current = token;
+
 
             // If coin is ready, open immediately; otherwise defer a tick
             if (coin) {
@@ -212,6 +249,7 @@ export default function Flipper() {
             }
         }, [routeParams?.openInfo, routeParams?.infoReq, coin?.id])
     );
+
 
     // If Wallet told us tutorial is done, suppress overlay here immediately
     useEffect(() => {
@@ -229,6 +267,7 @@ export default function Flipper() {
         }
     }, [routeParams?.tutorialDone]);
 
+
     // Pinch handlers
     // Pinch: live clamp to [1, MAX_SCALE]
     const onPinchEvent = ({ nativeEvent }: any) => {
@@ -236,6 +275,7 @@ export default function Flipper() {
         const next = Math.max(MIN_SCALE, Math.min(nextUnclamped, MAX_SCALE));
         renderScale.setValue(next); // mark zoomed flag immediately for UI (labels hidden while zoomed)
         setIsZoomed(next > 1.001);
+
 
         // TUTORIAL: mark zoom completed when scale > 1×
         if (next > 1.001 && !tutorial.zoomedIn) {
@@ -254,12 +294,14 @@ export default function Flipper() {
                 renderScale.setValue(clamped);
                 lastScaleRef.current = clamped;
 
+
                 if (clamped === 1) {
                     translate.setValue({ x: 0, y: 0 });
                     panOffset.current = { x: 0, y: 0 };
                     renderRotation.setValue(0);
                     lastRotationRef.current = 0;
                     setIsZoomed(false);
+
 
                     // TUTORIAL: mark zoomed out after having zoomed in
                     if (!tutorial.zoomedOut && tutorial.zoomedIn) {
@@ -269,6 +311,7 @@ export default function Flipper() {
             });
         }
     };
+
 
     // Pan handlers (when zoomed)
     const onPanGestureEvent = ({ nativeEvent }: any) => {
@@ -294,6 +337,7 @@ export default function Flipper() {
             }
         }
     };
+
 
     // Rotation handlers (when zoomed)
     const onRotateEvent = ({ nativeEvent }: any) => {
@@ -324,6 +368,7 @@ export default function Flipper() {
         }
     };
 
+
     // Tap handlers
     // Single tap: toggle side; sync label, drop verdict; CANCEL any leftover flip timers
     const onSingleTap = ({ nativeEvent }: any) => {
@@ -333,10 +378,12 @@ export default function Flipper() {
             flipAnimation.stopAnimation();
             flipAnimation.setValue(0);
 
+
             const nextSide = coinSide === CoinSide.HEADS ? CoinSide.TAILS : CoinSide.HEADS;
             setCoinSide(nextSide);
             setLastResult(nextSide);
             setResultSource("manual"); // hide prediction verdict in BottomArea
+
 
             // TUTORIAL: two single taps required
             tapCounterRef.current += 1;
@@ -346,12 +393,14 @@ export default function Flipper() {
         }
     };
 
+
     // Double tap: open prediction dialog only if zoom is at original size
     const onDoubleTap = ({ nativeEvent }: any) => {
         if (nativeEvent.state === State.ACTIVE) {
             if (Math.abs(lastScaleRef.current - 1) < 0.01) {
                 setPendingPrediction(null);
                 setIsDialogVisible(true);
+
 
                 // TUTORIAL: mark double tap
                 if (!tutorial.doubleTapped) {
@@ -361,13 +410,13 @@ export default function Flipper() {
         }
     };
 
+
     // --- Bottom sheet state ---
-    // THIS LOGIC REMAINS in Flipper, as it controls both
-    // the sheet and the coin's position.
     const [isInfoVisible, setIsInfoVisible] = useState(false);
     const bottomSheetAnim = useRef(new Animated.Value(0)).current;
     const coinShiftAnim = useRef(new Animated.Value(0)).current; // 0 = normal, 1 = shifted up, for info sheet
     const dragY = useRef(new Animated.Value(0)).current;
+
 
     // --- Drag-down gesture on the sheet ---
     const sheetPanResponder = useRef(
@@ -386,6 +435,7 @@ export default function Flipper() {
         })
     ).current;
 
+
     // Coin flip logic and animation
     const flipCoin = async () => {
         setIsFlipping(true);
@@ -398,10 +448,12 @@ export default function Flipper() {
         );
         const duration = 1500; // milliseconds
 
+
         // Before starting a new flip, cancel any old timers to avoid stray toggles
         clearFlipTimers();
         // Hide previous result while a new flip is in progress
         setLastResult(null);
+
 
         Animated.timing(flipAnimation, {
             toValue: rotations,
@@ -416,12 +468,22 @@ export default function Flipper() {
             clearFlipTimers();
             setIsFlipping(false);
 
+
             // popup only if coin is added to the wallet
             let currentCoin = coinSide;
             const alreadyInWallet = coins.some((c) => c.id === coin?.id);
             if (!alreadyInWallet && coin !== null) {
+                // Use the immediate ref value for prediction so we don't race with React state
+                const chosenPrediction = pendingPredictionRef.current ?? null;
+                const updatedCoin = {
+                    ...coin,
+                    prediction: chosenPrediction,
+                    flippedAt: new Date().toISOString(),
+                };
+                setCoin(updatedCoin);
+
                 // Show notification that the coin has been added to the wallet
-                addCoin(coin, currentCoin);
+                addCoin(coin, currentCoin, chosenPrediction);
                 Toast.show({
                     type: "success",
                     text1: "Münt on lisatud rahakotti",
@@ -430,9 +492,11 @@ export default function Flipper() {
             }
         });
 
+
         let step = duration / (rotations + 1);
         let currentCoin = coinSide;
         let currentFlip = flipped;
+
 
         for (let t = step; duration - t > 0.001; t += step) {
             const id = setTimeout(() => {
@@ -446,6 +510,7 @@ export default function Flipper() {
                 currentFlip = currentFlip === 1 ? -1 : 1;
                 setFlipped(currentFlip);
 
+
                 if (duration - t - step <= 0.001) {
                     setLastResult(currentCoin);
                     setResultSource("flip");
@@ -455,15 +520,22 @@ export default function Flipper() {
         }
     };
 
+
     const handleChoosePrediction = (side: CoinSide) => {
         setPendingPrediction(side);
+        pendingPredictionRef.current = side;
         setIsDialogVisible(false);
         requestAnimationFrame(() => flipCoin());
     };
+
     const handleFlipWithoutPrediction = () => {
+        setPendingPrediction(null);
+        pendingPredictionRef.current = null;
         setIsDialogVisible(false);
         requestAnimationFrame(() => flipCoin());
     };
+
+
 
     const forceCoinUpright = () => {
         // kill any remaining tick timers
@@ -478,6 +550,7 @@ export default function Flipper() {
         setIsFlipping(false);
     };
 
+
     // --- Bottom sheet animations ---
     const openInfoSheet = () => {
         // If a flip is in progress (or just ended), force a stable, upright coin
@@ -488,12 +561,15 @@ export default function Flipper() {
             forceCoinUpright();
         }
 
+
         setIsInfoVisible(true); // Mount the bottom sheet component
+
 
         // TUTORIAL: mark info opened
         if (!tutorial.openedInfo) {
             setTutorial((prev) => ({ ...prev, openedInfo: true }));
         }
+
 
         Animated.parallel([
             Animated.timing(bottomSheetAnim, {
@@ -510,6 +586,7 @@ export default function Flipper() {
             }),
         ]).start();
     };
+
 
     const closeInfoSheet = () => {
         Animated.parallel([
@@ -531,12 +608,14 @@ export default function Flipper() {
         });
     };
 
+
     // Coin must be at its initial state to allow info swipe
     const isCoinAtStart = () =>
         lastScaleRef.current <= 1.001 &&
         Math.abs(lastRotationRef.current) < 0.01 &&
         Math.abs(panOffset.current.x) < 0.5 &&
         Math.abs(panOffset.current.y) < 0.5;
+
 
     // --- Full-screen gesture detector:
     // Up -> open info sheet
@@ -546,6 +625,7 @@ export default function Flipper() {
             // Don't claim the gesture at start
             onStartShouldSetPanResponder: () => false,
 
+
             // Claim when: single finger, significant move
             onMoveShouldSetPanResponder: (_, g) => {
                 const singleTouch = (g.numberActiveTouches ?? 1) === 1;
@@ -553,12 +633,15 @@ export default function Flipper() {
                 return singleTouch && bigMove;
             },
 
+
             // Allow RNGH handlers to take over if they want (reduces deadlocks)
             onPanResponderTerminationRequest: () => true,
+
 
             onPanResponderRelease: (_, g) => {
                 const absX = Math.abs(g.dx);
                 const absY = Math.abs(g.dy);
+
 
                 // vertical priority (info sheet)
                 if (isCoinAtStart() && g.dy < -80 && absY > absX) {
@@ -567,6 +650,7 @@ export default function Flipper() {
                     openInfoSheet();
                     return;
                 }
+
 
                 // horizontal: right-to-left => go to wallet
                 if (g.dx < -80 && absX > absY) {
@@ -579,6 +663,7 @@ export default function Flipper() {
         })
     ).current;
 
+
     // "Mine mängima" action from the last tutorial step on Coin-Flipper
     const handleFinishTutorialHere = async () => {
         // If info is open, close it; otherwise just hide tutorial
@@ -588,6 +673,8 @@ export default function Flipper() {
         setTutorial((prev) => ({ ...prev, last: true }));
         await AsyncStorage.setItem("tutorial.done", "1").catch(() => {});
     };
+
+    
 
     // --- Render ---
     return (
@@ -605,8 +692,10 @@ export default function Flipper() {
                         />
                     </View>
 
+
                     {/* top spacer keeps coin centered even when result appears */}
                     <View style={{ flex: 1 }} />
+
 
                     {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
                     <TapGestureHandler
@@ -692,6 +781,7 @@ export default function Flipper() {
                         </TapGestureHandler>
                     </TapGestureHandler>
 
+
                     {/* bottom area holds the result; hidden while zoomed */}
                     <View style={styles.bottomArea}>
                         {lastResult !== null && !isZoomed && (
@@ -701,6 +791,7 @@ export default function Flipper() {
                             />
                         )}
                     </View>
+
 
                     {/* Prediction dialog */}
                     <Modal
@@ -713,6 +804,7 @@ export default function Flipper() {
                             <View style={styles.modalCard}>
                                 <Text style={styles.modalTitle}>Vali oma ennustus</Text>
 
+
                                 <View style={styles.choicesRow}>
                                     {/* Heads choice */}
                                     <Pressable
@@ -723,6 +815,7 @@ export default function Flipper() {
                                         <Text style={styles.choiceLabel}>Avers</Text>
                                     </Pressable>
 
+
                                     <Pressable
                                         style={styles.choiceCard}
                                         onPress={() => handleChoosePrediction(CoinSide.TAILS)}
@@ -732,11 +825,14 @@ export default function Flipper() {
                                     </Pressable>
                                 </View>
 
+
                                 <View style={styles.separator} />
+
 
                                 <TouchableOpacity onPress={handleFlipWithoutPrediction} style={styles.skipBtn}>
                                     <Text style={styles.skipBtnText}>Viska ilma ennustuseta</Text>
                                 </TouchableOpacity>
+
 
                                 <TouchableOpacity onPress={() => setIsDialogVisible(false)} style={styles.closeBtn}>
                                     <Text style={styles.closeBtnText}>Sulge</Text>
@@ -745,10 +841,11 @@ export default function Flipper() {
                         </View>
                     </Modal>
 
+
                     {/* BOTTOM SHEET */}
                     {isInfoVisible && (
                         <InfoBottomSheet
-                            coin={coin}
+                            coin={coins.find(c => String(c.id) === String(coin?.id)) ?? coin}
                             onClose={closeInfoSheet}
                             bottomSheetAnim={bottomSheetAnim}
                             dragY={dragY}
@@ -767,4 +864,5 @@ export default function Flipper() {
             )}
         </View >
     );
-}
+    }
+

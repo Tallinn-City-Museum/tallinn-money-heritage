@@ -2,8 +2,8 @@
  * Enum for representing coin sides
  */
 export enum CoinSide {
-    HEADS,
-    TAILS
+    HEADS = 0,
+    TAILS = 1
 };
 
 export interface Coin {
@@ -20,4 +20,5 @@ export interface Coin {
     diameterMm: number;
     headImageResource?: any;
     tailsImageResource?: any;
+    prediction?: CoinSide | null;
 };

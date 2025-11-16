@@ -6,7 +6,7 @@ import {
     Animated,
     PanResponderInstance,
 } from "react-native";
-import { Coin } from "../../data/entity/coin"; 
+import { Coin, CoinSide } from "../../data/entity/coin"; 
 import { styles } from "./stylesheet";
 
 type InfoBottomSheetProps = {
@@ -30,6 +30,45 @@ export const InfoBottomSheet = ({
     if (!coin) {
         return null;
     }
+
+    // Checking if coin came from wallet
+    const walletCoin = coin as any;
+    const hasWalletData = walletCoin.flippedAt;
+    const hasPrediction = walletCoin.prediction !== undefined;
+
+    let addedDateFormatted: string | null = null;
+    let predictionFormatted: string | null = null;
+
+    if (hasWalletData) {
+        // Format the date
+        try {
+            const dateObj = new Date(walletCoin.flippedAt);
+            if (isNaN(dateObj.getTime())) { // Check if the resulting date object is invalid
+                addedDateFormatted = "N/A";
+            } else {
+                addedDateFormatted = dateObj.toLocaleDateString("et-EE", {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+        } catch (e) {
+            addedDateFormatted = "N/A";
+        }
+    }
+
+    if (hasPrediction) {
+        // Format the prediction
+        if (walletCoin.prediction === CoinSide.HEADS) {
+            predictionFormatted = "Avers";
+        } else if (walletCoin.prediction === CoinSide.TAILS) {
+            predictionFormatted = "Revers";
+        } else {
+            predictionFormatted = "Ei ennustanud";
+        }
+    }
+
+
 
     return (
         <Animated.View
@@ -62,6 +101,17 @@ export const InfoBottomSheet = ({
 
             {/* Scrollable info content */}
             <View style={{ width: "100%", paddingHorizontal: 20}}>
+                {hasWalletData && (
+                    <>
+                        <View style={styles.infoCard}>
+                            <Text style={styles.infoTitle}>Rahakotti lisatud</Text>
+                            <Text style={styles.infoValue}>{addedDateFormatted}</Text>
+                            <Text style={styles.infoTitle}>Ennustus</Text>
+                            <Text style={styles.infoValue}>{predictionFormatted}</Text>
+                        </View>
+                    </>
+                )}
+
                 <View style={styles.infoCard}>
                     <Text style={styles.infoTitle}>Nimi</Text>
                     <Text style={styles.infoValue}>{coin.title ?? "—"}</Text>
