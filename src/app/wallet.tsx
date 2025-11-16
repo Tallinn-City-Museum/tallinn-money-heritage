@@ -7,6 +7,7 @@ import { CoinSide } from "../data/entity/coin";
 // TUTORIAL: imports
 import { FirstRunTutorial, TutorialProgress, TutorialStepKey } from "../components/tutorial/first-run-tutorial";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Get screen dimensions for centering coin
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -52,6 +53,7 @@ function useTutorialDone() {
 }
 
 export default function Wallet() {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const params = useLocalSearchParams<{ teach?: string }>();
     const { coins, updateCoinPosition } = useWallet();
@@ -172,7 +174,20 @@ export default function Wallet() {
     return (
         <View style={styles.container} {...screenSwipe.panHandlers}>
             {/* Screen title*/}
-            <Text style={styles.walletTitle}>Minu Rahakott</Text>
+            <View
+                pointerEvents="box-none"
+                style={{
+                    position: "absolute",
+                    top: insets.top + 20,
+                    left: 0,
+                    right: 0,
+                    zIndex: 5,
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                }}
+            >
+                <Text style={styles.walletTitle}>Minu Rahakott</Text>
+            </View>
 
             {/* If wallet is empty, show prompt */}
             {coins.length === 0 ? (

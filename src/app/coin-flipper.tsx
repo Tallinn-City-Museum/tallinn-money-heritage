@@ -32,6 +32,7 @@
     TutorialProgress,
     TutorialStepKey,
     } from "../components/tutorial/first-run-tutorial";
+    import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
     // Bottom sheet component import
@@ -45,6 +46,7 @@
 
 
     export default function Flipper() {
+    const insets = useSafeAreaInsets();
     const { addCoin, coins } = useWallet();
     const router = useRouter();
     const routeParams = useLocalSearchParams<{
@@ -682,20 +684,46 @@
             {coin === null && <ActivityIndicator size={64} />}
             {coin !== null && (
                 <>
-                    <View>
-                         
-            {lastResult !== null && (
-    <Text style={{ fontWeight: "500", fontSize: 24, color: "#e7e3e3ff", marginTop:100
-     }}>
-                    {coin?.title.charAt(0).toLocaleUpperCase() + coin.title.slice(1)}
-                </Text>
-)}
+                    <View
+                        pointerEvents="box-none"
+                        style={{
+                            position: "absolute",
+                            top: insets.top + 20,
+                            left: 0,
+                            right: 0,
+                            zIndex: 50,
+                            alignItems: "center",
+                            justifyContent: "flex-start",
+                        }}
+                    >
+                        <Text
+                            style={{
+                                fontWeight: "600",
+                                fontSize: 18,
+                                color: "#e7e3e3ff",
+                                textAlign: "center",
+                            }}
+                        >
+                            {coin?.title ? coin.title.charAt(0).toUpperCase() + coin.title.slice(1) : ""}
+                        </Text>
 
+                        {/* väike vahe pealkirja ja nupu vahel */}
+                        <View style={{ height: 12 }} />
 
-                        <Button
+                        <TouchableOpacity
                             onPress={fetchData}
-                            title="Uus"
-                        />
+                            accessibilityRole="button"
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            style={{
+                                backgroundColor: "#B4CECC",
+                                paddingHorizontal: 16,
+                                paddingVertical: 10,
+                                borderRadius: 999,
+                                alignSelf: "center",
+                            }}
+                        >
+                            <Text style={{ color: "#2b2b2bff", fontWeight: "700" }}>Uus münt</Text>
+                        </TouchableOpacity>
                     </View>
 
 
