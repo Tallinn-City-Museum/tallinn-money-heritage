@@ -572,7 +572,7 @@ export default function Flipper() {
                 if (g.dx < -80 && absX > absY) {
                     setTutorial((prev) => ({ ...prev, swipeWallet: true }));
                     // hand off to wallet tutorial
-                    router.push({ pathname: "/wallet", params: { teach: "1" } });
+                    router.push({ pathname: "./wallet", params: { teach: "1" } });
                     return;
                 }
             },
