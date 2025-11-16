@@ -3,7 +3,8 @@ import { Coin, CoinSide } from "../data/entity/coin";
 // WalletCoin object extends basic Coin with extra info: which side, position, flip timestamp
 export interface WalletCoin extends Coin {
     side: CoinSide;
-    flippedAt: Date;
+    flippedAt: string; // ISO date string
+    prediction: CoinSide | null;
     x: number;
     y: number;
 }
@@ -13,7 +14,7 @@ class WalletServiceClass {
     private coins: WalletCoin[] = [];
 
     // Add a coin to wallet (creates random initial position)
-    addCoin(coin: Coin, resultSide: CoinSide) {
+    addCoin(coin: Coin, resultSide: CoinSide, prediction: CoinSide | null) {
         // Generate random position for coin (if not set by context)
         const randomX = Math.random() * 200 - 100; // center area
         const randomY = Math.random() * 200 - 100;
@@ -22,7 +23,8 @@ class WalletServiceClass {
         const walletCoin: WalletCoin = {
             ...coin,
             side: resultSide,
-            flippedAt: new Date(),
+            flippedAt: new Date().toISOString(),
+            prediction: prediction,
             x: randomX,
             y: randomY,
         };
@@ -39,7 +41,7 @@ class WalletServiceClass {
 
     // Update a coin's drag position (called from UI)
     updateCoinPosition(coinId: string, x: number, y: number) {
-        const coin = this.coins.find(c => c.id === coinId);
+        const coin = this.coins.find(c => String(c.id) === coinId);
         if (coin) {
             coin.x = x;
             coin.y = y;

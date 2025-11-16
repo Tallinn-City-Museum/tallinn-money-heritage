@@ -4,7 +4,7 @@ import { Coin, CoinSide } from "../data/entity/coin";
 
 interface WalletContextType {
     coins: WalletCoin[];
-    addCoin: (coin: Coin, side: CoinSide) => void;
+    addCoin: (coin: Coin, side: CoinSide, prediction: CoinSide | null) => WalletCoin | undefined;
     updateCoinPosition: (coinId: string, x: number, y: number) => void;
     clearWallet: () => void;
 }
@@ -16,14 +16,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     // Local state holds current coins in the wallet
     const [coins, setCoins] = useState<WalletCoin[]>([]);
     // Add a coin to the wallet only if the coin is not yet added
-    const addCoin = (coin: Coin, side: CoinSide) => {
+    const addCoin = (coin: Coin, side: CoinSide, prediction: CoinSide | null) => {
         const alreadyInWallet = WalletService.getCoins().some(c => c.id === coin.id);
         if (!alreadyInWallet) {
-            // Calls service to add coin and updates context state
-            WalletService.addCoin(coin, side);
+            // return created coin so caller can use it immediately
+            const created = WalletService.addCoin(coin, side, prediction);
             setCoins(WalletService.getCoins());
+            return created;
         }
-    };
+        return undefined;
+        };
     // Update a coin's position in the wallet when it is dragged
     const updateCoinPosition = (coinId: string, x: number, y: number) => {
         WalletService.updateCoinPosition(coinId, x, y);
