@@ -106,6 +106,7 @@ export default function Flipper() {
 
     // last flip result (null until the first flip finishes)
     const [lastResult, setLastResult] = useState<CoinSide | null>(null);
+    const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
 
     // ZOOM / PAN / ROTATE state
@@ -591,6 +592,7 @@ export default function Flipper() {
 
     // --- Render ---
     return (
+        
         
         <View style={styles.container} {...swipeResponder.panHandlers}>
             {coin === null && <ActivityIndicator size={64} />}
