@@ -27,18 +27,8 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    
     "plugins": [
-      "expo-router",
-      ["expo-splash-screen",
-        {
-          "image": "./assets/images/demo/Tallinna_Linnamuuseum_est_uldlogo_horis_valge_RGB.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#000000"
-      
-          }
-        
-      ]
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true,
