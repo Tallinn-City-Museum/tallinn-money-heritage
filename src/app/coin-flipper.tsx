@@ -1,5 +1,5 @@
-    import { useState, useRef, useEffect, useCallback } from "react";
-    import {
+import { useState, useRef, useEffect, useCallback } from "react";
+import {
     View,
     Text,
     TouchableOpacity,
@@ -10,42 +10,42 @@
     PanResponder,
     ActivityIndicator,
     Button,
-    } from "react-native";
-    import {
+} from "react-native";
+import {
     TapGestureHandler,
     PinchGestureHandler,
     PanGestureHandler,
     RotationGestureHandler,
     State,
-    } from "react-native-gesture-handler";
-    import { coinService, CoinService } from "../service/coin-service";
-    import { Coin, CoinSide } from "../data/entity/coin";
-    import { styles } from "../components/common/stylesheet";
-    import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
-    import Toast from "react-native-toast-message";
-    import { useWallet } from "../context/wallet-context";
-    import { WalletCoin } from "../service/wallet-service";
-    // TUTORIAL: imports
-    import AsyncStorage from "@react-native-async-storage/async-storage";
-    import {
+} from "react-native-gesture-handler";
+import { coinService, CoinService } from "../service/coin-service";
+import { Coin, CoinSide } from "../data/entity/coin";
+import { styles } from "../components/common/stylesheet";
+import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
+import Toast from "react-native-toast-message";
+import { useWallet } from "../context/wallet-context";
+import { WalletCoin } from "../service/wallet-service";
+// TUTORIAL: imports
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
     FirstRunTutorial,
     TutorialProgress,
     TutorialStepKey,
-    } from "../components/tutorial/first-run-tutorial";
-    import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from "../components/tutorial/first-run-tutorial";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
-    // Bottom sheet component import
-    import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
-    import { useLocalSearchParams, useRouter } from "expo-router";
-    import { useFocusEffect } from "@react-navigation/native";
+// Bottom sheet component import
+import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 
-    const MIN_SCALE = 1;
-    const MAX_SCALE = 8;
+const MIN_SCALE = 1;
+const MAX_SCALE = 8;
 
 
-    export default function Flipper() {
+export default function Flipper() {
     const insets = useSafeAreaInsets();
     const { addCoin, coins } = useWallet();
     const router = useRouter();
@@ -67,24 +67,24 @@
 
     const [coin, setCoin] = useState<WalletCoin | null>(null);
     const [coinSize, setCoinSize] = useState<number>(200);
-    
+
     const fetchData = async () => {
         // If it came from Wallet with a specific coinId, do not generate a new coin
         if (routeParams?.coinId) return;
-            setCoin(null);
-            setLastResult(null);
-            setPendingPrediction(null);
-            const generatedCoin = await coinService.generateNewCoin();
+        setCoin(null);
+        setLastResult(null);
+        setPendingPrediction(null);
+        const generatedCoin = await coinService.generateNewCoin();
 
-            const initialCoin: WalletCoin = {
+        const initialCoin: WalletCoin = {
             ...generatedCoin,
             flippedAt: '', // Empty string for date
             prediction: null, // Default null for prediction
             x: 0, // Default position
             y: 0,
             side: initialSide // Ensure side is set for type compliance
-            };
-    
+        };
+
         setCoin(initialCoin);
         setCoinSize(160 * generatedCoin.diameterMm / 25.4)
     };
@@ -201,7 +201,7 @@
             walletInfo: true,
             last: true
         });
-        AsyncStorage.setItem("tutorial.done", "1").catch(() => {});
+        AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
     };
     useEffect(() => {
         // touch AsyncStorage once (defensive; FirstRunTutorial persists itself)
@@ -273,7 +273,7 @@
                 last: true,
             }));
             // also persist global done to keep it sticky on next mounts
-            AsyncStorage.setItem("tutorial.done", "1").catch(() => {});
+            AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
         }
     }, [routeParams?.tutorialDone]);
 
@@ -681,13 +681,13 @@
             closeInfoSheet();
         }
         setTutorial((prev) => ({ ...prev, last: true }));
-        await AsyncStorage.setItem("tutorial.done", "1").catch(() => {});
+        await AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
     };
 
-    
+
 
     // --- Render ---
-    return (   
+    return (
         <View style={styles.container} {...swipeResponder.panHandlers}>
             {coin === null && <ActivityIndicator size={64} />}
             {coin !== null && (
@@ -778,7 +778,7 @@
                                             pointerEvents="box-none"
                                             style={[
                                                 styles.coinLayer, isInfoVisible && styles.coinLayerRaised,
-                                                {zIndex: isInfoVisible ? 1 : 2}
+                                                { zIndex: isInfoVisible ? 1 : 2 }
                                             ]}
                                         >
                                             <Animated.Image
@@ -896,7 +896,7 @@
                             sheetPanResponder={sheetPanResponder}
                         />
                     )}
-                    
+
                     {/* TUTORIAL OVERLAY */}
                     <FirstRunTutorial
                         progress={tutorial}
@@ -908,5 +908,5 @@
             )}
         </View >
     );
-    }
+}
 
