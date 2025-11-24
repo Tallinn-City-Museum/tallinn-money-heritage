@@ -8,16 +8,16 @@ export enum CoinSide {
 
 export interface Coin {
     id: number;
-    title: string;
-    muisId?: number;
+    muisId: number;
+    ref: string;
+    name: string;
     date?: string | null;
-    country?: string | null;
-    description?: string | null;
-    weight?: number;
-    material?: string;
-    //headDescription?: string;
-    //tailsDescription?: string;
-    diameterMm: number;
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+
     headImageResource?: any;
     tailsImageResource?: any;
     prediction?: CoinSide | null;
