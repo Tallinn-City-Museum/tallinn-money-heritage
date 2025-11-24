@@ -20,11 +20,11 @@ export class CoinService {
      */
     public async generateNewCoin() : Promise<Coin> {
         if (this.coinCount === undefined)
-            this.coinCount = (await coinCount()).data.coinMeta?.id_count
+            this.coinCount = (await coinCount()).data.coinMetas2?.id_count
 
         const idx = Math.floor(Math.random() * (this.coinCount === undefined ? 1 : this.coinCount) + 1)
 
-        const coin = (await coinById({id: `${idx}`})).data.coinMetas[0]
+        const coin = (await coinById({id: `${idx}`})).data.coinMetas2s[0]
 
         const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
         const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
@@ -34,13 +34,16 @@ export class CoinService {
         await Image.prefetch(tailsURL)
 
         return {
-            id: coin.muisId,
-            title: coin.title,
+            id: +coin.id,
+            muisId: +coin.muisId,
+            ref: coin.ref,
+            name: coin.name,
             date: coin.date,
-            diameterMm: coin.diameterMm,
-            description: coin.description,
-            headImageResource: headsURL,
-            tailsImageResource: tailsURL
+            material: coin.material,
+            diameter: coin.diameter,
+            region: coin.region,
+            nomValue: coin.nomValue,
+            lemmaName: coin.lemmaName
         }
     }
 };
