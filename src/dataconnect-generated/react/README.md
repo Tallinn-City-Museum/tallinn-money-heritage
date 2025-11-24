@@ -138,14 +138,18 @@ To check the status of a Query, use the `UseQueryResult.status` field. You can a
 To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinById` Query is of type `CoinByIdData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
 export interface CoinByIdData {
-  coinMetas: ({
+  coinMetas2s: ({
     id: Int64String;
-    muisId: number;
-    title: string;
-    description?: string | null;
+    muisId: Int64String;
+    ref: string;
+    name: string;
     date?: string | null;
-    diameterMm: number;
-  } & CoinMeta_Key)[];
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+  } & CoinMetas2_Key)[];
 }
 ```
 
@@ -194,7 +198,7 @@ export default function CoinByIdComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMetas);
+    console.log(query.data.coinMetas2s);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -221,7 +225,7 @@ To check the status of a Query, use the `UseQueryResult.status` field. You can a
 To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinCount` Query is of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
 export interface CoinCountData {
-  coinMeta?: {
+  coinMetas2?: {
     id_count: number;
   };
 }
@@ -265,7 +269,7 @@ export default function CoinCountComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMeta);
+    console.log(query.data.coinMetas2);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }

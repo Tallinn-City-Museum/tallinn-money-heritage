@@ -11,14 +11,18 @@ export type DateString = string;
 
 
 export interface CoinByIdData {
-  coinMetas: ({
+  coinMetas2s: ({
     id: Int64String;
-    muisId: number;
-    title: string;
-    description?: string | null;
+    muisId: Int64String;
+    ref: string;
+    name: string;
     date?: string | null;
-    diameterMm: number;
-  } & CoinMeta_Key)[];
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+  } & CoinMetas2_Key)[];
 }
 
 export interface CoinByIdVariables {
@@ -26,14 +30,14 @@ export interface CoinByIdVariables {
 }
 
 export interface CoinCountData {
-  coinMeta?: {
+  coinMetas2?: {
     id_count: number;
   };
 }
 
-export interface CoinMeta_Key {
-  muisId: number;
-  __typename?: 'CoinMeta_Key';
+export interface CoinMetas2_Key {
+  muisId: Int64String;
+  __typename?: 'CoinMetas2_Key';
 }
 
 interface CoinByIdRef {

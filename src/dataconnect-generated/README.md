@@ -102,14 +102,18 @@ Recall that executing the `CoinById` query returns a `QueryPromise` that resolve
 The `data` property is an object of type `CoinByIdData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
 export interface CoinByIdData {
-  coinMetas: ({
+  coinMetas2s: ({
     id: Int64String;
-    muisId: number;
-    title: string;
-    description?: string | null;
+    muisId: Int64String;
+    ref: string;
+    name: string;
     date?: string | null;
-    diameterMm: number;
-  } & CoinMeta_Key)[];
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+  } & CoinMetas2_Key)[];
 }
 ```
 ### Using `CoinById`'s action shortcut function
@@ -133,12 +137,12 @@ const { data } = await coinById({ id: ..., });
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await coinById(dataConnect, coinByIdVars);
 
-console.log(data.coinMetas);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
 coinById(coinByIdVars).then((response) => {
   const data = response.data;
-  console.log(data.coinMetas);
+  console.log(data.coinMetas2s);
 });
 ```
 
@@ -166,12 +170,12 @@ const ref = coinByIdRef(dataConnect, coinByIdVars);
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.coinMetas);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.coinMetas);
+  console.log(data.coinMetas2s);
 });
 ```
 
@@ -212,7 +216,7 @@ Recall that executing the `CoinCount` query returns a `QueryPromise` that resolv
 The `data` property is an object of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
 export interface CoinCountData {
-  coinMeta?: {
+  coinMetas2?: {
     id_count: number;
   };
 }
@@ -232,12 +236,12 @@ const { data } = await coinCount();
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await coinCount(dataConnect);
 
-console.log(data.coinMeta);
+console.log(data.coinMetas2);
 
 // Or, you can use the `Promise` API.
 coinCount().then((response) => {
   const data = response.data;
-  console.log(data.coinMeta);
+  console.log(data.coinMetas2);
 });
 ```
 
@@ -259,12 +263,12 @@ const ref = coinCountRef(dataConnect);
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.coinMeta);
+console.log(data.coinMetas2);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.coinMeta);
+  console.log(data.coinMetas2);
 });
 ```
 
