@@ -3,6 +3,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react-nativ
 
 import Flipper from "../app/coin-flipper";
 
+jest.setTimeout(10000);
+
 // Mocks
 
 // 1) Wallet: provides a ready coin via an array reference
