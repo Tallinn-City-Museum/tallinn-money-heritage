@@ -14,7 +14,8 @@ cache:
     #- .yarn
 
 stages:
-  - build
+  - test
+  - build # build, now runs only if test passes
 
 before_script:
   - apt update
@@ -25,6 +26,16 @@ before_script:
   - unzip cmdtools.zip
   - echo "y" | ./cmdline-tools/bin/sdkmanager --sdk_root=/android/sdk --install "platforms;android-30"
   - echo "y" | ./cmdline-tools/bin/sdkmanager --sdk_root=/android/sdk --install "build-tools;30.0.3"
+
+# UNIT TESTS (Jest)
+unit-tests:
+  stage: test
+  # Override before_script so tests DON'T do all the Android setup
+  before_script:
+    - npm ci --cache .npm
+  script:
+    - npm test -- --ci --runInBand
+
 
 eas-build:
   stage: build
