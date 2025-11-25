@@ -1,11 +1,11 @@
-type CoinMetas2 @table(key: ["muisId"]) {
+type CoinMetas2 @table(key: ["id"]) {
     id: Int64! @col(dataType: "bigserial")
     muisId: Int64!
     ref: String!
     name: String!
     date: String
     material: String
-    diameter: Float!
+    diameter: Float! @col(dataType: "numeric")
     region: String
     nomValue: String
     lemmaName: String

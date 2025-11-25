@@ -36,7 +36,7 @@ export interface CoinCountData {
 }
 
 export interface CoinMetas2_Key {
-  muisId: Int64String;
+  id: Int64String;
   __typename?: 'CoinMetas2_Key';
 }
 
