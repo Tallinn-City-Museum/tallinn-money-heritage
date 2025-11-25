@@ -742,6 +742,7 @@
                             ref={singleTapRef}
                             waitFor={[doubleTapRef, pinchRef, panRef, rotateRef]}
                             onHandlerStateChange={onSingleTap}
+                            testID="coin-tap"
                         >
                             {/* Pinch, rotate and pan recognize simultaneously (rotate/pan only when zoomed) */}
                             <PinchGestureHandler
@@ -749,6 +750,7 @@
                                 simultaneousHandlers={[panRef, rotateRef]}
                                 onGestureEvent={onPinchEvent}
                                 onHandlerStateChange={onPinchStateChange}
+                                testID="coin-pinch"
                             >
                                 <RotationGestureHandler
                                     ref={rotateRef}
