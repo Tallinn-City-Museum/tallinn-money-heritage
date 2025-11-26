@@ -252,6 +252,14 @@
         }, [routeParams?.openInfo, routeParams?.infoReq, coin?.id])
     );
 
+        useFocusEffect(
+        useCallback(() => {
+            // Whenever we return from Wallet with a back-swipe, always generate a fresh coin
+            if (routeParams?.fromWallet === "back" && !routeParams?.coinId) {
+                fetchData();
+            }
+        }, [routeParams?.fromWallet, routeParams?.coinId])
+    );
 
     // If Wallet told us tutorial is done, suppress overlay here immediately
     useEffect(() => {
