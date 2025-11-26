@@ -845,7 +845,7 @@
                                     {/* Heads choice */}
                                     <Pressable
                                         style={styles.choiceCard}
-                                        onPress={() => handleChoosePrediction(CoinSide.HEADS)}
+                                        onPress={() => handleChoosePrediction(CoinSide.TAILS)}
                                         accessibilityRole="button"
                                     >
                                         <Text style={styles.choiceLabel}>Avers</Text>
@@ -854,7 +854,7 @@
 
                                     <Pressable
                                         style={styles.choiceCard}
-                                        onPress={() => handleChoosePrediction(CoinSide.TAILS)}
+                                        onPress={() => handleChoosePrediction(CoinSide.HEADS)}
                                         accessibilityRole="button"
                                     >
                                         <Text style={styles.choiceLabel}>Revers</Text>

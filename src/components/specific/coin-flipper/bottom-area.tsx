@@ -7,15 +7,15 @@ export function BottomArea({ side, predicted }: { side: CoinSide, predicted: Coi
     const [visible, setVisible] = useState(true);
 
     useEffect(() => {
-        // Kui side muutub, näita 2 sekundit
+        // Shows for 2 seconds every time the side changes
         setVisible(true);
         const timer = setTimeout(() => setVisible(false), 2000);
         return () => clearTimeout(timer);
-    }, [side]); // käivitub iga kord, kui side muutub
+    }, [side]);
 
     const color = predicted === side ? "green" : "red";
 
-    if (!visible) return null; // peida, kui timeout läbi
+    if (!visible) return null; // hide when the timeout ends
 
     return (
         <View style={{ flex: 1, alignItems: "center" }}>
