@@ -369,7 +369,7 @@ function DraggableCoin({
         ? coin.headImageResource
         : coin.tailsImageResource;
 
-    const coinSize = 160 * coin.diameterMm / 25.4
+    const coinSize = 160 * coin.diameter / 25.4
 
     // Render animated, draggable coin image
     return (
