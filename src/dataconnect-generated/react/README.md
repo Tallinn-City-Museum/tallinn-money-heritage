@@ -17,7 +17,9 @@ You can also follow the instructions from the [Data Connect documentation](https
 - [**Accessing the connector**](#accessing-the-connector)
   - [*Connecting to the local Emulator*](#connecting-to-the-local-emulator)
 - [**Queries**](#queries)
+  - [*CoinMeta2ById*](#coinmeta2byid)
   - [*CoinById*](#coinbyid)
+  - [*CoinMeta2Count*](#coinmeta2count)
   - [*CoinCount*](#coincount)
 - [**Mutations**](#mutations)
 
@@ -111,6 +113,99 @@ Here's a general overview of how to use the generated Query hooks in your code:
 
 Below are examples of how to use the `example` connector's generated Query hook functions to execute each Query. You can also follow the examples from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#operations-react-angular).
 
+## CoinMeta2ById
+You can execute the `CoinMeta2ById` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useCoinMeta2byId(dc: DataConnect, vars: CoinMeta2byIdVariables, options?: useDataConnectQueryOptions<CoinMeta2byIdData>): UseDataConnectQueryResult<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useCoinMeta2byId(vars: CoinMeta2byIdVariables, options?: useDataConnectQueryOptions<CoinMeta2byIdData>): UseDataConnectQueryResult<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+```
+
+### Variables
+The `CoinMeta2ById` Query requires an argument of type `CoinMeta2byIdVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CoinMeta2byIdVariables {
+  id: Int64String;
+}
+```
+### Return Type
+Recall that calling the `CoinMeta2ById` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2ById` Query is of type `CoinMeta2byIdData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CoinMeta2byIdData {
+  coinMetas2s: ({
+    id: Int64String;
+    muisId: Int64String;
+    ref: string;
+    name: string;
+    date?: string | null;
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+  } & CoinMetas2_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `CoinMeta2ById`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CoinMeta2byIdVariables } from '@dataconnect/generated';
+import { useCoinMeta2byId } from '@dataconnect/generated/react'
+
+export default function CoinMeta2byIdComponent() {
+  // The `useCoinMeta2byId` Query hook requires an argument of type `CoinMeta2byIdVariables`:
+  const coinMeta2byIdVars: CoinMeta2byIdVariables = {
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useCoinMeta2byId(coinMeta2byIdVars);
+  // Variables can be defined inline as well.
+  const query = useCoinMeta2byId({ id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useCoinMeta2byId(dataConnect, coinMeta2byIdVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2byId(coinMeta2byIdVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2byId(dataConnect, coinMeta2byIdVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2s);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
 ## CoinById
 You can execute the `CoinById` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
 
@@ -138,18 +233,14 @@ To check the status of a Query, use the `UseQueryResult.status` field. You can a
 To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinById` Query is of type `CoinByIdData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
 export interface CoinByIdData {
-  coinMetas2s: ({
+  coinMetas: ({
     id: Int64String;
-    muisId: Int64String;
-    ref: string;
-    name: string;
+    muisId: number;
+    title: string;
+    description?: string | null;
     date?: string | null;
-    material?: string | null;
-    diameter: number;
-    region?: string | null;
-    nomValue?: string | null;
-    lemmaName?: string | null;
-  } & CoinMetas2_Key)[];
+    diameterMm: number;
+  } & CoinMeta_Key)[];
 }
 ```
 
@@ -198,7 +289,78 @@ export default function CoinByIdComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMetas2s);
+    console.log(query.data.coinMetas);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CoinMeta2Count
+You can execute the `CoinMeta2Count` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useCoinMeta2count(dc: DataConnect, options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useCoinMeta2count(options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+```
+
+### Variables
+The `CoinMeta2Count` Query has no variables.
+### Return Type
+Recall that calling the `CoinMeta2Count` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2Count` Query is of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CoinMeta2countData {
+  coinMetas2?: {
+    id_count: number;
+  };
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `CoinMeta2Count`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@dataconnect/generated';
+import { useCoinMeta2count } from '@dataconnect/generated/react'
+
+export default function CoinMeta2countComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useCoinMeta2count();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useCoinMeta2count(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2count(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2count(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -225,7 +387,7 @@ To check the status of a Query, use the `UseQueryResult.status` field. You can a
 To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinCount` Query is of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
 export interface CoinCountData {
-  coinMetas2?: {
+  coinMeta?: {
     id_count: number;
   };
 }
@@ -269,7 +431,7 @@ export default function CoinCountComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMetas2);
+    console.log(query.data.coinMeta);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
