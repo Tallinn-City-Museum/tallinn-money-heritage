@@ -10,3 +10,12 @@ type CoinMetas2 @table(key: ["id"]) {
     nomValue: String
     lemmaName: String
 }
+
+type CoinMeta @table(key: ["muisId"]) {
+    id: Int64! @col(dataType: "bigserial")
+    muisId: Int!
+    title: String!
+    date: String
+    description: String
+    diameterMm: Float! @col(dataType: "real") @default(expr: "0.0")
+}

@@ -1,5 +1,11 @@
-query CoinCount @auth(level: PUBLIC, insecureReason: "Anyone can query the amount of coins") {
+query CoinMeta2Count @auth(level: PUBLIC, insecureReason: "Anyone can query the amount of coins") {
     coinMetas2 {
+        id_count
+    }
+}
+
+query CoinCount @auth(level: PUBLIC, insecureReason: "Anyone can query the amount of coins") {
+    coinMeta {
         id_count
     }
 }
