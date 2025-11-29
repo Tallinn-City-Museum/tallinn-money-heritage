@@ -1,6 +1,6 @@
 import { getDataConnect } from "firebase/data-connect"
 import { Coin } from "../data/entity/coin"
-import { connectorConfig, coinCount, coinById } from '@dataconnect/generated'
+import { connectorConfig, coinCount, coinById, coinMeta2count, coinMeta2byId } from '@dataconnect/generated'
 import { app  } from "../config"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Image } from "react-native"
@@ -20,11 +20,11 @@ export class CoinService {
      */
     public async generateNewCoin() : Promise<Coin> {
         if (this.coinCount === undefined)
-            this.coinCount = (await coinCount()).data.coinMetas2?.id_count
+            this.coinCount = (await coinMeta2count()).data.coinMetas2?.id_count
 
         const idx = Math.floor(Math.random() * (this.coinCount === undefined ? 1 : this.coinCount) + 1)
 
-        const coin = (await coinById({id: `${idx}`})).data.coinMetas2s[0]
+        const coin = (await coinMeta2byId({id: `${idx}`})).data.coinMetas2s[0]
 
         const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
         const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
@@ -43,7 +43,9 @@ export class CoinService {
             diameter: coin.diameter,
             region: coin.region,
             nomValue: coin.nomValue,
-            lemmaName: coin.lemmaName
+            lemmaName: coin.lemmaName,
+            headImageResource: headsURL,
+            tailsImageResource: tailsURL
         }
     }
 };
