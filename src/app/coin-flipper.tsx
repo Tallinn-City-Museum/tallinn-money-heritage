@@ -86,7 +86,7 @@ export default function Flipper() {
         };
 
         setCoin(initialCoin);
-        setCoinSize(160 * generatedCoin.diameterMm / 25.4)
+        setCoinSize(160 * generatedCoin.diameter / 25.4)
     };
 
 
@@ -104,8 +104,8 @@ export default function Flipper() {
 
             // diameterMm can be string/number or absent; coerce safely to number
             const diameterMm =
-                fromWallet.diameterMm !== undefined
-                    ? Number(fromWallet.diameterMm)
+                fromWallet.diameter !== undefined
+                    ? Number(fromWallet.diameter)
                     : (fromWallet as any).diameter !== undefined
                         ? Number((fromWallet as any).diameter)
                         : 25.4; // sensible fallback
@@ -497,7 +497,7 @@ export default function Flipper() {
                 Toast.show({
                     type: "success",
                     text1: "Münt on lisatud rahakotti",
-                    text2: `Münt '${coin?.title}' on lisatud teie rahakotti 🪙`,
+                    text2: `Münt '${coin?.name}' on lisatud teie rahakotti 🪙`,
                 });
             }
         });
@@ -712,7 +712,7 @@ export default function Flipper() {
                                 textAlign: "center",
                             }}
                         >
-                            {coin?.title ? coin.title.charAt(0).toUpperCase() + coin.title.slice(1) : ""}
+                            {coin?.name ? coin.name.charAt(0).toUpperCase() + coin.name.slice(1) : ""}
                         </Text>
 
                         {/* väike vahe pealkirja ja nupu vahel */}
