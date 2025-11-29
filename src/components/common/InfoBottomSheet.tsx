@@ -6,7 +6,7 @@ import {
     Animated,
     PanResponderInstance,
 } from "react-native";
-import { Coin, CoinSide } from "../../data/entity/coin"; 
+import { Coin, CoinSide } from "../../data/entity/coin";
 import { styles } from "./stylesheet";
 
 type InfoBottomSheetProps = {
@@ -24,7 +24,7 @@ export const InfoBottomSheet = ({
     dragY,
     sheetPanResponder,
 }: InfoBottomSheetProps) => {
-    
+
     // The component won't render if coin is null,
     // but we check just in case.
     if (!coin) {
@@ -100,7 +100,7 @@ export const InfoBottomSheet = ({
             </View>
 
             {/* Scrollable info content */}
-            <View style={{ width: "100%", paddingHorizontal: 20}}>
+            <View style={{ width: "100%", paddingHorizontal: 20 }}>
                 {hasWalletData && (
                     <>
                         <View style={styles.infoCard}>
@@ -114,7 +114,7 @@ export const InfoBottomSheet = ({
 
                 <View style={styles.infoCard}>
                     <Text style={styles.infoTitle}>Nimi</Text>
-                    <Text style={styles.infoValue}>{coin.title ?? "—"}</Text>
+                    <Text style={styles.infoValue}>{coin.name ?? "—"}</Text>
 
                     <Text style={styles.infoTitle}>Museaali nr</Text>
                     <Text style={styles.infoValue}>{coin.muisId ?? "—"}</Text>
@@ -123,13 +123,10 @@ export const InfoBottomSheet = ({
                     <Text style={styles.infoValue}>{coin.date ?? "—"}</Text>
 
                     <Text style={styles.infoTitle}>Riik</Text>
-                    <Text style={styles.infoValue}>{coin.country ?? "—"}</Text>
+                    <Text style={styles.infoValue}>{coin.region ?? "—"}</Text>
 
                     <Text style={styles.infoTitle}>Läbimõõt</Text>
-                    <Text style={styles.infoValue}>{coin.diameterMm ?? "—"}</Text>
-
-                    <Text style={styles.infoTitle}>Kaal</Text>
-                    <Text style={styles.infoValue}>{coin.weight ?? "—"}</Text>
+                    <Text style={styles.infoValue}>{coin.diameter ?? "—"} mm</Text>
 
                     <Text style={styles.infoTitle}>Materjal</Text>
                     <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
