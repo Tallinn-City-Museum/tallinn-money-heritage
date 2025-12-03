@@ -2,6 +2,9 @@
  * This file contains the common stylesheet used throughout the application
  */
 import { Dimensions, StyleSheet } from "react-native";
+const { width, height } = Dimensions.get("window");
+const verticalPadding = height * 0.05;
+export const screenWidth = width;
 
 export const styles = StyleSheet.create({
     container: {
@@ -299,4 +302,138 @@ export const styles = StyleSheet.create({
     },
 
     
+});
+
+export const indexStyles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#22223b",
+    },
+
+    gradientBackground: {
+        flex: 1,
+        position: "relative",
+    },
+
+    scrollView: {
+        flex: 1,
+    },
+
+    scrollContent: {
+        paddingBottom: height * 0.2,
+    },
+
+    pageBase: {
+        width,
+        flex: 1,
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+        paddingHorizontal: width * 0.1,
+    },
+
+    page1: {
+        paddingTop: verticalPadding * 8,
+    },
+
+    page2: {
+        paddingTop: verticalPadding * 6,
+    },
+
+    page3: {
+        paddingTop: verticalPadding * 7,
+    },
+
+    page4: {
+        paddingTop: verticalPadding * 9,
+    },
+
+    titleText: {
+        fontSize: 25,
+        color: "#a5cfccff",
+        textAlign: "left",
+        fontFamily: "ProzaDisplay-Bold",
+    },
+
+    titleTextFirst: {
+        paddingBottom: 8,
+        marginBottom: 15,
+    },
+
+    titleTextSecond: {
+        paddingBottom: 5,
+        marginTop: width / 2,
+    },
+
+    titleTextThird: {
+        paddingBottom: 8,
+        marginTop: -15,
+    },
+
+    titleTextFourth: {
+        paddingBottom: 8,
+        marginBottom: 24,
+    },
+
+    bodyText: {
+        fontSize: 18,
+        color: "#ffffff",
+        textAlign: "left",
+        lineHeight: 24,
+    },
+
+    bodyTextWithMargin: {
+        marginBottom: 30,
+    },
+
+    exploreButton: {
+        backgroundColor: "#B4CECC",
+        paddingVertical: 12,
+        paddingHorizontal: 40,
+        borderRadius: 25,
+        marginBottom: -15,
+    },
+
+    exploreButtonText: {
+        fontSize: 20,
+        color: "#22223b",
+        textAlign: "left",
+        fontFamily: "ProzaDisplay-SemiBold",
+    },
+
+    bottomGradient: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        width: width,
+        height: height * 0.08,
+        borderTopLeftRadius: width / 2,
+        borderTopRightRadius: width / 2,
+    },
+
+    paginationContainer: {
+        position: "absolute",
+        bottom: height * 0.03,
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    paginationDotBase: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        margin: 7,
+    },
+
+    paginationDotActive: {
+        backgroundColor: "#96c9c4ff",
+        borderWidth: 2,
+        borderColor: "#B4CECC",
+    },
+
+    paginationDotInactive: {
+        backgroundColor: "#d1eeecff",
+        borderWidth: 0,
+    },
 });
