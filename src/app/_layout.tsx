@@ -4,8 +4,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { WalletProvider } from "../context/wallet-context";
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
 
 export default function RootLayout() {
 
