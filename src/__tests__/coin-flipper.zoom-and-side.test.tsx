@@ -35,7 +35,20 @@ jest.mock("../context/wallet-context", () => {
 // 2) coin-service
 jest.mock("../service/coin-service", () => ({
     coinService: {
-        generateNewCoin: jest.fn(),
+            generateNewCoin: jest.fn().mockResolvedValue({
+            id: 1,
+            muisId: 1,
+            ref: "ref",
+            name: "test",
+            date: "1900",
+            material: "silver",
+            diameter: 25.4,
+            region: "EE",
+            nomValue: "1",
+            lemmaName: "lemma",
+            headImageResource: "heads.png",
+            tailsImageResource: "tails.png"
+        })
     },
 }));
 
