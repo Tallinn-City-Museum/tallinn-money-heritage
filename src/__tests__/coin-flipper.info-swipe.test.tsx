@@ -4,7 +4,7 @@ import * as RN from "react-native";
 import Flipper from "../app/coin-flipper";
 
 // Mock wallet context so the flipper has a coin to work with
-jest.mock("../Context/wallet-context", () => {
+jest.mock("../context/wallet-context", () => {
     const mockCoins = [
         {
             id: "test-coin",
