@@ -45,9 +45,27 @@ export class CoinService {
             nomValue: coin.nomValue,
             lemmaName: coin.lemmaName,
             headImageResource: headsURL,
-            tailsImageResource: tailsURL
+            tailsImageResource: tailsURL,
+        
         }
     }
+
+    /**
+     * Generate a coin by material. Backend does not yet expose material-based queries,
+     * so we fall back to a random coin while tagging it with the selected material.
+     */
+    public async generateCoinByMaterial(material: string): Promise<Coin> {
+        const randomCoin = await this.generateNewCoin()
+        if (!material || material.toLowerCase() === "kõik") {
+            return randomCoin
+        }
+
+        return {
+            ...randomCoin,
+            material,
+        }
+    }
+
 };
 
 export const coinService = new CoinService()
