@@ -1,4 +1,4 @@
-   import { useState, useRef, useEffect, useCallback } from "react";  
+﻿   import { useState, useRef, useEffect, useCallback } from "react";  
     import {
     View,
     Text,
@@ -111,7 +111,7 @@ export default function Flipper() {
     ]);
     const [pendingName, setPendingName] = useState<string>("Kõik");
 
-    const hydrateCoin = (base: Coin, materialOverride?: string): WalletCoin => {
+    const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
             base.diameter !== undefined
                 ? Number(base.diameter)
@@ -127,7 +127,7 @@ export default function Flipper() {
             x: 0,
             y: 0,
             side: initialSide,
-            diameterMm,
+            
         };
     };
     
@@ -180,35 +180,13 @@ export default function Flipper() {
 
     // Keep filter selection in sync with the currently visible coin
     useEffect(() => {
-        const material = coin?.material ?? "Kõik";
+        const material = coin?.material ?? "K€ćik";
         setPendingMaterial(material);
-        setMaterialStats((prev) => {
-            if (prev.some((m) => m.key === material)) return prev;
-            return [
-                ...prev,
-                {
-                    key: material,
-                    label: material,
-                    count: Math.max(1, Math.round((prev[0]?.count ?? 1) / 2)),
-                },
-            ];
-        });
     }, [coin?.material]);
 
     useEffect(() => {
-        const country = coin?.region ?? "Kõik";
+        const country = coin?.region ?? "KĆµik";
         setPendingCountry(country);
-        setCountryStats((prev) => {
-            if (prev.some((c) => c.key === country)) return prev;
-            return [
-                ...prev,
-                {
-                    key: country,
-                    label: country,
-                    count: Math.max(1, Math.round((prev[0]?.count ?? 1) / 2)),
-                },
-            ];
-        });
     }, [coin?.region]);
 
 
@@ -384,7 +362,7 @@ export default function Flipper() {
         setIsZoomed(next > 1.001);
 
 
-        // TUTORIAL: mark zoom completed when scale > 1×
+        // TUTORIAL: mark zoom completed when scale > 1Ć—
         if (next > 1.001 && !tutorial.zoomedIn) {
             setTutorial((prev) => ({ ...prev, zoomedIn: true }));
         }
@@ -596,8 +574,8 @@ export default function Flipper() {
                 addCoin(coin, currentCoin, chosenPrediction);
                 Toast.show({
                     type: "success",
-                    text1: "Münt on lisatud rahakotti",
-                    text2: `Münt '${coin?.name}' on lisatud teie rahakotti 🪙`,
+                    text1: "MĆ¼nt on lisatud rahakotti",
+                    text2: `MĆ¼nt '${coin?.name}' on lisatud teie rahakotti šŖ™`,
                 });
             }
         });
@@ -738,8 +716,8 @@ export default function Flipper() {
         setCoin({
             ...hydrated,
             region: pendingCountry === "Kõik" ? hydrated.region ?? "Kõik" : pendingCountry,
-            nominal: pendingNominal === "Kõik" ? (hydrated as any).nominal : pendingNominal,
-            nameTag: pendingName === "Kõik" ? (hydrated as any).nameTag : pendingName,
+            nomValue: pendingNominal === "Kõik" ? (hydrated as any).nomValue : pendingNominal,
+            name: pendingName === "Kõik" ? (hydrated as any).name : pendingName,
         });
         setCoinSize((160 * hydrated.diameter) / 25.4);
     };
@@ -902,7 +880,7 @@ export default function Flipper() {
 
                 // vertical priority (info sheet)
                 if (isCoinAtStart() && swipedUp) {
-                    // normalize pose before sheet animation to avoid “drop & flip”
+                    // normalize pose before sheet animation to avoid ā€drop & flipā€¯
                     forceCoinUpright();
                     openInfoSheet();
                     return;
@@ -921,7 +899,7 @@ export default function Flipper() {
     ).current;
 
 
-    // "Mine mängima" action from the last tutorial step on Coin-Flipper
+    // "Mine mĆ¤ngima" action from the last tutorial step on Coin-Flipper
     const handleFinishTutorialHere = async () => {
         // If info is open, close it; otherwise just hide tutorial
         if (isInfoVisible) {
@@ -1034,7 +1012,7 @@ export default function Flipper() {
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 style={styles.skipBtn}
               >
-                <Text style={styles.skipBtnText}>Uus münt</Text>
+                <Text style={styles.skipBtnText}>Uus mĆ¼nt</Text>
               </TouchableOpacity>
             </Animated.View>
           )}
@@ -1189,7 +1167,7 @@ export default function Flipper() {
       accessibilityRole="button"
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
-      <Text style={{ fontSize: 20, color: "#444", fontWeight: "700" }}>×</Text>
+      <Text style={{ fontSize: 20, color: "#444", fontWeight: "700" }}>x</Text>
     </TouchableOpacity>
 
     </Animated.View>
@@ -1205,7 +1183,7 @@ export default function Flipper() {
                     onClose={closeInfoSheet}
                     bottomSheetAnim={bottomSheetAnim}
                     dragY={dragY}
-                            sheetPanResponder={sheetPanResponder}
+                    sheetPanResponder={sheetPanResponder}
                         />
                     )}
 
@@ -1232,12 +1210,12 @@ const FilterLanding = ({ showPrompt, onRandom, onRefine }: FilterLandingProps) =
     <View style={filterStyles.wrap}>
         {showPrompt && (
             <View style={filterStyles.card}>
-                <Text style={filterStyles.title}>Vali, kuidas münti otsida</Text>
+                <Text style={filterStyles.title}>Vali, kuidas mĆ¼nti otsida</Text>
                 <Text style={filterStyles.subtitle}>
-                    Kas soovid kohe juhuslikku münti v€æi kitsendada valikut filtritega?
+                    Kas soovid kohe juhuslikku mĆ¼nti vā‚¬Ć¦i kitsendada valikut filtritega?
                 </Text>
                 <TouchableOpacity style={filterStyles.primaryBtn} onPress={onRandom} accessibilityRole="button">
-                    <Text style={filterStyles.primaryLabel}>Juhuslik m€¬nt</Text>
+                    <Text style={filterStyles.primaryLabel}>Juhuslik mā‚¬Ā¬nt</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={filterStyles.secondaryBtn} onPress={onRefine} accessibilityRole="button">
                     <Text style={filterStyles.secondaryLabel}>Kitsenda valikut</Text>
@@ -1368,20 +1346,37 @@ const RightSideFilters = ({
 }: SideFiltersProps) => {
     const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
     const [layout, setLayout] = useState({ w: 0, h: 0 });
+    const [modalSizeTop, setModalSizeTop] = useState({ w: 0, h: 0 });
+    const [modalSizeBottom, setModalSizeBottom] = useState({ w: 0, h: 0 });
+    const [showOtherTop, setShowOtherTop] = useState(false);
+    const [showOtherBottom, setShowOtherBottom] = useState(false);
     const insets = useSafeAreaInsets();
     const screenHeight = Dimensions.get("window").height;
-    // Place the right bar strictly between the top (country) and bottom (material) sheets.
-    // Prefer measured heights; otherwise fall back to modest estimates. Add sheet offsets (12px) and insets.
-    const fallbackCountry = Math.max(screenHeight * 0.09, 90) + insets.top + 12;
+    const isAll = (val: string | undefined) => {
+        const v = (val || "").toLowerCase();
+        const norm = typeof v.normalize === "function" ? v.normalize("NFD").replace(/[^a-z]/g, "") : v;
+        return norm === "koik";
+    };
     const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
-    const topMargin = topOffset > 0 ? topOffset + insets.top + 12 : fallbackCountry;
+    const topMargin = topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
     const bottomMargin = bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
     const sidebarHeight = Math.max(60, screenHeight - (topMargin + bottomMargin));
-    // Place an intentional gap between nominal and name blocks instead of above/below.
     const sectionGap = Math.max(12, sidebarHeight * 0.04);
     const usableHeight = Math.max(40, sidebarHeight - sectionGap);
     const nominalHeight = Math.max(30, usableHeight * 0.5);
     const namesHeight = Math.max(30, usableHeight - nominalHeight);
+
+    const prepareBuckets = (items: { key: string; label: string; count: number }[], activeKey: string) => {
+        const filtered = items
+            .filter((i) => !isAll(i.key))
+            .sort((a, b) => (b.count || 0) - (a.count || 0));
+        const primary = filtered.slice(0, 6);
+        const others = filtered.slice(6);
+        const otherCount = Math.max(1, others.reduce((sum, item) => sum + (item.count || 1), 0));
+        const primaryWithOther = others.length > 0 ? [...primary, { key: "__other__", label: "Muud", count: otherCount }] : primary;
+        const normalizedActive = isAll(activeKey) ? "" : activeKey;
+        return { primary: primaryWithOther, others, normalizedActive };
+    };
 
     const renderTreemapGrid = (
         items: { key: string; label: string; count: number }[],
@@ -1391,14 +1386,13 @@ const RightSideFilters = ({
         onSelect: (key: string) => void,
         paletteOffset: number
     ) => {
-        const filtered = items.filter((i) => i.key.toLowerCase() !== "kõik");
-        if (filtered.length === 0) return null;
+        if (items.length === 0) return null;
 
-        const left: typeof filtered = [];
-        const right: typeof filtered = [];
+        const left: typeof items = [];
+        const right: typeof items = [];
         let sumLeft = 0;
         let sumRight = 0;
-        filtered.forEach((m) => {
+        items.forEach((m) => {
             if (sumLeft <= sumRight) {
                 left.push(m);
                 sumLeft += m.count || 1;
@@ -1409,7 +1403,7 @@ const RightSideFilters = ({
         });
 
         const colWidth = width / 2;
-        const placeCol = (col: typeof filtered, colSum: number, x: number, offset: number) => {
+        const placeCol = (col: typeof items, colSum: number, x: number, offset: number) => {
             const factor = colSum > 0 ? height / colSum : 0;
             let y = 0;
             return col.map((m, idx) => {
@@ -1451,13 +1445,19 @@ const RightSideFilters = ({
             });
         };
 
+        const sumLeftCount = left.reduce((s, m) => s + (m.count || 1), 0);
+        const sumRightCount = right.reduce((s, m) => s + (m.count || 1), 0);
+
         return (
             <>
-                {placeCol(left, sumLeft, 0, paletteOffset)}
-                {placeCol(right, sumRight, colWidth, paletteOffset + left.length)}
+                {placeCol(left, sumLeftCount, 0, paletteOffset)}
+                {placeCol(right, sumRightCount, colWidth, paletteOffset + left.length)}
             </>
         );
     };
+
+    const topBuckets = prepareBuckets(topItems, activeTop);
+    const bottomBuckets = prepareBuckets(bottomItems, activeBottom);
 
     return (
         <View
@@ -1474,7 +1474,14 @@ const RightSideFilters = ({
             {layout.w > 0 && sidebarHeight > 0 && (
                 <>
                     <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: nominalHeight }}>
-                        {renderTreemapGrid(topItems, activeTop, layout.w, nominalHeight, onSelectTop, 0)}
+                        {renderTreemapGrid(topBuckets.primary, topBuckets.normalizedActive, layout.w, nominalHeight, (key) => {
+                            if (key === "__other__") {
+                                setShowOtherTop(true);
+                                return;
+                            }
+                            const next = key === activeTop ? "Kõik" : key;
+                            onSelectTop(next);
+                        }, 0)}
                     </View>
                     <View
                         style={{
@@ -1485,14 +1492,90 @@ const RightSideFilters = ({
                             height: namesHeight,
                         }}
                     >
-                        {renderTreemapGrid(bottomItems, activeBottom, layout.w, namesHeight, onSelectBottom, 3)}
+                        {renderTreemapGrid(bottomBuckets.primary, bottomBuckets.normalizedActive, layout.w, namesHeight, (key) => {
+                            if (key === "__other__") {
+                                setShowOtherBottom(true);
+                                return;
+                            }
+                            const next = key === activeBottom ? "Kõik" : key;
+                            onSelectBottom(next);
+                        }, 3)}
                     </View>
                 </>
             )}
+
+            <Modal
+                transparent
+                visible={showOtherTop}
+                animationType="fade"
+                onRequestClose={() => setShowOtherTop(false)}
+            >
+                <Pressable style={sideStyles.modalBackdrop} onPress={() => setShowOtherTop(false)}>
+                    <View style={sideStyles.modalCard} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
+                        <Text style={sideStyles.modalTitle}>Muud nominaalid</Text>
+                        <View style={sideStyles.modalTreemapWrap}>
+                            <View
+                                style={StyleSheet.absoluteFillObject}
+                                pointerEvents="none"
+                                onLayout={(e) => {
+                                    const { width, height } = e.nativeEvent.layout;
+                                    setModalSizeTop({ w: width, h: height });
+                                }}
+                            />
+                            {renderTreemapGrid(
+                                topBuckets.others,
+                                topBuckets.normalizedActive,
+                                modalSizeTop.w > 0 ? modalSizeTop.w : layout.w,
+                                modalSizeTop.h > 0 ? modalSizeTop.h : Math.max(160, nominalHeight * 2),
+                                (key) => {
+                                    const next = key === activeTop ? "Kõik" : key;
+                                    onSelectTop(next);
+                                    setShowOtherTop(false);
+                                },
+                                0
+                            )}
+                        </View>
+                    </View>
+                </Pressable>
+            </Modal>
+
+            <Modal
+                transparent
+                visible={showOtherBottom}
+                animationType="fade"
+                onRequestClose={() => setShowOtherBottom(false)}
+            >
+                <Pressable style={sideStyles.modalBackdrop} onPress={() => setShowOtherBottom(false)}>
+                    <View style={sideStyles.modalCard} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
+                        <Text style={sideStyles.modalTitle}>Muud nimetused</Text>
+                        <View style={sideStyles.modalTreemapWrap}>
+                            <View
+                                style={StyleSheet.absoluteFillObject}
+                                pointerEvents="none"
+                                onLayout={(e) => {
+                                    const { width, height } = e.nativeEvent.layout;
+                                    setModalSizeBottom({ w: width, h: height });
+                                }}
+                            />
+                            {renderTreemapGrid(
+                                bottomBuckets.others,
+                                bottomBuckets.normalizedActive,
+                                modalSizeBottom.w > 0 ? modalSizeBottom.w : layout.w,
+                                modalSizeBottom.h > 0 ? modalSizeBottom.h : Math.max(160, namesHeight * 2),
+                                (key) => {
+                                    const next = key === activeBottom ? "Kõik" : key;
+                                    onSelectBottom(next);
+                                    setShowOtherBottom(false);
+                                },
+                                2
+                            )}
+                        </View>
+                    </View>
+                </Pressable>
+            </Modal>
         </View>
     );
 };
-
 const sideStyles = StyleSheet.create({
     wrap: {
         position: "absolute",
@@ -1518,5 +1601,49 @@ const sideStyles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 11,
     },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.45)",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 18,
+    },
+    modalCard: {
+        width: "100%",
+        maxWidth: 420,
+        backgroundColor: "rgba(22, 32, 35, 0.96)",
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 6 },
+        shadowRadius: 12,
+        elevation: 16,
+    },
+    modalTitle: {
+        color: "#e7f2ef",
+        fontWeight: "800",
+        fontSize: 16,
+        marginBottom: 10,
+        textAlign: "center",
+    },
+    modalTreemapWrap: {
+        width: "100%",
+        aspectRatio: 1,
+        maxHeight: 360,
+        overflow: "hidden",
+    },
 });
+
+
+
+
+
+
+
+
+
+
+
 

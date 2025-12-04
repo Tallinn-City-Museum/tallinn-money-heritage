@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
   Easing,
+  Modal,
   PanResponder,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,10 +23,17 @@ export type MaterialStat = FilterItem;
 export const DEFAULT_MATERIALS: MaterialStat[] = [
   { key: "Kõik", label: "Kõik", count: 24 },
   { key: "Hõbe", label: "Hõbe", count: 12 },
-  { key: "Kuld", label: "Kuld", count: 6 },
-  { key: "Vask", label: "Vask", count: 9 },
+  { key: "Kuld", label: "Kuld", count: 8 },
+  { key: "Vask", label: "Vask", count: 10 },
   { key: "Pronks", label: "Pronks", count: 7 },
-  { key: "Nikkel", label: "Nikkel", count: 5 },
+  { key: "Nikkel", label: "Nikkel", count: 6 },
+  { key: "Messing", label: "Messing", count: 5 },
+  { key: "Tina", label: "Tina", count: 4 },
+  { key: "Raud", label: "Raud", count: 4 },
+  { key: "Alumiinium", label: "Alumiinium", count: 3 },
+  { key: "Plii", label: "Plii", count: 3 },
+  { key: "Tsingi sulam", label: "Tsingi sulam", count: 2 },
+  { key: "Terassulam", label: "Terassulam", count: 2 },
 ];
 
 type MaterialFilterSheetProps = {
@@ -52,11 +61,38 @@ export const MaterialFilterSheet = ({
   const screenHeight = Dimensions.get("window").height;
   const SHEET_HEIGHT = Math.max(screenHeight * 0.135, 128);
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
+  const [modalSize, setModalSize] = useState({ w: 0, h: 0 });
+  const [showOthers, setShowOthers] = useState(false);
 
-  const displayMaterials = useMemo(
-    () => materials.filter((m) => m.key.toLowerCase() !== "kõik"),
-    [materials]
-  );
+  const { primaryItems, otherItems, activeKeyForPrimary } = useMemo(() => {
+    const filtered = materials
+      .filter((m) => (m.key || "").toLowerCase() !== "kõik")
+      .sort((a, b) => (b.count || 0) - (a.count || 0));
+
+    const primary = filtered.slice(0, 6);
+    const others = filtered.slice(6);
+
+    if (others.length === 0) {
+      const normalizedActive = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeMaterial;
+      return { primaryItems: primary, otherItems: [], activeKeyForPrimary: normalizedActive };
+    }
+
+    const otherCount = Math.max(
+      1,
+      others.reduce((sum, item) => sum + (item.count || 1), 0)
+    );
+
+    const withOther = [...primary, { key: "__other__", label: "Muud", count: otherCount }];
+    const activeInPrimary = withOther.some((m) => m.key === activeMaterial)
+      ? activeMaterial
+      : others.some((m) => m.key === activeMaterial)
+      ? "__other__"
+      : activeMaterial;
+
+    const normalizedActive = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeInPrimary;
+
+    return { primaryItems: withOther, otherItems: others, activeKeyForPrimary: normalizedActive };
+  }, [materials, activeMaterial]);
 
   useEffect(() => {
     Animated.timing(sheetAnim, {
@@ -76,8 +112,7 @@ export const MaterialFilterSheet = ({
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => !dragDisabled,
-        onMoveShouldSetPanResponder: (_, gesture) =>
-          !dragDisabled && Math.abs(gesture.dy) > 3,
+        onMoveShouldSetPanResponder: (_, gesture) => !dragDisabled && Math.abs(gesture.dy) > 3,
         onMoveShouldSetPanResponderCapture: () => !dragDisabled,
         onPanResponderMove: (_, gesture) => {
           if (dragDisabled) return;
@@ -112,6 +147,8 @@ export const MaterialFilterSheet = ({
     extrapolate: "clamp",
   });
 
+  const normalizedActiveForOthers = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeMaterial;
+
   return (
     <View style={styles.absoluteWrap} pointerEvents="box-none">
       <Animated.View
@@ -136,14 +173,72 @@ export const MaterialFilterSheet = ({
         <View style={styles.treemap} pointerEvents="box-none">
           {containerSize.w > 0 &&
             renderTreemap({
-              items: displayMaterials,
-              active: activeMaterial,
-              onSelect: onSelectMaterial,
+              items: primaryItems,
+              active: activeKeyForPrimary,
+              onSelect: (key) => {
+                if (key === "__other__") {
+                  setShowOthers(true);
+                  return;
+                }
+                const next = key === activeMaterial ? "Kõik" : key;
+                onSelectMaterial(next);
+              },
               width: containerSize.w,
               height: containerSize.h,
             })}
         </View>
       </Animated.View>
+
+      <Modal
+        transparent
+        visible={showOthers}
+        animationType="fade"
+        onRequestClose={() => setShowOthers(false)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowOthers(false)}>
+          <View
+            style={styles.modalCard}
+            onStartShouldSetResponder={() => true}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <Text style={styles.modalTitle}>Muud materjalid</Text>
+            <View style={styles.modalTreemapWrap}>
+              <View
+                style={StyleSheet.absoluteFillObject}
+                pointerEvents="none"
+                onLayout={(e) => {
+                  const { width, height } = e.nativeEvent.layout;
+                  setModalSize({ w: width, h: height });
+                }}
+              />
+              {otherItems.length > 0 &&
+                renderTreemap({
+                  items: otherItems,
+                  active: normalizedActiveForOthers,
+                  onSelect: (key) => {
+                    const next = key === activeMaterial ? "Kõik" : key;
+                    onSelectMaterial(next);
+                    setShowOthers(false);
+                  },
+                  width:
+                    modalSize.w > 0
+                      ? modalSize.w
+                      : containerSize.w > 0
+                      ? containerSize.w
+                      : Dimensions.get("window").width * 0.8,
+                  height:
+                    modalSize.h > 0
+                      ? modalSize.h
+                      : containerSize.h > 0
+                      ? Math.max(200, containerSize.h * 0.8)
+                      : Dimensions.get("window").height * 0.5,
+                })}
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -157,7 +252,9 @@ type TreemapProps = {
 };
 
 const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
-const MIN_BLOCK_HEIGHT = 40;
+const MIN_BLOCK_HEIGHT = 32;
+const sumCounts = (items: FilterItem[]) =>
+  items.reduce((sum, item) => sum + (item.count || 1), 0);
 
 const renderTreemap = ({
   items,
@@ -168,44 +265,31 @@ const renderTreemap = ({
 }: TreemapProps) => {
   if (items.length === 0) return null;
 
-  const left: FilterItem[] = [];
-  const right: FilterItem[] = [];
-  let sumLeft = 0;
-  let sumRight = 0;
-  items.forEach((m) => {
-    if (sumLeft <= sumRight) {
-      left.push(m);
-      sumLeft += m.count || 1;
-    } else {
-      right.push(m);
-      sumRight += m.count || 1;
-    }
-  });
-
-  const colWidth = width / 2;
-
-  const placeColumn = (col: FilterItem[], colSum: number, x: number, paletteOffset: number) => {
-    const factor = colSum > 0 ? height / colSum : 0;
-    let y = 0;
-    return col.map((m, idx) => {
+  const renderSlice = (
+    slice: FilterItem[],
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    horizontal: boolean,
+    paletteOffset: number
+  ): JSX.Element[] => {
+    if (slice.length === 0) return [];
+    if (slice.length === 1) {
+      const m = slice[0];
       const isActive = active === m.key;
-      let h = Math.max(MIN_BLOCK_HEIGHT, (m.count || 1) * factor);
-      const isLast = idx === col.length - 1;
-      if (isLast) {
-        h = height - y;
-      }
-      const rect = (
+      return [
         <TouchableOpacity
-          key={`${m.key}-${x}-${idx}`}
+          key={`${m.key}-${x}-${y}`}
           style={[
             styles.treemapBlock,
             {
               position: "absolute",
               left: x,
               top: y,
-              width: colWidth,
-              height: h,
-              backgroundColor: isActive ? "#7bd7cc" : palette[(paletteOffset + idx) % palette.length],
+              width: w,
+              height: Math.max(MIN_BLOCK_HEIGHT, h),
+              backgroundColor: isActive ? "#7bd7cc" : palette[paletteOffset % palette.length],
               opacity: isActive ? 0.94 : 0.82,
             },
           ]}
@@ -222,19 +306,49 @@ const renderTreemap = ({
           >
             {m.label}
           </Text>
-        </TouchableOpacity>
-      );
-      y += h;
-      return rect;
+        </TouchableOpacity>,
+      ];
+    }
+
+    const total = sumCounts(slice);
+    let splitIdx = 1;
+    let running = 0;
+    let bestDiff = Number.MAX_VALUE;
+    slice.forEach((item, idx) => {
+      running += item.count || 1;
+      const diff = Math.abs(running / total - 0.5);
+      if (diff < bestDiff && idx < slice.length - 1) {
+        bestDiff = diff;
+        splitIdx = idx + 1;
+      }
     });
+
+    const first = slice.slice(0, splitIdx);
+    const second = slice.slice(splitIdx);
+    const firstWeight = sumCounts(first);
+    const secondWeight = total - firstWeight;
+
+    const nodes: JSX.Element[] = [];
+    if (horizontal) {
+      const firstW = w * (firstWeight / total);
+      const secondW = w - firstW;
+      nodes.push(
+        ...renderSlice(first, x, y, firstW, h, !horizontal, paletteOffset),
+        ...renderSlice(second, x + firstW, y, secondW, h, !horizontal, paletteOffset + first.length)
+      );
+    } else {
+      const firstH = h * (firstWeight / total);
+      const secondH = h - firstH;
+      nodes.push(
+        ...renderSlice(first, x, y, w, firstH, !horizontal, paletteOffset),
+        ...renderSlice(second, x, y + firstH, w, secondH, !horizontal, paletteOffset + first.length)
+      );
+    }
+
+    return nodes;
   };
 
-  return (
-    <>
-      {placeColumn(left, sumLeft, 0, 0)}
-      {placeColumn(right, sumRight, colWidth, left.length)}
-    </>
-  );
+  return <>{renderSlice(items, 0, 0, width, height, true, 0)}</>;
 };
 
 const styles = StyleSheet.create({
@@ -265,6 +379,39 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     position: "relative",
+    overflow: "hidden",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 18,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: "rgba(22, 32, 35, 0.96)",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 16,
+  },
+  modalTitle: {
+    color: "#e7f2ef",
+    fontWeight: "800",
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  modalTreemapWrap: {
+    width: "100%",
+    aspectRatio: 1,
+    maxHeight: 360,
     overflow: "hidden",
   },
   treemapBlock: {

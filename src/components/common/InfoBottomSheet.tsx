@@ -7,6 +7,7 @@ import {
   PanResponder,
   ScrollView,
   Dimensions,
+  PanResponderInstance,
 } from "react-native";
 import { Coin, CoinSide } from "../../data/entity/coin";
 import { styles } from "./stylesheet";
@@ -14,13 +15,17 @@ import { styles } from "./stylesheet";
 type InfoBottomSheetProps = {
   coin: Coin | null;
   onClose: () => void;
+  dragY: Animated.Value;
   bottomSheetAnim: Animated.Value;
+  sheetPanResponder?: PanResponderInstance;
 };
 
 export const InfoBottomSheet = ({
   coin,
   onClose,
   bottomSheetAnim,
+  dragY,
+  sheetPanResponder,
 }: InfoBottomSheetProps) => {
   if (!coin) return null;
 
@@ -60,8 +65,7 @@ export const InfoBottomSheet = ({
   const screenHeight = Dimensions.get("window").height;
   const SHEET_HEIGHT = screenHeight * 0.5;
 
-  // dragY jälgib ainult handle’i swipe’i
-  const dragY = useRef(new Animated.Value(0)).current;
+
 
   // PanResponder kogu sheetile, kuid aktiveerub alles siis, kui liikumine on märgatav
   const handlePanResponder = useRef(
@@ -97,6 +101,8 @@ export const InfoBottomSheet = ({
     })
   ).current;
 
+  const activePanResponder = sheetPanResponder ?? handlePanResponder;
+
   // TranslateY arvutus
   const translateY = Animated.add(
     bottomSheetAnim.interpolate({
@@ -116,7 +122,7 @@ export const InfoBottomSheet = ({
           zIndex: 10,
         },
       ]}
-      {...handlePanResponder.panHandlers}
+      {...activePanResponder.panHandlers}
     >
       {/* Header ja sulgemisriba */}
       <View 
