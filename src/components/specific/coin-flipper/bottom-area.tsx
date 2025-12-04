@@ -20,7 +20,7 @@ export function BottomArea({ side, predicted }: { side: CoinSide, predicted: Coi
     return (
         <View style={{ flex: 1, alignItems: "center" }}>
             <Text style={styles.resultText}>
-                {side === CoinSide.HEADS ? "Revers" : "Avers"}
+                {side === CoinSide.HEADS ? "Avers" : "Revers"}
             </Text>
             {predicted !== null && (
                 <Text style={{ color: color }}>

@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
         width: "100%",
         maxWidth: 540,
         backgroundColor: "#ccd9d5ff",
-        borderRadius: 16,
+        borderRadius: 8,
         padding: 16,
         borderWidth: 1,
         borderColor: "#ffffff0f",
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 1,
         borderColor: "#ffffff14",
-        borderRadius: 999,
+        borderRadius: 8,
     },
     choiceLabel: {
         color: "#ccd9d5ff",
@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
         backgroundColor: "#B4CECC",
         paddingHorizontal: 18,
         paddingVertical: 10,
-        borderRadius: 999,
+        borderRadius: 8,
     },
     skipBtnText: {
         color: "#2b2b2bff",
@@ -105,24 +105,56 @@ export const styles = StyleSheet.create({
         fontWeight: "600"
     },
 
+    predictionSheetHeader: {
+    width: "100%",
+    position: "relative", 
+    marginBottom: 16,
+    alignItems: "center",
+    pointerEvents: "box-none",
+},
+    predictionSheet: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#ccd9d5ff", 
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 32,
+    zIndex: 50,
+    elevation: 10,
+},
+
+predictionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2b2b2bff",
+    textAlign: "center",
+    marginBottom: 16,
+},
+
+
+
     // Bottom Sheet Styles    
     bottomSheet: {
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "rgba(29, 31, 31, 0.85)", // ← semi-transparent white
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
+        backgroundColor: "rgba(29, 31, 31, 0.90)",
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
         paddingTop: 10,
         paddingBottom: 40,
-        alignItems: "center",
         shadowColor: "#000",
         shadowOpacity: 0.25,
         shadowOffset: { width: 0, height: -3 },
         shadowRadius: 6,
         elevation: 10,
         zIndex: 10,
+        overflow: "hidden",
     },
 
     sheetHeader: {
@@ -130,13 +162,15 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
+        zIndex: 20,
+
     },
 
     sheetHandle: {
         width: 60,
         height: 5,
         backgroundColor: "#ccc",
-        borderRadius: 3,
+        borderRadius: 2,
         marginVertical: 10,
     },
 
@@ -144,17 +178,22 @@ export const styles = StyleSheet.create({
         position: "absolute",
         right: 20,
         top: 0,
-        padding: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        zIndex: 21,
+        backgroundColor: "rgba(0,0,0,0.15)",
+        borderRadius: 6,
     },
 
     sheetCloseIcon: {
-        fontSize: 18,
-        color: "#ccc",
+        fontSize: 20,
+        color: "#f5f5f5",
+        fontWeight: "800",
     },
 
     infoCard: {
         backgroundColor: "rgba(254, 237, 186, 0.7)",
-        borderRadius: 20,
+        borderRadius: 8,
         padding: 15,
         marginTop: 20,
     },
@@ -300,6 +339,14 @@ export const styles = StyleSheet.create({
         fontWeight: "800",
         lineHeight: 20,
     },
+
+    coinTitle: {
+    fontWeight: "600",
+    fontSize: 25,
+    color: "#e7e3e3",
+    textAlign: "center",
+    marginBottom: 12, 
+},
 
     
 });
