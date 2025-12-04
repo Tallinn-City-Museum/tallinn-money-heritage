@@ -113,8 +113,8 @@ export default function Flipper() {
 
     const hydrateCoin = (base: Coin, materialOverride?: string): WalletCoin => {
         const diameterMm =
-            base.diameterMm !== undefined
-                ? Number(base.diameterMm)
+            base.diameter !== undefined
+                ? Number(base.diameter)
                 : (base as any).diameter !== undefined
                     ? Number((base as any).diameter)
                     : 25.4;
@@ -141,7 +141,7 @@ export default function Flipper() {
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
 
         setCoin(hydrated);
-        setCoinSize((160 * hydrated.diameterMm) / 25.4);
+        setCoinSize((160 * hydrated.diameter) / 25.4);
     };
 
 
@@ -488,7 +488,7 @@ export default function Flipper() {
 
             const nextSide = coinSide === CoinSide.HEADS ? CoinSide.TAILS : CoinSide.HEADS;
             setCoinSide(nextSide);
-            //setLastResult(nextSide);
+            setLastResult(nextSide);
             setResultSource("manual"); // hide prediction verdict in BottomArea
 
 
@@ -741,7 +741,7 @@ export default function Flipper() {
             nominal: pendingNominal === "Kõik" ? (hydrated as any).nominal : pendingNominal,
             nameTag: pendingName === "Kõik" ? (hydrated as any).nameTag : pendingName,
         });
-        setCoinSize((160 * hydrated.diameterMm) / 25.4);
+        setCoinSize((160 * hydrated.diameter) / 25.4);
     };
 
     const closeMaterialSheet = () => {
@@ -1232,9 +1232,9 @@ const FilterLanding = ({ showPrompt, onRandom, onRefine }: FilterLandingProps) =
     <View style={filterStyles.wrap}>
         {showPrompt && (
             <View style={filterStyles.card}>
-                <Text style={filterStyles.title}>Vali, kuidas m€¬nti otsida</Text>
+                <Text style={filterStyles.title}>Vali, kuidas münti otsida</Text>
                 <Text style={filterStyles.subtitle}>
-                    Kas soovid kohe juhuslikku m€¬nti v€æi kitsendada valikut filtritega?
+                    Kas soovid kohe juhuslikku münti v€æi kitsendada valikut filtritega?
                 </Text>
                 <TouchableOpacity style={filterStyles.primaryBtn} onPress={onRandom} accessibilityRole="button">
                     <Text style={filterStyles.primaryLabel}>Juhuslik m€¬nt</Text>
