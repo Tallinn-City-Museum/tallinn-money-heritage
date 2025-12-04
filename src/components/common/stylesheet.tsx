@@ -136,7 +136,6 @@ predictionTitle: {
 },
 
 
-
     // Bottom Sheet Styles    
     bottomSheet: {
         position: "absolute",
@@ -347,7 +346,7 @@ predictionTitle: {
     textAlign: "center",
     marginBottom: 12, 
 },
-
+    
     
 });
 

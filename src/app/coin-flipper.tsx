@@ -196,7 +196,7 @@ export default function Flipper() {
     }, [coin?.material]);
 
     useEffect(() => {
-        const country = coin?.country ?? "Kõik";
+        const country = coin?.region ?? "Kõik";
         setPendingCountry(country);
         setCountryStats((prev) => {
             if (prev.some((c) => c.key === country)) return prev;
@@ -209,7 +209,7 @@ export default function Flipper() {
                 },
             ];
         });
-    }, [coin?.country]);
+    }, [coin?.region]);
 
 
     // prediction dialog
@@ -737,7 +737,7 @@ export default function Flipper() {
         );
         setCoin({
             ...hydrated,
-            country: pendingCountry === "Kõik" ? hydrated.country ?? "Kõik" : pendingCountry,
+            region: pendingCountry === "Kõik" ? hydrated.region ?? "Kõik" : pendingCountry,
             nominal: pendingNominal === "Kõik" ? (hydrated as any).nominal : pendingNominal,
             nameTag: pendingName === "Kõik" ? (hydrated as any).nameTag : pendingName,
         });
@@ -1023,8 +1023,8 @@ export default function Flipper() {
               }}
             >
               <Text style={styles.coinTitle}>
-                {coin?.title
-                  ? coin.title.charAt(0).toUpperCase() + coin.title.slice(1)
+                {coin?.name
+                  ? coin.name.charAt(0).toUpperCase() + coin.name.slice(1)
                   : ""}
               </Text>
 
