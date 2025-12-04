@@ -94,7 +94,7 @@ export default function HomeScreen() {
           {/* Page 2 */}
           <View style={[indexStyles.pageBase, indexStyles.page2]}>
             <Text style={[indexStyles.titleText, indexStyles.titleTextSecond]}>
-              Kull või kiri – juhuse võim
+              Kull või kiri - juhuse võim
             </Text>
             <Text style={indexStyles.bodyText}>
               Mündiviske tava ulatub antiikaega. Roomlased otsustasid „laev või
