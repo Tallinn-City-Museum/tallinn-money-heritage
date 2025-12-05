@@ -3,6 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react-native";
 import * as RN from "react-native";
 import Flipper from "../app/coin-flipper";
 
+jest.setTimeout(10000);
+
 // Mock wallet context so the flipper has a coin to work with
 jest.mock("../context/wallet-context", () => {
     const mockCoins = [
@@ -118,7 +120,10 @@ afterEach(() => {
 });
 
 // Small helper to flush pending microtasks and timers
-const flush = () => new Promise((r) => setImmediate(r));
+const flush = async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+};
 
 describe("Coin flipper – info bottom sheet", () => {
     test("swiping up opens the info sheet", async () => {

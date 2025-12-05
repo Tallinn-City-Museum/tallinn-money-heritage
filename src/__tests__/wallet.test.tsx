@@ -39,7 +39,10 @@ const mockPanCreateImpl = (cfg: any) => ({
 
 let panCreateSpy: jest.SpyInstance;
 
-const flush = () => new Promise((r) => setImmediate(r));
+const flush = async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+};
 
 beforeEach(() => {
     jest.clearAllMocks();

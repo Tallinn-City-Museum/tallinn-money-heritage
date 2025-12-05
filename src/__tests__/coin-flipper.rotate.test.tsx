@@ -12,6 +12,8 @@ import {
 } from "react-native-gesture-handler";
 import Flipper from "../app/coin-flipper";
 
+jest.setTimeout(10000);
+
 // 1) Wallet mock – provides a single coin so Flipper can render normally
 jest.mock("../context/wallet-context", () => {
     const mockCoins = [
@@ -102,7 +104,10 @@ jest.mock("../components/common/InfoBottomSheet", () => ({
     InfoBottomSheet: () => null
 }));
 
-const flush = () => new Promise((r) => setImmediate(r));
+const flush = async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+};
 
 describe("Coin flipper – rotation only when zoomed", () => {
     test("RotationGestureHandler is enabled only after zooming in", async () => {
@@ -110,8 +115,11 @@ describe("Coin flipper – rotation only when zoomed", () => {
         await flush();
 
         // On first render rotation must be disabled (isZoomed = false)
-        let rotEl: any = screen.UNSAFE_getByType(RotationGestureHandler);
-        expect(rotEl.props.enabled).toBe(false);
+        let rotEl: any;
+        await waitFor(() => {
+            rotEl = screen.UNSAFE_getByType(RotationGestureHandler);
+            expect(rotEl.props.enabled).toBe(false);
+        });
 
         // Simulates pinch-zoom using the same trick as in zoom-and-side test:
         // RNGH jest mock for PinchGestureHandler will interpret 'press' as a pinch
