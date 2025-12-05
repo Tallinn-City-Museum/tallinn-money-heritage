@@ -26,8 +26,8 @@ export class CoinService {
 
         const coin = (await coinMeta2byId({id: `${idx}`})).data.coinMetas2s[0]
 
-        const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
-        const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
+        const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
+        const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
 
         // Pre-fetch images
         await Image.prefetch(headsURL)
