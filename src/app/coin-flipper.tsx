@@ -109,6 +109,8 @@ export default function Flipper() {
     ]);
     const [pendingName, setPendingName] = useState<string>("Kõik");
 
+    const [showTitle, setShowTitle] = useState(false);
+
     const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
             base.diameter !== undefined
@@ -134,6 +136,8 @@ export default function Flipper() {
         setCoin(null);
         setLastResult(null);
         setPendingPrediction(null);
+        setShowTitle(false);
+
         const generatedCoin = await coinService.generateNewCoin();
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
 
@@ -151,6 +155,8 @@ export default function Flipper() {
         const fromWallet = coins.find((c) => String(c.id) === String(coinIdParam));
         if (fromWallet) {
             setCoin(fromWallet);
+            setLastResult(null);
+            setShowTitle(false);
 
             // diameterMm can be string/number or absent; coerce safely to number
             const diameterMm =
@@ -533,6 +539,10 @@ export default function Flipper() {
             setCoinSide(finalSide);
             setLastResult(finalSide);
             setResultSource("flip");
+
+            if (pendingPredictionRef.current !== null) {
+                setShowTitle(true);
+            }
 
             const alreadyInWallet = coins.some((c) => c.id === coin?.id);
             if (!alreadyInWallet && coin !== null) {
@@ -933,7 +943,7 @@ export default function Flipper() {
             {!isFilterPage && coin === null && <ActivityIndicator size={64} />}
             {!isFilterPage && coin !== null && (
                 <>
-                    {lastResult !== null && !isFilterPage && (
+                    {showTitle && !isFilterPage && (
                         <Animated.View
                             pointerEvents="box-none"
                             style={{
