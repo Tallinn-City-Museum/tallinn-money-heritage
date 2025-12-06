@@ -1,6 +1,14 @@
 import { getDataConnect } from "firebase/data-connect"
 import { Coin } from "../data/entity/coin"
-import { connectorConfig, coinCount, coinById, coinMeta2count, coinMeta2byId } from '@dataconnect/generated'
+import {
+    connectorConfig,
+    coinMeta2count,
+    coinMeta2byId,
+    materialStats,
+    regionStats,
+    nominalStats,
+    nameStats
+} from '@dataconnect/generated'
 import { app  } from "../config"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Image } from "react-native"
@@ -82,74 +90,64 @@ export class CoinStatsService {
         if (this.materials !== undefined)
             return this.materials;
 
-        // TODO: Perform an actual dataconnect query
-        return [
-            { key: "Kõik", label: "Kõik", count: 24 },
-            { key: "Hõbe", label: "Hõbe", count: 12 },
-            { key: "Kuld", label: "Kuld", count: 8 },
-            { key: "Vask", label: "Vask", count: 10 },
-            { key: "Pronks", label: "Pronks", count: 7 },
-            { key: "Nikkel", label: "Nikkel", count: 6 },
-            { key: "Messing", label: "Messing", count: 5 },
-            { key: "Tina", label: "Tina", count: 4 },
-            { key: "Raud", label: "Raud", count: 4 },
-            { key: "Alumiinium", label: "Alumiinium", count: 3 },
-            { key: "Plii", label: "Plii", count: 3 },
-            { key: "Tsingi sulam", label: "Tsingi sulam", count: 2 },
-            { key: "Terassulam", label: "Terassulam", count: 2 },
-        ];
+        this.materials = []
+        let res = (await materialStats()).data.coinMetas2s;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].material != undefined)
+                this.materials.push({ key: res[i].material ?? "", label: res[i].material ?? "", count: res[i]._count });
+        }
+
+        this.materials.push({key: "Kõik", label: "Kõik", count: this.materials.reduce((a, b) => a + b.count, 0)})
+
+        return this.materials;
     }
 
     public async getCountryStats() : Promise<CountryStat[]> {
         if (this.countries !== undefined)
             return this.countries;
 
-        // TODO: Perform an actual dataconnect query
-        return [
-            { key: "Eesti", label: "Eesti", count: 6 },
-            { key: "Venemaa", label: "Venemaa", count: 8 },
-            { key: "Saksamaa", label: "Saksamaa", count: 4 },
-            { key: "Rootsi", label: "Rootsi", count: 5 },
-            { key: "Soome", label: "Soome", count: 4 },
-            { key: "Läti", label: "Läti", count: 3 },
-            { key: "Leedu", label: "Leedu", count: 3 },
-            { key: "Poola", label: "Poola", count: 4 },
-            { key: "Ukraina", label: "Ukraina", count: 3 },
-            { key: "Taani", label: "Taani", count: 2 },
-            { key: "Norra", label: "Norra", count: 2 },
-            { key: "Hispaania", label: "Hispaania", count: 2 },
-            { key: "Itaalia", label: "Itaalia", count: 2 },
-        ];
+        this.countries = []
+        let res = (await regionStats()).data.coinMetas2s;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].region != undefined)
+                this.countries.push({ key: res[i].region ?? "", label: res[i].region ?? "", count: res[i]._count });
+        }
+
+        this.countries.push({key: "Kõik", label: "Kõik", count: this.countries.reduce((a, b) => a + b.count, 0)})
+
+        return this.countries;
     }
 
     public async getNominalStats() : Promise<NominalStat[]> {
         if (this.nominals !== undefined)
             return this.nominals;
 
-        // TODO: Perform an actual dataconnect query
-        return [
-            { key: "Kõik", label: "Kõik", count: 20 },
-            { key: "1", label: "1", count: 8 },
-            { key: "1/2", label: "1/2", count: 5 },
-            { key: "2", label: "2", count: 3 },
-            { key: "5", label: "5", count: 1 },
-        ];
+        this.nominals = []
+        let res = (await nominalStats()).data.coinMetas2s;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].nomValue != undefined)
+                this.nominals.push({ key: res[i].nomValue ?? "", label: res[i].nomValue ?? "", count: res[i]._count });
+        }
+
+        this.nominals.push({key: "Kõik", label: "Kõik", count: this.nominals.reduce((a, b) => a + b.count, 0)})
+
+        return this.nominals;
     }
 
     public async getNameStats() : Promise<NameStat[]> {
         if (this.names !== undefined)
             return this.names;
 
-        // TODO: Perform an actual dataconnect query
-        return [
-            { key: "Kõik", label: "Kõik", count: 24 },
-            { key: "Kopikat", label: "Kopikat", count: 9 },
-            { key: "Kroon", label: "Kroon", count: 6 },
-            { key: "Rubla", label: "Rubla", count: 5 },
-            { key: "Penn", label: "Penn", count: 4 },
-            { key: "Denaar", label: "Denaar", count: 3 },
-            { key: "Fennig", label: "Fennig", count: 2 },
-        ];
+        this.names = []
+        let res = (await nameStats()).data.coinMetas2s;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].lemmaName != undefined)
+                this.names.push({ key: res[i].lemmaName ?? "", label: res[i].lemmaName ?? "", count: res[i]._count });
+        }
+
+        this.names.push({key: "Kõik", label: "Kõik", count: this.names.reduce((a, b) => a + b.count, 0)})
+
+        return this.names;
     }
 }
 
