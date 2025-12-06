@@ -1,0 +1,27 @@
+query MaterialStats @auth(level: PUBLIC) {
+    coinMetas2s {
+        material
+        _count
+    }
+}
+
+query RegionStats @auth(level: PUBLIC) {
+    coinMetas2s {
+        region
+        _count
+    }
+}
+
+query NominalStats @auth(level: PUBLIC) {
+    coinMetas2s {
+        nomValue
+        _count
+    }
+}
+
+query NameStats @auth(level: PUBLIC) {
+    coinMetas2s {
+        lemmaName
+        _count
+    }
+}
