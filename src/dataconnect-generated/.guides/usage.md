@@ -12,16 +12,24 @@ For each operation, there is a wrapper hook that can be used to call the operati
 
 Here are all of the hooks that get generated:
 ```ts
-import { useCoinMeta2count, useCoinCount, useCoinMeta2byId, useCoinById } from '@dataconnect/generated/react';
+import { useMaterialStats, useRegionStats, useNominalStats, useNameStats, useCoinMeta2byId, useCoinById, useCoinMeta2count, useCoinCount } from '@dataconnect/generated/react';
 // The types of these hooks are available in react/index.d.ts
 
-const { data, isPending, isSuccess, isError, error } = useCoinMeta2count();
+const { data, isPending, isSuccess, isError, error } = useMaterialStats();
 
-const { data, isPending, isSuccess, isError, error } = useCoinCount();
+const { data, isPending, isSuccess, isError, error } = useRegionStats();
+
+const { data, isPending, isSuccess, isError, error } = useNominalStats();
+
+const { data, isPending, isSuccess, isError, error } = useNameStats();
 
 const { data, isPending, isSuccess, isError, error } = useCoinMeta2byId(coinMeta2byIdVars);
 
 const { data, isPending, isSuccess, isError, error } = useCoinById(coinByIdVars);
+
+const { data, isPending, isSuccess, isError, error } = useCoinMeta2count();
+
+const { data, isPending, isSuccess, isError, error } = useCoinCount();
 
 ```
 
@@ -60,20 +68,32 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { coinMeta2count, coinCount, coinMeta2byId, coinById } from '@dataconnect/generated';
+import { materialStats, regionStats, nominalStats, nameStats, coinMeta2byId, coinById, coinMeta2count, coinCount } from '@dataconnect/generated';
 
 
-// Operation CoinMeta2Count: 
-const { data } = await CoinMeta2count(dataConnect);
+// Operation MaterialStats: 
+const { data } = await MaterialStats(dataConnect);
 
-// Operation CoinCount: 
-const { data } = await CoinCount(dataConnect);
+// Operation RegionStats: 
+const { data } = await RegionStats(dataConnect);
+
+// Operation NominalStats: 
+const { data } = await NominalStats(dataConnect);
+
+// Operation NameStats: 
+const { data } = await NameStats(dataConnect);
 
 // Operation CoinMeta2ById:  For variables, look at type CoinMeta2byIdVars in ../index.d.ts
 const { data } = await CoinMeta2byId(dataConnect, coinMeta2byIdVars);
 
 // Operation CoinById:  For variables, look at type CoinByIdVars in ../index.d.ts
 const { data } = await CoinById(dataConnect, coinByIdVars);
+
+// Operation CoinMeta2Count: 
+const { data } = await CoinMeta2count(dataConnect);
+
+// Operation CoinCount: 
+const { data } = await CoinCount(dataConnect);
 
 
 ```

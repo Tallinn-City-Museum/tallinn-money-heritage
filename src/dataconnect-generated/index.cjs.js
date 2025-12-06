@@ -7,28 +7,52 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
-const coinMeta2countRef = (dc) => {
+const materialStatsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinMeta2Count');
+  return queryRef(dcInstance, 'MaterialStats');
 }
-coinMeta2countRef.operationName = 'CoinMeta2Count';
-exports.coinMeta2countRef = coinMeta2countRef;
+materialStatsRef.operationName = 'MaterialStats';
+exports.materialStatsRef = materialStatsRef;
 
-exports.coinMeta2count = function coinMeta2count(dc) {
-  return executeQuery(coinMeta2countRef(dc));
+exports.materialStats = function materialStats(dc) {
+  return executeQuery(materialStatsRef(dc));
 };
 
-const coinCountRef = (dc) => {
+const regionStatsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinCount');
+  return queryRef(dcInstance, 'RegionStats');
 }
-coinCountRef.operationName = 'CoinCount';
-exports.coinCountRef = coinCountRef;
+regionStatsRef.operationName = 'RegionStats';
+exports.regionStatsRef = regionStatsRef;
 
-exports.coinCount = function coinCount(dc) {
-  return executeQuery(coinCountRef(dc));
+exports.regionStats = function regionStats(dc) {
+  return executeQuery(regionStatsRef(dc));
+};
+
+const nominalStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'NominalStats');
+}
+nominalStatsRef.operationName = 'NominalStats';
+exports.nominalStatsRef = nominalStatsRef;
+
+exports.nominalStats = function nominalStats(dc) {
+  return executeQuery(nominalStatsRef(dc));
+};
+
+const nameStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'NameStats');
+}
+nameStatsRef.operationName = 'NameStats';
+exports.nameStatsRef = nameStatsRef;
+
+exports.nameStats = function nameStats(dc) {
+  return executeQuery(nameStatsRef(dc));
 };
 
 const coinMeta2byIdRef = (dcOrVars, vars) => {
@@ -53,4 +77,28 @@ exports.coinByIdRef = coinByIdRef;
 
 exports.coinById = function coinById(dcOrVars, vars) {
   return executeQuery(coinByIdRef(dcOrVars, vars));
+};
+
+const coinMeta2countRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinMeta2Count');
+}
+coinMeta2countRef.operationName = 'CoinMeta2Count';
+exports.coinMeta2countRef = coinMeta2countRef;
+
+exports.coinMeta2count = function coinMeta2count(dc) {
+  return executeQuery(coinMeta2countRef(dc));
+};
+
+const coinCountRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinCount');
+}
+coinCountRef.operationName = 'CoinCount';
+exports.coinCountRef = coinCountRef;
+
+exports.coinCount = function coinCount(dc) {
+  return executeQuery(coinCountRef(dc));
 };

@@ -10,10 +10,14 @@ This README will guide you through the process of using the generated JavaScript
 - [**Accessing the connector**](#accessing-the-connector)
   - [*Connecting to the local Emulator*](#connecting-to-the-local-emulator)
 - [**Queries**](#queries)
-  - [*CoinMeta2Count*](#coinmeta2count)
-  - [*CoinCount*](#coincount)
+  - [*MaterialStats*](#materialstats)
+  - [*RegionStats*](#regionstats)
+  - [*NominalStats*](#nominalstats)
+  - [*NameStats*](#namestats)
   - [*CoinMeta2ById*](#coinmeta2byid)
   - [*CoinById*](#coinbyid)
+  - [*CoinMeta2Count*](#coinmeta2count)
+  - [*CoinCount*](#coincount)
 - [**Mutations**](#mutations)
 
 # Accessing the connector
@@ -61,189 +65,379 @@ The following is true for both the action shortcut function and the `QueryRef` f
 
 Below are examples of how to use the `example` connector's generated functions to execute each query. You can also follow the examples from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#using-queries).
 
-## CoinMeta2Count
-You can execute the `CoinMeta2Count` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+## MaterialStats
+You can execute the `MaterialStats` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-coinMeta2count(): QueryPromise<CoinMeta2countData, undefined>;
+materialStats(): QueryPromise<MaterialStatsData, undefined>;
 
-interface CoinMeta2countRef {
+interface MaterialStatsRef {
   ...
   /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<CoinMeta2countData, undefined>;
+  (): QueryRef<MaterialStatsData, undefined>;
 }
-export const coinMeta2countRef: CoinMeta2countRef;
+export const materialStatsRef: MaterialStatsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-coinMeta2count(dc: DataConnect): QueryPromise<CoinMeta2countData, undefined>;
+materialStats(dc: DataConnect): QueryPromise<MaterialStatsData, undefined>;
 
-interface CoinMeta2countRef {
+interface MaterialStatsRef {
   ...
-  (dc: DataConnect): QueryRef<CoinMeta2countData, undefined>;
+  (dc: DataConnect): QueryRef<MaterialStatsData, undefined>;
 }
-export const coinMeta2countRef: CoinMeta2countRef;
+export const materialStatsRef: MaterialStatsRef;
 ```
 
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the coinMeta2countRef:
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the materialStatsRef:
 ```typescript
-const name = coinMeta2countRef.operationName;
+const name = materialStatsRef.operationName;
 console.log(name);
 ```
 
 ### Variables
-The `CoinMeta2Count` query has no variables.
+The `MaterialStats` query has no variables.
 ### Return Type
-Recall that executing the `CoinMeta2Count` query returns a `QueryPromise` that resolves to an object with a `data` property.
+Recall that executing the `MaterialStats` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
-The `data` property is an object of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+The `data` property is an object of type `MaterialStatsData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
-export interface CoinMeta2countData {
-  coinMetas2?: {
-    id_count: number;
-  };
+export interface MaterialStatsData {
+  coinMetas2s: ({
+    material?: string | null;
+    _count: number;
+  })[];
 }
 ```
-### Using `CoinMeta2Count`'s action shortcut function
+### Using `MaterialStats`'s action shortcut function
 
 ```typescript
 import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, coinMeta2count } from '@dataconnect/generated';
+import { connectorConfig, materialStats } from '@dataconnect/generated';
 
 
-// Call the `coinMeta2count()` function to execute the query.
+// Call the `materialStats()` function to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await coinMeta2count();
+const { data } = await materialStats();
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
-const { data } = await coinMeta2count(dataConnect);
+const { data } = await materialStats(dataConnect);
 
-console.log(data.coinMetas2);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
-coinMeta2count().then((response) => {
+materialStats().then((response) => {
   const data = response.data;
-  console.log(data.coinMetas2);
+  console.log(data.coinMetas2s);
 });
 ```
 
-### Using `CoinMeta2Count`'s `QueryRef` function
+### Using `MaterialStats`'s `QueryRef` function
 
 ```typescript
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
-import { connectorConfig, coinMeta2countRef } from '@dataconnect/generated';
+import { connectorConfig, materialStatsRef } from '@dataconnect/generated';
 
 
-// Call the `coinMeta2countRef()` function to get a reference to the query.
-const ref = coinMeta2countRef();
+// Call the `materialStatsRef()` function to get a reference to the query.
+const ref = materialStatsRef();
 
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
-const ref = coinMeta2countRef(dataConnect);
+const ref = materialStatsRef(dataConnect);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.coinMetas2);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.coinMetas2);
+  console.log(data.coinMetas2s);
 });
 ```
 
-## CoinCount
-You can execute the `CoinCount` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+## RegionStats
+You can execute the `RegionStats` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-coinCount(): QueryPromise<CoinCountData, undefined>;
+regionStats(): QueryPromise<RegionStatsData, undefined>;
 
-interface CoinCountRef {
+interface RegionStatsRef {
   ...
   /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<CoinCountData, undefined>;
+  (): QueryRef<RegionStatsData, undefined>;
 }
-export const coinCountRef: CoinCountRef;
+export const regionStatsRef: RegionStatsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-coinCount(dc: DataConnect): QueryPromise<CoinCountData, undefined>;
+regionStats(dc: DataConnect): QueryPromise<RegionStatsData, undefined>;
 
-interface CoinCountRef {
+interface RegionStatsRef {
   ...
-  (dc: DataConnect): QueryRef<CoinCountData, undefined>;
+  (dc: DataConnect): QueryRef<RegionStatsData, undefined>;
 }
-export const coinCountRef: CoinCountRef;
+export const regionStatsRef: RegionStatsRef;
 ```
 
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the coinCountRef:
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the regionStatsRef:
 ```typescript
-const name = coinCountRef.operationName;
+const name = regionStatsRef.operationName;
 console.log(name);
 ```
 
 ### Variables
-The `CoinCount` query has no variables.
+The `RegionStats` query has no variables.
 ### Return Type
-Recall that executing the `CoinCount` query returns a `QueryPromise` that resolves to an object with a `data` property.
+Recall that executing the `RegionStats` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
-The `data` property is an object of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+The `data` property is an object of type `RegionStatsData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
-export interface CoinCountData {
-  coinMeta?: {
-    id_count: number;
-  };
+export interface RegionStatsData {
+  coinMetas2s: ({
+    region?: string | null;
+    _count: number;
+  })[];
 }
 ```
-### Using `CoinCount`'s action shortcut function
+### Using `RegionStats`'s action shortcut function
 
 ```typescript
 import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, coinCount } from '@dataconnect/generated';
+import { connectorConfig, regionStats } from '@dataconnect/generated';
 
 
-// Call the `coinCount()` function to execute the query.
+// Call the `regionStats()` function to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await coinCount();
+const { data } = await regionStats();
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
-const { data } = await coinCount(dataConnect);
+const { data } = await regionStats(dataConnect);
 
-console.log(data.coinMeta);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
-coinCount().then((response) => {
+regionStats().then((response) => {
   const data = response.data;
-  console.log(data.coinMeta);
+  console.log(data.coinMetas2s);
 });
 ```
 
-### Using `CoinCount`'s `QueryRef` function
+### Using `RegionStats`'s `QueryRef` function
 
 ```typescript
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
-import { connectorConfig, coinCountRef } from '@dataconnect/generated';
+import { connectorConfig, regionStatsRef } from '@dataconnect/generated';
 
 
-// Call the `coinCountRef()` function to get a reference to the query.
-const ref = coinCountRef();
+// Call the `regionStatsRef()` function to get a reference to the query.
+const ref = regionStatsRef();
 
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
-const ref = coinCountRef(dataConnect);
+const ref = regionStatsRef(dataConnect);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.coinMeta);
+console.log(data.coinMetas2s);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.coinMeta);
+  console.log(data.coinMetas2s);
+});
+```
+
+## NominalStats
+You can execute the `NominalStats` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+nominalStats(): QueryPromise<NominalStatsData, undefined>;
+
+interface NominalStatsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<NominalStatsData, undefined>;
+}
+export const nominalStatsRef: NominalStatsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+nominalStats(dc: DataConnect): QueryPromise<NominalStatsData, undefined>;
+
+interface NominalStatsRef {
+  ...
+  (dc: DataConnect): QueryRef<NominalStatsData, undefined>;
+}
+export const nominalStatsRef: NominalStatsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the nominalStatsRef:
+```typescript
+const name = nominalStatsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `NominalStats` query has no variables.
+### Return Type
+Recall that executing the `NominalStats` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `NominalStatsData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface NominalStatsData {
+  coinMetas2s: ({
+    nomValue?: string | null;
+    _count: number;
+  })[];
+}
+```
+### Using `NominalStats`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, nominalStats } from '@dataconnect/generated';
+
+
+// Call the `nominalStats()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await nominalStats();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await nominalStats(dataConnect);
+
+console.log(data.coinMetas2s);
+
+// Or, you can use the `Promise` API.
+nominalStats().then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2s);
+});
+```
+
+### Using `NominalStats`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, nominalStatsRef } from '@dataconnect/generated';
+
+
+// Call the `nominalStatsRef()` function to get a reference to the query.
+const ref = nominalStatsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = nominalStatsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.coinMetas2s);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2s);
+});
+```
+
+## NameStats
+You can execute the `NameStats` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+nameStats(): QueryPromise<NameStatsData, undefined>;
+
+interface NameStatsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<NameStatsData, undefined>;
+}
+export const nameStatsRef: NameStatsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+nameStats(dc: DataConnect): QueryPromise<NameStatsData, undefined>;
+
+interface NameStatsRef {
+  ...
+  (dc: DataConnect): QueryRef<NameStatsData, undefined>;
+}
+export const nameStatsRef: NameStatsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the nameStatsRef:
+```typescript
+const name = nameStatsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `NameStats` query has no variables.
+### Return Type
+Recall that executing the `NameStats` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `NameStatsData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface NameStatsData {
+  coinMetas2s: ({
+    lemmaName?: string | null;
+    _count: number;
+  })[];
+}
+```
+### Using `NameStats`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, nameStats } from '@dataconnect/generated';
+
+
+// Call the `nameStats()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await nameStats();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await nameStats(dataConnect);
+
+console.log(data.coinMetas2s);
+
+// Or, you can use the `Promise` API.
+nameStats().then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2s);
+});
+```
+
+### Using `NameStats`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, nameStatsRef } from '@dataconnect/generated';
+
+
+// Call the `nameStatsRef()` function to get a reference to the query.
+const ref = nameStatsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = nameStatsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.coinMetas2s);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2s);
 });
 ```
 
@@ -480,6 +674,192 @@ console.log(data.coinMetas);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.coinMetas);
+});
+```
+
+## CoinMeta2Count
+You can execute the `CoinMeta2Count` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+coinMeta2count(): QueryPromise<CoinMeta2countData, undefined>;
+
+interface CoinMeta2countRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<CoinMeta2countData, undefined>;
+}
+export const coinMeta2countRef: CoinMeta2countRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+coinMeta2count(dc: DataConnect): QueryPromise<CoinMeta2countData, undefined>;
+
+interface CoinMeta2countRef {
+  ...
+  (dc: DataConnect): QueryRef<CoinMeta2countData, undefined>;
+}
+export const coinMeta2countRef: CoinMeta2countRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the coinMeta2countRef:
+```typescript
+const name = coinMeta2countRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CoinMeta2Count` query has no variables.
+### Return Type
+Recall that executing the `CoinMeta2Count` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CoinMeta2countData {
+  coinMetas2?: {
+    id_count: number;
+  };
+}
+```
+### Using `CoinMeta2Count`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, coinMeta2count } from '@dataconnect/generated';
+
+
+// Call the `coinMeta2count()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await coinMeta2count();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await coinMeta2count(dataConnect);
+
+console.log(data.coinMetas2);
+
+// Or, you can use the `Promise` API.
+coinMeta2count().then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2);
+});
+```
+
+### Using `CoinMeta2Count`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, coinMeta2countRef } from '@dataconnect/generated';
+
+
+// Call the `coinMeta2countRef()` function to get a reference to the query.
+const ref = coinMeta2countRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = coinMeta2countRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.coinMetas2);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.coinMetas2);
+});
+```
+
+## CoinCount
+You can execute the `CoinCount` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+coinCount(): QueryPromise<CoinCountData, undefined>;
+
+interface CoinCountRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<CoinCountData, undefined>;
+}
+export const coinCountRef: CoinCountRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+coinCount(dc: DataConnect): QueryPromise<CoinCountData, undefined>;
+
+interface CoinCountRef {
+  ...
+  (dc: DataConnect): QueryRef<CoinCountData, undefined>;
+}
+export const coinCountRef: CoinCountRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the coinCountRef:
+```typescript
+const name = coinCountRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CoinCount` query has no variables.
+### Return Type
+Recall that executing the `CoinCount` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CoinCountData {
+  coinMeta?: {
+    id_count: number;
+  };
+}
+```
+### Using `CoinCount`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, coinCount } from '@dataconnect/generated';
+
+
+// Call the `coinCount()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await coinCount();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await coinCount(dataConnect);
+
+console.log(data.coinMeta);
+
+// Or, you can use the `Promise` API.
+coinCount().then((response) => {
+  const data = response.data;
+  console.log(data.coinMeta);
+});
+```
+
+### Using `CoinCount`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, coinCountRef } from '@dataconnect/generated';
+
+
+// Call the `coinCountRef()` function to get a reference to the query.
+const ref = coinCountRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = coinCountRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.coinMeta);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.coinMeta);
 });
 ```
 

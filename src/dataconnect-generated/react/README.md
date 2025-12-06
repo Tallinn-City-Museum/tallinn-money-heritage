@@ -17,10 +17,14 @@ You can also follow the instructions from the [Data Connect documentation](https
 - [**Accessing the connector**](#accessing-the-connector)
   - [*Connecting to the local Emulator*](#connecting-to-the-local-emulator)
 - [**Queries**](#queries)
-  - [*CoinMeta2Count*](#coinmeta2count)
-  - [*CoinCount*](#coincount)
+  - [*MaterialStats*](#materialstats)
+  - [*RegionStats*](#regionstats)
+  - [*NominalStats*](#nominalstats)
+  - [*NameStats*](#namestats)
   - [*CoinMeta2ById*](#coinmeta2byid)
   - [*CoinById*](#coinbyid)
+  - [*CoinMeta2Count*](#coinmeta2count)
+  - [*CoinCount*](#coincount)
 - [**Mutations**](#mutations)
 
 # TanStack Query Firebase & TanStack React Query
@@ -113,59 +117,60 @@ Here's a general overview of how to use the generated Query hooks in your code:
 
 Below are examples of how to use the `example` connector's generated Query hook functions to execute each Query. You can also follow the examples from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#operations-react-angular).
 
-## CoinMeta2Count
-You can execute the `CoinMeta2Count` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+## MaterialStats
+You can execute the `MaterialStats` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
 
 ```javascript
-useCoinMeta2count(dc: DataConnect, options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+useMaterialStats(dc: DataConnect, options?: useDataConnectQueryOptions<MaterialStatsData>): UseDataConnectQueryResult<MaterialStatsData, undefined>;
 ```
 You can also pass in a `DataConnect` instance to the Query hook function.
 ```javascript
-useCoinMeta2count(options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+useMaterialStats(options?: useDataConnectQueryOptions<MaterialStatsData>): UseDataConnectQueryResult<MaterialStatsData, undefined>;
 ```
 
 ### Variables
-The `CoinMeta2Count` Query has no variables.
+The `MaterialStats` Query has no variables.
 ### Return Type
-Recall that calling the `CoinMeta2Count` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+Recall that calling the `MaterialStats` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
 
 To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
 
-To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2Count` Query is of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `MaterialStats` Query is of type `MaterialStatsData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
-export interface CoinMeta2countData {
-  coinMetas2?: {
-    id_count: number;
-  };
+export interface MaterialStatsData {
+  coinMetas2s: ({
+    material?: string | null;
+    _count: number;
+  })[];
 }
 ```
 
 To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
 
-### Using `CoinMeta2Count`'s Query hook function
+### Using `MaterialStats`'s Query hook function
 
 ```javascript
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@dataconnect/generated';
-import { useCoinMeta2count } from '@dataconnect/generated/react'
+import { useMaterialStats } from '@dataconnect/generated/react'
 
-export default function CoinMeta2countComponent() {
+export default function MaterialStatsComponent() {
   // You don't have to do anything to "execute" the Query.
   // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
-  const query = useCoinMeta2count();
+  const query = useMaterialStats();
 
   // You can also pass in a `DataConnect` instance to the Query hook function.
   const dataConnect = getDataConnect(connectorConfig);
-  const query = useCoinMeta2count(dataConnect);
+  const query = useMaterialStats(dataConnect);
 
   // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2count(options);
+  const query = useMaterialStats(options);
 
   // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2count(dataConnect, options);
+  const query = useMaterialStats(dataConnect, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -178,65 +183,66 @@ export default function CoinMeta2countComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMetas2);
+    console.log(query.data.coinMetas2s);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
 ```
 
-## CoinCount
-You can execute the `CoinCount` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+## RegionStats
+You can execute the `RegionStats` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
 
 ```javascript
-useCoinCount(dc: DataConnect, options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
+useRegionStats(dc: DataConnect, options?: useDataConnectQueryOptions<RegionStatsData>): UseDataConnectQueryResult<RegionStatsData, undefined>;
 ```
 You can also pass in a `DataConnect` instance to the Query hook function.
 ```javascript
-useCoinCount(options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
+useRegionStats(options?: useDataConnectQueryOptions<RegionStatsData>): UseDataConnectQueryResult<RegionStatsData, undefined>;
 ```
 
 ### Variables
-The `CoinCount` Query has no variables.
+The `RegionStats` Query has no variables.
 ### Return Type
-Recall that calling the `CoinCount` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+Recall that calling the `RegionStats` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
 
 To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
 
-To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinCount` Query is of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `RegionStats` Query is of type `RegionStatsData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
-export interface CoinCountData {
-  coinMeta?: {
-    id_count: number;
-  };
+export interface RegionStatsData {
+  coinMetas2s: ({
+    region?: string | null;
+    _count: number;
+  })[];
 }
 ```
 
 To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
 
-### Using `CoinCount`'s Query hook function
+### Using `RegionStats`'s Query hook function
 
 ```javascript
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@dataconnect/generated';
-import { useCoinCount } from '@dataconnect/generated/react'
+import { useRegionStats } from '@dataconnect/generated/react'
 
-export default function CoinCountComponent() {
+export default function RegionStatsComponent() {
   // You don't have to do anything to "execute" the Query.
   // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
-  const query = useCoinCount();
+  const query = useRegionStats();
 
   // You can also pass in a `DataConnect` instance to the Query hook function.
   const dataConnect = getDataConnect(connectorConfig);
-  const query = useCoinCount(dataConnect);
+  const query = useRegionStats(dataConnect);
 
   // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinCount(options);
+  const query = useRegionStats(options);
 
   // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinCount(dataConnect, options);
+  const query = useRegionStats(dataConnect, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -249,7 +255,151 @@ export default function CoinCountComponent() {
 
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
-    console.log(query.data.coinMeta);
+    console.log(query.data.coinMetas2s);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## NominalStats
+You can execute the `NominalStats` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useNominalStats(dc: DataConnect, options?: useDataConnectQueryOptions<NominalStatsData>): UseDataConnectQueryResult<NominalStatsData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useNominalStats(options?: useDataConnectQueryOptions<NominalStatsData>): UseDataConnectQueryResult<NominalStatsData, undefined>;
+```
+
+### Variables
+The `NominalStats` Query has no variables.
+### Return Type
+Recall that calling the `NominalStats` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `NominalStats` Query is of type `NominalStatsData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface NominalStatsData {
+  coinMetas2s: ({
+    nomValue?: string | null;
+    _count: number;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `NominalStats`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@dataconnect/generated';
+import { useNominalStats } from '@dataconnect/generated/react'
+
+export default function NominalStatsComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useNominalStats();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useNominalStats(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useNominalStats(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useNominalStats(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2s);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## NameStats
+You can execute the `NameStats` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useNameStats(dc: DataConnect, options?: useDataConnectQueryOptions<NameStatsData>): UseDataConnectQueryResult<NameStatsData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useNameStats(options?: useDataConnectQueryOptions<NameStatsData>): UseDataConnectQueryResult<NameStatsData, undefined>;
+```
+
+### Variables
+The `NameStats` Query has no variables.
+### Return Type
+Recall that calling the `NameStats` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `NameStats` Query is of type `NameStatsData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface NameStatsData {
+  coinMetas2s: ({
+    lemmaName?: string | null;
+    _count: number;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `NameStats`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@dataconnect/generated';
+import { useNameStats } from '@dataconnect/generated/react'
+
+export default function NameStatsComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useNameStats();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useNameStats(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useNameStats(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useNameStats(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2s);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -432,6 +582,148 @@ export default function CoinByIdComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.coinMetas);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CoinMeta2Count
+You can execute the `CoinMeta2Count` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useCoinMeta2count(dc: DataConnect, options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useCoinMeta2count(options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+```
+
+### Variables
+The `CoinMeta2Count` Query has no variables.
+### Return Type
+Recall that calling the `CoinMeta2Count` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2Count` Query is of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CoinMeta2countData {
+  coinMetas2?: {
+    id_count: number;
+  };
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `CoinMeta2Count`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@dataconnect/generated';
+import { useCoinMeta2count } from '@dataconnect/generated/react'
+
+export default function CoinMeta2countComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useCoinMeta2count();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useCoinMeta2count(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2count(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinMeta2count(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CoinCount
+You can execute the `CoinCount` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useCoinCount(dc: DataConnect, options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useCoinCount(options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
+```
+
+### Variables
+The `CoinCount` Query has no variables.
+### Return Type
+Recall that calling the `CoinCount` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinCount` Query is of type `CoinCountData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CoinCountData {
+  coinMeta?: {
+    id_count: number;
+  };
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `CoinCount`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@dataconnect/generated';
+import { useCoinCount } from '@dataconnect/generated/react'
+
+export default function CoinCountComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useCoinCount();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useCoinCount(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinCount(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useCoinCount(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMeta);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
