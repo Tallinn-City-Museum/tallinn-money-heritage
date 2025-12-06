@@ -7,30 +7,6 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
-const coinMeta2byIdRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinMeta2ById', inputVars);
-}
-coinMeta2byIdRef.operationName = 'CoinMeta2ById';
-exports.coinMeta2byIdRef = coinMeta2byIdRef;
-
-exports.coinMeta2byId = function coinMeta2byId(dcOrVars, vars) {
-  return executeQuery(coinMeta2byIdRef(dcOrVars, vars));
-};
-
-const coinByIdRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinById', inputVars);
-}
-coinByIdRef.operationName = 'CoinById';
-exports.coinByIdRef = coinByIdRef;
-
-exports.coinById = function coinById(dcOrVars, vars) {
-  return executeQuery(coinByIdRef(dcOrVars, vars));
-};
-
 const coinMeta2countRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
@@ -53,4 +29,28 @@ exports.coinCountRef = coinCountRef;
 
 exports.coinCount = function coinCount(dc) {
   return executeQuery(coinCountRef(dc));
+};
+
+const coinMeta2byIdRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinMeta2ById', inputVars);
+}
+coinMeta2byIdRef.operationName = 'CoinMeta2ById';
+exports.coinMeta2byIdRef = coinMeta2byIdRef;
+
+exports.coinMeta2byId = function coinMeta2byId(dcOrVars, vars) {
+  return executeQuery(coinMeta2byIdRef(dcOrVars, vars));
+};
+
+const coinByIdRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinById', inputVars);
+}
+coinByIdRef.operationName = 'CoinById';
+exports.coinByIdRef = coinByIdRef;
+
+exports.coinById = function coinById(dcOrVars, vars) {
+  return executeQuery(coinByIdRef(dcOrVars, vars));
 };

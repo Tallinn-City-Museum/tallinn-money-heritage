@@ -6,28 +6,6 @@ export const connectorConfig = {
   location: 'europe-north1'
 };
 
-export const coinMeta2byIdRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinMeta2ById', inputVars);
-}
-coinMeta2byIdRef.operationName = 'CoinMeta2ById';
-
-export function coinMeta2byId(dcOrVars, vars) {
-  return executeQuery(coinMeta2byIdRef(dcOrVars, vars));
-}
-
-export const coinByIdRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'CoinById', inputVars);
-}
-coinByIdRef.operationName = 'CoinById';
-
-export function coinById(dcOrVars, vars) {
-  return executeQuery(coinByIdRef(dcOrVars, vars));
-}
-
 export const coinMeta2countRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
@@ -48,5 +26,27 @@ coinCountRef.operationName = 'CoinCount';
 
 export function coinCount(dc) {
   return executeQuery(coinCountRef(dc));
+}
+
+export const coinMeta2byIdRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinMeta2ById', inputVars);
+}
+coinMeta2byIdRef.operationName = 'CoinMeta2ById';
+
+export function coinMeta2byId(dcOrVars, vars) {
+  return executeQuery(coinMeta2byIdRef(dcOrVars, vars));
+}
+
+export const coinByIdRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinById', inputVars);
+}
+coinByIdRef.operationName = 'CoinById';
+
+export function coinById(dcOrVars, vars) {
+  return executeQuery(coinByIdRef(dcOrVars, vars));
 }
 

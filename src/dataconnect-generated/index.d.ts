@@ -66,30 +66,6 @@ export interface CoinMetas2_Key {
   __typename?: 'CoinMetas2_Key';
 }
 
-interface CoinMeta2byIdRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: CoinMeta2byIdVariables): QueryRef<CoinMeta2byIdData, CoinMeta2byIdVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: CoinMeta2byIdVariables): QueryRef<CoinMeta2byIdData, CoinMeta2byIdVariables>;
-  operationName: string;
-}
-export const coinMeta2byIdRef: CoinMeta2byIdRef;
-
-export function coinMeta2byId(vars: CoinMeta2byIdVariables): QueryPromise<CoinMeta2byIdData, CoinMeta2byIdVariables>;
-export function coinMeta2byId(dc: DataConnect, vars: CoinMeta2byIdVariables): QueryPromise<CoinMeta2byIdData, CoinMeta2byIdVariables>;
-
-interface CoinByIdRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: CoinByIdVariables): QueryRef<CoinByIdData, CoinByIdVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: CoinByIdVariables): QueryRef<CoinByIdData, CoinByIdVariables>;
-  operationName: string;
-}
-export const coinByIdRef: CoinByIdRef;
-
-export function coinById(vars: CoinByIdVariables): QueryPromise<CoinByIdData, CoinByIdVariables>;
-export function coinById(dc: DataConnect, vars: CoinByIdVariables): QueryPromise<CoinByIdData, CoinByIdVariables>;
-
 interface CoinMeta2countRef {
   /* Allow users to create refs without passing in DataConnect */
   (): QueryRef<CoinMeta2countData, undefined>;
@@ -113,4 +89,28 @@ export const coinCountRef: CoinCountRef;
 
 export function coinCount(): QueryPromise<CoinCountData, undefined>;
 export function coinCount(dc: DataConnect): QueryPromise<CoinCountData, undefined>;
+
+interface CoinMeta2byIdRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CoinMeta2byIdVariables): QueryRef<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CoinMeta2byIdVariables): QueryRef<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+  operationName: string;
+}
+export const coinMeta2byIdRef: CoinMeta2byIdRef;
+
+export function coinMeta2byId(vars: CoinMeta2byIdVariables): QueryPromise<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+export function coinMeta2byId(dc: DataConnect, vars: CoinMeta2byIdVariables): QueryPromise<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+
+interface CoinByIdRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CoinByIdVariables): QueryRef<CoinByIdData, CoinByIdVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CoinByIdVariables): QueryRef<CoinByIdData, CoinByIdVariables>;
+  operationName: string;
+}
+export const coinByIdRef: CoinByIdRef;
+
+export function coinById(vars: CoinByIdVariables): QueryPromise<CoinByIdData, CoinByIdVariables>;
+export function coinById(dc: DataConnect, vars: CoinByIdVariables): QueryPromise<CoinByIdData, CoinByIdVariables>;
 
