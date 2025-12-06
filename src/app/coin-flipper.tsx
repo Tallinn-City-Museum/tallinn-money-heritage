@@ -21,7 +21,7 @@ import {
     RotationGestureHandler,
     State,
 } from "react-native-gesture-handler";
-import { coinService, CoinService } from "../service/coin-service";
+import { coinService, CoinService, coinStatsService } from "../service/coin-service";
 import { Coin, CoinSide } from "../data/entity/coin";
 import { styles } from "../components/common/stylesheet";
 import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
@@ -44,13 +44,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import {
     MaterialFilterSheet,
-    DEFAULT_MATERIALS,
-    MaterialStat,
 } from "./MaterialFilterSheet";
+import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
 import {
     CountryFilterSheet,
-    DEFAULT_COUNTRIES,
-    CountryStat,
 } from "./CountryFilterSheet";
 
 
@@ -85,29 +82,17 @@ export default function Flipper() {
     const [showFilterPrompt, setShowFilterPrompt] = useState(false);
     const filterPageAnim = useRef(new Animated.Value(0)).current;
     const [materialSheetOpen, setMaterialSheetOpen] = useState(false);
-    const [materialStats, setMaterialStats] = useState<MaterialStat[]>(DEFAULT_MATERIALS);
-    const [pendingMaterial, setPendingMaterial] = useState<string>("Kõik");
     const [countrySheetOpen, setCountrySheetOpen] = useState(false);
-    const [countryStats, setCountryStats] = useState<CountryStat[]>(DEFAULT_COUNTRIES);
+
+    const [pendingMaterial, setPendingMaterial] = useState<string>("Kõik");
     const [pendingCountry, setPendingCountry] = useState<string>("Kõik");
-    const [nominalStats] = useState<{ key: string; label: string; count: number; }[]>([
-        { key: "Kõik", label: "Kõik", count: 20 },
-        { key: "1", label: "1", count: 8 },
-        { key: "1/2", label: "1/2", count: 5 },
-        { key: "2", label: "2", count: 3 },
-        { key: "5", label: "5", count: 1 },
-    ]);
     const [pendingNominal, setPendingNominal] = useState<string>("Kõik");
-    const [nameStats] = useState<{ key: string; label: string; count: number; }[]>([
-        { key: "Kõik", label: "Kõik", count: 24 },
-        { key: "Kopikat", label: "Kopikat", count: 9 },
-        { key: "Kroon", label: "Kroon", count: 6 },
-        { key: "Rubla", label: "Rubla", count: 5 },
-        { key: "Penn", label: "Penn", count: 4 },
-        { key: "Denaar", label: "Denaar", count: 3 },
-        { key: "Fennig", label: "Fennig", count: 2 },
-    ]);
     const [pendingName, setPendingName] = useState<string>("Kõik");
+
+    const [materialStats, setMaterialStats] = useState<MaterialStat[] | null>(null);
+    const [countryStats, setCountryStats] = useState<CountryStat[] | null>(null);
+    const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
+    const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
 
     const [showTitle, setShowTitle] = useState(false);
 
@@ -140,6 +125,11 @@ export default function Flipper() {
 
         const generatedCoin = await coinService.generateNewCoin();
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
+
+        setMaterialStats(await coinStatsService.getMaterialStats());
+        setCountryStats(await coinStatsService.getCountryStats());
+        setNominalStats(await coinStatsService.getNominalStats());
+        setNameStats(await coinStatsService.getNameStats());
 
         setCoin(hydrated);
         setCoinSize((160 * hydrated.diameter) / 25.4);
@@ -891,7 +881,7 @@ export default function Flipper() {
 
             <CountryFilterSheet
                 isOpen={countrySheetOpen}
-                countries={countryStats}
+                countries={countryStats ?? []}
                 activeCountry={pendingCountry}
                 onRequestClose={isFilterPage ? () => { } : closeCountrySheet}
                 onSelectCountry={handleSelectCountry}
@@ -901,8 +891,8 @@ export default function Flipper() {
             {/* Parema serva vertikaalne riba nominaalide ja nimetuste jaoks */}
             {(materialSheetOpen || countrySheetOpen) && (
                 <RightSideFilters
-                    topItems={nominalStats}
-                    bottomItems={nameStats}
+                    topItems={nominalStats ?? []}
+                    bottomItems={nameStats ?? []}
                     activeTop={pendingNominal}
                     activeBottom={pendingName}
                     onSelectTop={handleSelectNominal}
@@ -913,7 +903,7 @@ export default function Flipper() {
             )}
             <MaterialFilterSheet
                 isOpen={materialSheetOpen}
-                materials={materialStats}
+                materials={materialStats ?? []}
                 activeMaterial={pendingMaterial}
                 onRequestClose={isFilterPage ? () => { } : closeMaterialSheet}
                 onSelectMaterial={handleSelectMaterial}

@@ -11,30 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AggregatedCoinMeta, CountryStat } from "../data/entity/aggregated-meta";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-type FilterItem = {
-  key: string;
-  label: string;
-  count: number;
-};
-
-export type CountryStat = FilterItem;
-export const DEFAULT_COUNTRIES: CountryStat[] = [
-  { key: "Eesti", label: "Eesti", count: 6 },
-  { key: "Venemaa", label: "Venemaa", count: 8 },
-  { key: "Saksamaa", label: "Saksamaa", count: 4 },
-  { key: "Rootsi", label: "Rootsi", count: 5 },
-  { key: "Soome", label: "Soome", count: 4 },
-  { key: "LĆ¤ti", label: "LĆ¤ti", count: 3 },
-  { key: "Leedu", label: "Leedu", count: 3 },
-  { key: "Poola", label: "Poola", count: 4 },
-  { key: "Ukraina", label: "Ukraina", count: 3 },
-  { key: "Taani", label: "Taani", count: 2 },
-  { key: "Norra", label: "Norra", count: 2 },
-  { key: "Hispaania", label: "Hispaania", count: 2 },
-  { key: "Itaalia", label: "Itaalia", count: 2 },
-];
 
 type CountryFilterSheetProps = {
   isOpen: boolean;
@@ -81,8 +59,8 @@ export const CountryFilterSheet = ({
     const activeInPrimary = withOther.some((c) => c.key === activeCountry)
       ? activeCountry
       : others.some((c) => c.key === activeCountry)
-      ? "__other__"
-      : activeCountry;
+        ? "__other__"
+        : activeCountry;
     return { primaryItems: withOther, otherItems: others, activeKeyForPrimary: activeInPrimary };
   }, [countries, activeCountry]);
 
@@ -160,21 +138,21 @@ export const CountryFilterSheet = ({
         }}
       >
         <View style={styles.treemap} pointerEvents="box-none">
-            {containerSize.w > 0 &&
-              renderTreemap({
-                items: primaryItems,
-                active: activeKeyForPrimary,
-                onSelect: (key) => {
-                  if (key === "__other__") {
-                    setShowOthers(true);
-                    return;
-                  }
-                  const next = key === activeCountry ? "Kõik" : key;
-                  onSelectCountry(next);
-                },
-                width: containerSize.w,
-                height: containerSize.h,
-              })}
+          {containerSize.w > 0 &&
+            renderTreemap({
+              items: primaryItems,
+              active: activeKeyForPrimary,
+              onSelect: (key) => {
+                if (key === "__other__") {
+                  setShowOthers(true);
+                  return;
+                }
+                const next = key === activeCountry ? "Kõik" : key;
+                onSelectCountry(next);
+              },
+              width: containerSize.w,
+              height: containerSize.h,
+            })}
         </View>
       </Animated.View>
       <Modal
@@ -214,14 +192,14 @@ export const CountryFilterSheet = ({
                     modalSize.w > 0
                       ? modalSize.w
                       : containerSize.w > 0
-                      ? containerSize.w
-                      : Dimensions.get("window").width * 0.8,
+                        ? containerSize.w
+                        : Dimensions.get("window").width * 0.8,
                   height:
                     modalSize.h > 0
                       ? modalSize.h
                       : containerSize.h > 0
-                      ? Math.max(200, containerSize.h * 0.8)
-                      : Dimensions.get("window").height * 0.5,
+                        ? Math.max(200, containerSize.h * 0.8)
+                        : Dimensions.get("window").height * 0.5,
                 })}
             </View>
           </View>
@@ -232,7 +210,7 @@ export const CountryFilterSheet = ({
 };
 
 type TreemapProps = {
-  items: FilterItem[];
+  items: AggregatedCoinMeta[];
   active: string;
   onSelect: (key: string) => void;
   width: number;
@@ -242,7 +220,7 @@ type TreemapProps = {
 const palette = ["#365752", "#2c4b47", "#456d67", "#3a5f5b", "#5a8c84"];
 const MIN_BLOCK_HEIGHT = 32;
 
-const sumCounts = (items: FilterItem[]) =>
+const sumCounts = (items: AggregatedCoinMeta[]) =>
   items.reduce((sum, item) => sum + (item.count || 1), 0);
 
 const renderTreemap = ({
@@ -255,7 +233,7 @@ const renderTreemap = ({
   if (items.length === 0) return null;
 
   const renderSlice = (
-    slice: FilterItem[],
+    slice: AggregatedCoinMeta[],
     x: number,
     y: number,
     w: number,

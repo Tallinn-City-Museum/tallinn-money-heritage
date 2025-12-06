@@ -11,30 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { MaterialStat, AggregatedCoinMeta } from "../data/entity/aggregated-meta";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-type FilterItem = {
-  key: string;
-  label: string;
-  count: number;
-};
-
-export type MaterialStat = FilterItem;
-export const DEFAULT_MATERIALS: MaterialStat[] = [
-  { key: "Kõik", label: "Kõik", count: 24 },
-  { key: "Hõbe", label: "Hõbe", count: 12 },
-  { key: "Kuld", label: "Kuld", count: 8 },
-  { key: "Vask", label: "Vask", count: 10 },
-  { key: "Pronks", label: "Pronks", count: 7 },
-  { key: "Nikkel", label: "Nikkel", count: 6 },
-  { key: "Messing", label: "Messing", count: 5 },
-  { key: "Tina", label: "Tina", count: 4 },
-  { key: "Raud", label: "Raud", count: 4 },
-  { key: "Alumiinium", label: "Alumiinium", count: 3 },
-  { key: "Plii", label: "Plii", count: 3 },
-  { key: "Tsingi sulam", label: "Tsingi sulam", count: 2 },
-  { key: "Terassulam", label: "Terassulam", count: 2 },
-];
 
 type MaterialFilterSheetProps = {
   isOpen: boolean;
@@ -86,8 +64,8 @@ export const MaterialFilterSheet = ({
     const activeInPrimary = withOther.some((m) => m.key === activeMaterial)
       ? activeMaterial
       : others.some((m) => m.key === activeMaterial)
-      ? "__other__"
-      : activeMaterial;
+        ? "__other__"
+        : activeMaterial;
 
     const normalizedActive = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeInPrimary;
 
@@ -226,14 +204,14 @@ export const MaterialFilterSheet = ({
                     modalSize.w > 0
                       ? modalSize.w
                       : containerSize.w > 0
-                      ? containerSize.w
-                      : Dimensions.get("window").width * 0.8,
+                        ? containerSize.w
+                        : Dimensions.get("window").width * 0.8,
                   height:
                     modalSize.h > 0
                       ? modalSize.h
                       : containerSize.h > 0
-                      ? Math.max(200, containerSize.h * 0.8)
-                      : Dimensions.get("window").height * 0.5,
+                        ? Math.max(200, containerSize.h * 0.8)
+                        : Dimensions.get("window").height * 0.5,
                 })}
             </View>
           </View>
@@ -244,7 +222,7 @@ export const MaterialFilterSheet = ({
 };
 
 type TreemapProps = {
-  items: FilterItem[];
+  items: AggregatedCoinMeta[];
   active: string;
   onSelect: (key: string) => void;
   width: number;
@@ -253,7 +231,7 @@ type TreemapProps = {
 
 const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
 const MIN_BLOCK_HEIGHT = 32;
-const sumCounts = (items: FilterItem[]) =>
+const sumCounts = (items: AggregatedCoinMeta[]) =>
   items.reduce((sum, item) => sum + (item.count || 1), 0);
 
 const renderTreemap = ({
@@ -266,7 +244,7 @@ const renderTreemap = ({
   if (items.length === 0) return null;
 
   const renderSlice = (
-    slice: FilterItem[],
+    slice: AggregatedCoinMeta[],
     x: number,
     y: number,
     w: number,
