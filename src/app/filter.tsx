@@ -847,6 +847,7 @@ const sidebarBottom =
 
                 const active = activePeriod === item.key;
 
+        
                 const isAvailable = item.available ?? true;
                 const backgroundColor = active
                     ? "#7bd7cc"
@@ -876,14 +877,17 @@ const sidebarBottom =
                             paddingVertical: 8,
                             backgroundColor,
                             opacity: blockOpacity,
+                            
                         }}
                         accessibilityRole="button"
                         accessibilityState={{ disabled: !isAvailable }}
+                        
                     >
                         <Text
                             numberOfLines={2}
                             style={{
                                 color: labelColor,
+                               
                                 fontWeight: "700",
                                 fontSize: 12,
                             }}
@@ -1240,4 +1244,3 @@ const sideStyles = StyleSheet.create({
         fontSize: 11,
     },
 });
-
