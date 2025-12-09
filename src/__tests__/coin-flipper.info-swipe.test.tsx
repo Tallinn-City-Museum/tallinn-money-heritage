@@ -136,6 +136,9 @@ describe("Coin flipper – info bottom sheet", () => {
         render(<Flipper />);
         await flush();
 
+        // Wait until the coin has been loaded so InfoBottomSheet branch can render
+        await screen.findByTestId("coin-tap");
+
         // Inspect all calls to PanResponder.create and find the one
         // that looks like the full-screen swipeResponder (it has
         // both onMoveShouldSetPanResponder and onPanResponderRelease)
