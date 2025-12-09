@@ -37,7 +37,7 @@ export const MaterialFilterSheet = ({
   const sheetAnim = useRef(new Animated.Value(isOpen ? 1 : 0)).current;
   const dragY = useRef(new Animated.Value(0)).current;
   const screenHeight = Dimensions.get("window").height;
-  const SHEET_HEIGHT = Math.max(screenHeight * 0.135, 128);
+  const SHEET_HEIGHT = Math.max(screenHeight * 0.16, 160);
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
   const [modalSize, setModalSize] = useState({ w: 0, h: 0 });
   const [showOthers, setShowOthers] = useState(false);
@@ -130,8 +130,8 @@ export const MaterialFilterSheet = ({
         style={[
           styles.sheetContainer,
           {
-            height: SHEET_HEIGHT + insets.top + insets.bottom + 12,
-            paddingBottom: insets.bottom + 40,
+            height: SHEET_HEIGHT + insets.top + insets.bottom + 4,
+            paddingBottom: insets.bottom,
             paddingTop: 0,
             transform: [{ translateY }],
             opacity: sheetAnim,
@@ -142,7 +142,7 @@ export const MaterialFilterSheet = ({
         onLayout={(e) => {
           onLayout?.(e);
           const { width, height } = e.nativeEvent.layout;
-          setContainerSize({ w: width, h: height - (insets.bottom + 40) });
+          setContainerSize({ w: width, h: height - (insets.bottom) });
         }}
       >
         <View style={styles.treemap} pointerEvents="box-none">
@@ -226,7 +226,8 @@ type TreemapProps = {
 };
 
 const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
-const MIN_BLOCK_HEIGHT = 32;
+const MIN_BLOCK_HEIGHT = 40;
+const MIN_BLOCK_WIDTH = 40;
 const sumCounts = (items: AggregatedCoinMeta[]) =>
   items.reduce((sum, item) => sum + (item.count || 1), 0);
 
@@ -261,7 +262,7 @@ const renderTreemap = ({
               position: "absolute",
               left: x,
               top: y,
-              width: w,
+              width: Math.max(MIN_BLOCK_WIDTH, w),
               height: Math.max(MIN_BLOCK_HEIGHT, h),
               backgroundColor: isActive ? "#7bd7cc" : palette[paletteOffset % palette.length],
               opacity: isActive ? 0.94 : 0.82,

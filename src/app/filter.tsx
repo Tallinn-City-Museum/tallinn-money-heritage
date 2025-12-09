@@ -22,9 +22,29 @@ type CoinFilterRow = {
     material: string;
     nominal: string;
     name: string;
+    period: string;
 };
 
-const MOCK_FILTER_DATA: CoinFilterRow[] = [
+const PERIOD_CLUSTERS = [
+    { key: "1400-1500", label: "1400-1500" },
+    { key: "1500-1550", label: "1500-1550" },
+    { key: "1550-1700", label: "1550-1700" },
+    { key: "1700-1800", label: "1700-1800" },
+    { key: "1800-1900", label: "1800-1900" },
+    { key: "1900-1950", label: "1900-1950" },
+    { key: "other", label: "Muud" },
+];
+
+const PERIOD_LABELS = PERIOD_CLUSTERS.reduce<Record<string, string>>((acc, item) => {
+    acc[item.key] = item.label;
+    return acc;
+}, {});
+
+// Weighted pattern gives the 1500-1550 slice a bit more presence to match the supplied clusters
+const PERIOD_PATTERN = [0, 1, 1, 2, 3, 4, 5, 6];
+type BaseFilterRow = Omit<CoinFilterRow, "period">;
+
+const RAW_FILTER_DATA: BaseFilterRow[] = [
     { country: "Saksamaa", material: "Vask", nominal: "2", name: "Mark" },
     { country: "Saksamaa", material: "Hõbe", nominal: "1", name: "Mark" },
     { country: "Saksamaa", material: "Vask", nominal: "5", name: "Fennig" },
@@ -69,13 +89,19 @@ const MOCK_FILTER_DATA: CoinFilterRow[] = [
     { country: "Inglismaa", material: "Pronks", nominal: "5", name: "Penn" },
 ];
 
-const buildStats = (values: string[]) => {
+const MOCK_FILTER_DATA: CoinFilterRow[] = RAW_FILTER_DATA.map((row, idx) => {
+    const bucketIdx = PERIOD_PATTERN[idx % PERIOD_PATTERN.length];
+    const cluster = PERIOD_CLUSTERS[bucketIdx] ?? PERIOD_CLUSTERS[0];
+    return { ...row, period: cluster.key };
+});
+
+const buildStats = (values: string[], labelOverrides: Record<string, string> = {}) => {
     const counts = new Map<string, number>();
     values.forEach((val) => {
         counts.set(val, (counts.get(val) ?? 0) + 1);
     });
     return Array.from(counts.entries())
-        .map(([key, count]) => ({ key, label: key, count }))
+        .map(([key, count]) => ({ key, label: labelOverrides[key] ?? key, count }))
         .sort((a, b) => {
             if ((b.count || 0) !== (a.count || 0)) {
                 return (b.count || 0) - (a.count || 0);
@@ -91,6 +117,10 @@ const BASE_NOMINAL_STATS: { key: string; label: string; count: number }[] = buil
 );
 const BASE_NAME_STATS: { key: string; label: string; count: number }[] = buildStats(
     MOCK_FILTER_DATA.map((row) => row.name)
+);
+const BASE_PERIOD_STATS: { key: string; label: string; count: number }[] = buildStats(
+    MOCK_FILTER_DATA.map((row) => row.period),
+    PERIOD_LABELS
 );
 
 export default function FilterView() {
@@ -110,10 +140,12 @@ export default function FilterView() {
     const [pendingNominal, setPendingNominal] = useState<string>("");
     const [nameStats, setNameStats] = useState<{ key: string; label: string; count: number; }[]>(BASE_NAME_STATS);
     const [pendingName, setPendingName] = useState<string>("");
+    const [periodStats, setPeriodStats] = useState<{ key: string; label: string; count: number; }[]>(BASE_PERIOD_STATS);
+    const [pendingPeriod, setPendingPeriod] = useState<string>("");
 
     const skipAutoPickRef = useRef(false);
     const autoPickEnabledRef = useRef(true);
-    const lastChangedRef = useRef<"country" | "material" | "nominal" | "name" | null>(null);
+    const lastChangedRef = useRef<"country" | "material" | "nominal" | "name" | "period" | null>(null);
 
     const handleSelectMaterial = (material: string) => {
         lastChangedRef.current = "material";
@@ -160,14 +192,26 @@ export default function FilterView() {
         autoPickEnabledRef.current = true;
         setPendingName(name);
     };
+    const handleSelectPeriod = (period: string) => {
+        lastChangedRef.current = "period";
+        if (pendingPeriod === period) {
+            skipAutoPickRef.current = true;
+            autoPickEnabledRef.current = false;
+            setPendingPeriod("");
+            return;
+        }
+        autoPickEnabledRef.current = true;
+        setPendingPeriod(period);
+    };
 
     const syncFilterOptions = useCallback(() => {
-        const hasFilters = Boolean(pendingCountry || pendingMaterial || pendingNominal || pendingName);
+        const hasFilters = Boolean(pendingCountry || pendingMaterial || pendingNominal || pendingName || pendingPeriod);
         const currentFilters = {
             country: pendingCountry,
             material: pendingMaterial,
             nominal: pendingNominal,
             name: pendingName,
+            period: pendingPeriod,
         };
 
         const computeMatches = (filters: typeof currentFilters) =>
@@ -176,6 +220,7 @@ export default function FilterView() {
                 if (filters.material && row.material !== filters.material) return false;
                 if (filters.nominal && row.nominal !== filters.nominal) return false;
                 if (filters.name && row.name !== filters.name) return false;
+                if (filters.period && row.period !== filters.period) return false;
                 return true;
             });
 
@@ -206,11 +251,13 @@ export default function FilterView() {
         const nextMaterials = buildStats(source.map((row) => row.material));
         const nextNominals = buildStats(source.map((row) => row.nominal));
         const nextNames = buildStats(source.map((row) => row.name));
+        const nextPeriods = buildStats(source.map((row) => row.period), PERIOD_LABELS);
 
         setCountryStats(nextCountries);
         setMaterialStats(nextMaterials);
         setNominalStats(nextNominals);
         setNameStats(nextNames);
+        setPeriodStats(nextPeriods);
 
         const skipAutoPick = skipAutoPickRef.current;
         skipAutoPickRef.current = false;
@@ -219,19 +266,21 @@ export default function FilterView() {
             currentFilters.country !== effectiveFilters.country ||
             currentFilters.material !== effectiveFilters.material ||
             currentFilters.nominal !== effectiveFilters.nominal ||
-            currentFilters.name !== effectiveFilters.name
+            currentFilters.name !== effectiveFilters.name ||
+            currentFilters.period !== effectiveFilters.period
         ) {
             skipAutoPickRef.current = true;
             if (currentFilters.country !== effectiveFilters.country) setPendingCountry(effectiveFilters.country);
             if (currentFilters.material !== effectiveFilters.material) setPendingMaterial(effectiveFilters.material);
             if (currentFilters.nominal !== effectiveFilters.nominal) setPendingNominal(effectiveFilters.nominal);
             if (currentFilters.name !== effectiveFilters.name) setPendingName(effectiveFilters.name);
+            if (currentFilters.period !== effectiveFilters.period) setPendingPeriod(effectiveFilters.period);
         }
 
         const shouldAutoPick =
             autoPickEnabledRef.current &&
             !skipAutoPick &&
-            (pendingCountry || pendingMaterial || pendingNominal || pendingName);
+            (pendingCountry || pendingMaterial || pendingNominal || pendingName || pendingPeriod);
 
         if (shouldAutoPick) {
             const autoPick = <T extends { key: string }>(current: string, list: T[], setter: (v: string) => void) => {
@@ -247,12 +296,13 @@ export default function FilterView() {
             autoPick(pendingMaterial, nextMaterials, setPendingMaterial);
             autoPick(pendingNominal, nextNominals, setPendingNominal);
             autoPick(pendingName, nextNames, setPendingName);
+            autoPick(pendingPeriod, nextPeriods, setPendingPeriod);
         }
-    }, [pendingCountry, pendingMaterial, pendingName, pendingNominal]);
+    }, [pendingCountry, pendingMaterial, pendingName, pendingNominal, pendingPeriod]);
 
     useEffect(() => {
         syncFilterOptions();
-    }, [pendingCountry, pendingMaterial, pendingNominal, pendingName, syncFilterOptions]);
+    }, [pendingCountry, pendingMaterial, pendingNominal, pendingName, pendingPeriod, syncFilterOptions]);
 
     const handleFilterRandomCoin = () => {
         setShowPrompt(false);
@@ -268,6 +318,7 @@ export default function FilterView() {
         setPendingMaterial("");
         setPendingNominal("");
         setPendingName("");
+        setPendingPeriod("");
         setCountrySheetOpen(true);
         setMaterialSheetOpen(true);
     };
@@ -279,6 +330,7 @@ export default function FilterView() {
         setPendingMaterial("");
         setPendingNominal("");
         setPendingName("");
+        setPendingPeriod("");
     };
 
     const handleApplyFilters = () => {
@@ -291,13 +343,14 @@ export default function FilterView() {
                 filterCountry: pendingCountry,
                 filterNominal: pendingNominal,
                 filterName: pendingName,
+                filterPeriod: pendingPeriod,
                 filterReq: String(Date.now()),
             },
         });
     };
 
-    const anyFilterSelected = Boolean(pendingMaterial || pendingCountry || pendingNominal || pendingName);
-    const allFiltersActive = Boolean(pendingCountry && pendingMaterial && pendingNominal && pendingName);
+    const anyFilterSelected = Boolean(pendingMaterial || pendingCountry || pendingNominal || pendingName || pendingPeriod);
+    const allFiltersActive = Boolean(pendingCountry && pendingMaterial && pendingNominal && pendingName && pendingPeriod);
     const coinSize = 200;
     const swipeResponder = useRef(
         PanResponder.create({
@@ -334,6 +387,16 @@ export default function FilterView() {
                         onSelectCountry={handleSelectCountry}
                         onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
                     />
+
+                    {(materialSheetOpen || countrySheetOpen) && (
+                        <PeriodFilterRail
+                            items={periodStats}
+                            activePeriod={pendingPeriod}
+                            onSelectPeriod={handleSelectPeriod}
+                            topOffset={countryFilterHeight}
+                            bottomOffset={materialFilterHeight}
+                        />
+                    )}
 
                     {(materialSheetOpen || countrySheetOpen) && (
                         <RightSideFilters
@@ -558,6 +621,145 @@ const materialStyles = StyleSheet.create({
         textAlign: "center",
     },
 });
+
+type PeriodFilterRailProps = {
+    items: { key: string; label: string; count: number }[];
+    activePeriod: string;
+    onSelectPeriod: (key: string) => void;
+    topOffset?: number;
+    bottomOffset?: number;
+};
+
+const PeriodFilterRail = ({
+    items,
+    activePeriod,
+    onSelectPeriod,
+    topOffset = 0,
+    bottomOffset = 0,
+}: PeriodFilterRailProps) => {
+    const insets = useSafeAreaInsets();
+    const screenHeight = Dimensions.get("window").height;
+
+    const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
+
+const sidebarTop =
+    topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
+
+const sidebarBottom =
+    bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
+    const sidebarHeight = Math.max(80, screenHeight - sidebarTop - sidebarBottom);
+
+    const palette = ["#31544f", "#365c55", "#406a63", "#2b4c46", "#548a80", "#3a5f5b", "#456d67"];
+
+    const [layout, setLayout] = useState({ w: 0, h: 0 });
+
+    // ----- Treemap builder (same style as RightSideFilters) -----
+    const renderTreemap = () => {
+        if (layout.w <= 0 || layout.h <= 0) return null;
+
+        const sorted = [...items].sort((a, b) => (b.count || 1) - (a.count || 1));
+
+        const left: typeof sorted = [];
+        const right: typeof sorted = [];
+        let sumLeft = 0;
+        let sumRight = 0;
+
+        sorted.forEach((item) => {
+            if (sumLeft <= sumRight) {
+                left.push(item);
+                sumLeft += item.count || 1;
+            } else {
+                right.push(item);
+                sumRight += item.count || 1;
+            }
+        });
+
+        const colWidth = layout.w / 2;
+
+        const placeCol = (colItems: typeof sorted, sum: number, x: number) => {
+            const factor = layout.h / sum;
+            let y = 0;
+
+            return colItems.map((item, idx) => {
+                let h = (item.count || 1) * factor;
+                if (idx === colItems.length - 1) {
+                    h = layout.h - y; // fill last block
+                }
+
+                const active = activePeriod === item.key;
+
+                const block = (
+                    <TouchableOpacity
+                        key={`${item.key}-${idx}`}
+                        onPress={() => onSelectPeriod(active ? "" : item.key)}
+                        style={{
+                            position: "absolute",
+                            left: x,
+                            top: y,
+                            width: colWidth,
+                            height: h,
+                            borderRadius: 6,
+                            borderWidth: 1,
+                            borderColor: "#1f2a29",
+                            paddingHorizontal: 8,
+                            paddingVertical: 8,
+                            backgroundColor: active ? "#7bd7cc" : palette[idx % palette.length],
+                        }}
+                    >
+                        <Text
+                            numberOfLines={2}
+                            style={{
+                                color: "#e7f2ef",
+                                fontWeight: "700",
+                                fontSize: 12,
+                            }}
+                        >
+                            {item.label}
+                        </Text>
+                    </TouchableOpacity>
+                );
+
+                y += h;
+                return block;
+            });
+        };
+
+        return (
+            <>
+                {placeCol(left, sumLeft, 0)}
+                {placeCol(right, sumRight, colWidth)}
+            </>
+        );
+    };
+
+    return (
+        <View
+            pointerEvents="auto"
+            style={[
+                {
+                    position: "absolute",
+                    left: 0,
+                    width: "26%",
+                    top: sidebarTop,
+                    bottom: sidebarBottom,
+                    padding: 0,
+                    zIndex: 130,
+                },
+            ]}
+        >
+            <View
+                style={{ flex: 1 }}
+                onLayout={(e) => {
+                    const { width, height } = e.nativeEvent.layout;
+                    setLayout({ w: width, h: height });
+                }}
+            >
+                {renderTreemap()}
+            </View>
+        </View>
+    );
+};
+
 
 type SideFiltersProps = {
     topItems: { key: string; label: string; count: number }[];
@@ -807,6 +1009,51 @@ const RightSideFilters = ({
         </View>
     );
 };
+
+const periodStyles = StyleSheet.create({
+    wrap: {
+        position: "absolute",
+        left: 0,
+        width: "26%",
+        paddingTop: 6,
+        paddingHorizontal: 6,
+        zIndex: 130,
+    },
+    header: {
+        color: "#dfe8e4",
+        fontWeight: "800",
+        fontSize: 12,
+        marginBottom: 6,
+        paddingLeft: 4,
+    },
+    blocksWrap: {
+        position: "absolute",
+        top: 24,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    block: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        borderRadius: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderWidth: 1,
+        borderColor: "#1f2a29",
+        shadowColor: "#000",
+        shadowOpacity: 0.12,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 6,
+    },
+    label: {
+        color: "#e7f2ef",
+        fontWeight: "700",
+        fontSize: 12,
+        lineHeight: 16,
+    },
+});
 
 const sideStyles = StyleSheet.create({
     wrap: {
