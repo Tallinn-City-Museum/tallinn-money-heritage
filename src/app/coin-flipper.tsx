@@ -8,15 +8,15 @@ import {
     Easing,
     PanResponder,
     ActivityIndicator,
-    } from "react-native";
-    import {
+} from "react-native";
+import {
     TapGestureHandler,
     PinchGestureHandler,
     PanGestureHandler,
     RotationGestureHandler,
     State,
 } from "react-native-gesture-handler";
-import { coinService, CoinService, coinStatsService } from "../service/coin-service";
+import { coinService, coinStatsService } from "../service/coin-service";
 import { Coin, CoinSide } from "../data/entity/coin";
 import { styles } from "../components/common/stylesheet";
 import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
@@ -32,12 +32,12 @@ import {
 } from "../components/tutorial/first-run-tutorial";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-
 // Bottom sheet component import
 import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
+
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
 
@@ -115,7 +115,6 @@ export default function Flipper() {
         setCoinSize((160 * hydrated.diameter) / 25.4);
     };
 
-
     // Load a specific coin from Wallet when coinId is provided via route params
     useEffect(() => {
         const coinIdParam = routeParams?.coinId;
@@ -140,7 +139,6 @@ export default function Flipper() {
         }
         // if not found, do nothing; fetchData() doesn't run when coinId exists
     }, [routeParams?.coinId, coins]);
-
 
     // Only fetch a random coin if it didn't come from Wallet with a coinId
     useEffect(() => {
@@ -342,7 +340,7 @@ export default function Flipper() {
         renderScale.setValue(next); // mark zoomed flag immediately for UI (labels hidden while zoomed)
         setIsZoomed(next > 1.001);
 
-        // TUTORIAL: mark zoom completed when scale > 1Ć—
+        // TUTORIAL: mark zoom completed when scale > 1x
         if (next > 1.001 && !tutorial.zoomedIn) {
             setTutorial((prev) => ({ ...prev, zoomedIn: true }));
         }
@@ -473,7 +471,7 @@ export default function Flipper() {
     const coinShiftAnim = useRef(new Animated.Value(0)).current; // 0 = normal, 1 = shifted up, for info sheet
     const dragY = useRef(new Animated.Value(0)).current;
 
-    // --- Drag-down gesture on the sheet ---
+    // --- Drag-down gesture on the prediction sheet ---
     const sheetPanResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
@@ -696,13 +694,13 @@ export default function Flipper() {
                 (g as any).swipedUp = swipedUp;
 
                 if (!isInfoVisible && swipedRight) {
-                    router.push({ pathname: "/filter" });
+                    router.push({ pathname: "./filter" });
                     return;
                 }
 
                 // vertical priority (info sheet)
                 if (isCoinAtStart() && swipedUp) {
-                    // normalize pose before sheet animation to avoid ā€drop & flipā€¯
+                    // normalize pose before sheet animation to avoid a "drop & flip" effect
                     forceCoinUpright();
                     openInfoSheet();
                     return;
@@ -719,7 +717,7 @@ export default function Flipper() {
         })
     ).current;
 
-    // "Mine mĆ¤ngima" action from the last tutorial step on Coin-Flipper
+    // "Start playing" action from the last tutorial step on Coin-Flipper
     const handleFinishTutorialHere = async () => {
         // If info is open, close it; otherwise just hide tutorial
         if (isInfoVisible) {
@@ -738,15 +736,10 @@ export default function Flipper() {
                     {lastResult !== null && (
                         <Animated.View
                             pointerEvents="box-none"
-                            style={{
-                                position: "absolute",
-                                top: insets.top + 20,
-                                left: 0,
-                                right: 0,
-                                zIndex: 10,
-                                alignItems: "center",
-                                justifyContent: "flex-start",
-                            }}
+                            style={[
+                                styles.coinTitleContainer,
+                                { top: insets.top + 20 },
+                            ]}
                         >
                             <Text style={styles.coinTitle}>
                                 {coin?.name
@@ -757,7 +750,7 @@ export default function Flipper() {
                     )}
 
                     {/* top spacer keeps coin centered even when result appears */}
-                    <View style={{ flex: 1 }} />
+                    <View style={styles.coinTopSpacer} />
 
                     {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
                     <TapGestureHandler
@@ -831,7 +824,7 @@ export default function Flipper() {
                                                             {
                                                                 translateY: coinShiftAnim.interpolate({
                                                                     inputRange: [0, 1],
-                                                                    outputRange: [0, -230], // coin shifts 230px
+                                                                    outputRange: [0, -170],
                                                                 }),
                                                             },
                                                         ],
@@ -888,13 +881,7 @@ export default function Flipper() {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
-                                    style={{
-                                        position: "absolute",
-                                        right: 12,
-                                        top: 12,
-                                        zIndex: 20,
-                                        padding: 8,
-                                    }}
+                                    style={styles.predictionCloseButton}
                                     onPress={() => {
                                         setPendingPrediction(null);
                                         pendingPredictionRef.current = null;
@@ -903,7 +890,7 @@ export default function Flipper() {
                                     accessibilityRole="button"
                                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                 >
-                                    <Text style={{ fontSize: 20, color: "#444", fontWeight: "700" }}>x</Text>
+                                    <Text style={styles.predictionCloseIcon}>x</Text>
                                 </TouchableOpacity>
                             </Animated.View>
                         </>
@@ -912,11 +899,10 @@ export default function Flipper() {
                     {/* BOTTOM SHEET */}
                     {isInfoVisible && (
                         <InfoBottomSheet
-                            coin={coins.find(c => String(c.id) === String(coin?.id)) ?? coin}
+                            coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
                             onClose={closeInfoSheet}
                             bottomSheetAnim={bottomSheetAnim}
                             dragY={dragY}
-                            sheetPanResponder={sheetPanResponder}
                         />
                     )}
 

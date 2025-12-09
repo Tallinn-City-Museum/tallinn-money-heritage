@@ -106,35 +106,61 @@ export const styles = StyleSheet.create({
     },
 
     predictionSheetHeader: {
-    width: "100%",
-    position: "relative", 
-    marginBottom: 16,
-    alignItems: "center",
-    pointerEvents: "box-none",
-},
-    predictionSheet: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#ccd9d5ff", 
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 32,
-    zIndex: 50,
-    elevation: 10,
-},
+        width: "100%",
+        position: "relative", 
+        marginBottom: 16,
+        alignItems: "center",
+        pointerEvents: "box-none",
+    },
+        predictionSheet: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "#ccd9d5ff", 
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        paddingHorizontal: 16,
+        paddingTop: 20,
+        paddingBottom: 32,
+        zIndex: 50,
+        elevation: 10,
+    },
 
-predictionTitle: {
-    fontSize: 20,
-    fontFamily: "ProzaDisplay-Bold",
-    color: "#2b2b2bff",
-    textAlign: "center",
-    marginBottom: 16,
-},
+    predictionTitle: {
+        fontSize: 20,
+        fontFamily: "ProzaDisplay-Bold",
+        color: "#2b2b2bff",
+        textAlign: "center",
+        marginBottom: 16,
+    },
 
+    coinTitleContainer: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        alignItems: "center",
+        justifyContent: "flex-start",
+    },
+
+    coinTopSpacer: {
+        flex: 1,
+    },
+
+    predictionCloseButton: {
+        position: "absolute",
+        right: 12,
+        top: 12,
+        zIndex: 20,
+        padding: 8,
+    },
+
+    predictionCloseIcon: {
+        fontSize: 20,
+        color: "#444",
+        fontWeight: "700",
+    },
 
     // Bottom Sheet Styles    
     bottomSheet: {
@@ -162,7 +188,9 @@ predictionTitle: {
         justifyContent: "center",
         position: "relative",
         zIndex: 20,
-
+        backgroundColor: "rgba(29, 31, 31, 0.95)",
+        paddingTop: 4,
+        paddingBottom: 14,
     },
 
     sheetHandle: {
@@ -177,10 +205,10 @@ predictionTitle: {
         position: "absolute",
         right: 20,
         top: 0,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
         zIndex: 21,
-        backgroundColor: "rgba(0,0,0,0.15)",
+        backgroundColor: "transparent",
         borderRadius: 6,
     },
 
@@ -194,20 +222,30 @@ predictionTitle: {
         backgroundColor: "rgba(254, 237, 186, 0.7)",
         borderRadius: 8,
         padding: 15,
-        marginTop: 20,
+        marginTop: 12,
     },
 
     infoTitle: {
-        fontSize: 18,
+        fontSize: 15,
         marginBottom: 6,
         marginTop: 12,
         fontFamily: "ProzaDisplay-Bold",
     },
 
     infoValue: {
-        fontSize: 15,
+        fontSize: 20,
         lineHeight: 22,
         color: "#000",
+    },
+
+    infoScroll: {
+        flex: 1,
+        width: "100%",
+    },
+
+    infoScrollContent: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
     },
 
     // Wallet Styles
