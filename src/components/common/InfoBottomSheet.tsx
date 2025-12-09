@@ -57,7 +57,6 @@ export const InfoBottomSheet = ({
   const screenHeight = Dimensions.get("window").height;
   const SHEET_HEIGHT = screenHeight * 0.5;
 
-
   const handlePanResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -129,11 +128,8 @@ export const InfoBottomSheet = ({
 
       {/* Scrollable info content */}
       <ScrollView
-        style={{ flex: 1, width: "100%" }}
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          paddingBottom: 20,
-        }}
+        style={styles.infoScroll}
+        contentContainerStyle={styles.infoScrollContent}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
