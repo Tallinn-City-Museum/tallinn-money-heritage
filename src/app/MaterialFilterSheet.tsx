@@ -43,16 +43,13 @@ export const MaterialFilterSheet = ({
   const [showOthers, setShowOthers] = useState(false);
 
   const { primaryItems, otherItems, activeKeyForPrimary } = useMemo(() => {
-    const filtered = materials
-      .filter((m) => (m.key || "").toLowerCase() !== "kõik")
-      .sort((a, b) => (b.count || 0) - (a.count || 0));
+    const filtered = [...materials].sort((a, b) => (b.count || 0) - (a.count || 0));
 
     const primary = filtered.slice(0, 6);
     const others = filtered.slice(6);
 
     if (others.length === 0) {
-      const normalizedActive = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeMaterial;
-      return { primaryItems: primary, otherItems: [], activeKeyForPrimary: normalizedActive };
+      return { primaryItems: primary, otherItems: [], activeKeyForPrimary: activeMaterial };
     }
 
     const otherCount = Math.max(
@@ -67,7 +64,7 @@ export const MaterialFilterSheet = ({
         ? "__other__"
         : activeMaterial;
 
-    const normalizedActive = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeInPrimary;
+    const normalizedActive = activeInPrimary;
 
     return { primaryItems: withOther, otherItems: others, activeKeyForPrimary: normalizedActive };
   }, [materials, activeMaterial]);
@@ -125,7 +122,7 @@ export const MaterialFilterSheet = ({
     extrapolate: "clamp",
   });
 
-  const normalizedActiveForOthers = (activeMaterial || "").toLowerCase() === "kõik" ? "" : activeMaterial;
+  const normalizedActiveForOthers = activeMaterial;
 
   return (
     <View style={styles.absoluteWrap} pointerEvents="box-none">
@@ -158,9 +155,9 @@ export const MaterialFilterSheet = ({
                   setShowOthers(true);
                   return;
                 }
-                const next = key === activeMaterial ? "Kõik" : key;
-                onSelectMaterial(next);
-              },
+                  const next = key === activeMaterial ? "" : key;
+                  onSelectMaterial(next);
+                },
               width: containerSize.w,
               height: containerSize.h,
             })}
@@ -196,9 +193,8 @@ export const MaterialFilterSheet = ({
                   items: otherItems,
                   active: normalizedActiveForOthers,
                   onSelect: (key) => {
-                    const next = key === activeMaterial ? "Kõik" : key;
+                    const next = key === activeMaterial ? "" : key;
                     onSelectMaterial(next);
-                    setShowOthers(false);
                   },
                   width:
                     modalSize.w > 0
