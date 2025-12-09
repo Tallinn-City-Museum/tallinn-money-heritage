@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}>
             <Tabs.Screen name="index" options={{ href: null, title: "Kodu" }} />
             <Tabs.Screen name="coin-flipper" options={{ href: null, title: "Viska Münti" }}/>
+            <Tabs.Screen name="filter" options={{ href: null, title: "Filtreeri" }}/>
             <Tabs.Screen name="wallet" options={{ href: null, title: "Rahakott" }}/>
           </Tabs>
         </WalletProvider>

@@ -64,7 +64,7 @@ export class CoinService {
      */
     public async generateCoinByMaterial(material: string): Promise<Coin> {
         const randomCoin = await this.generateNewCoin()
-        if (!material || material.toLowerCase() === "kõik") {
+        if (!material) {
             return randomCoin
         }
 

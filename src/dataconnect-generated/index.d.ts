@@ -94,54 +94,6 @@ export interface RegionStatsData {
   })[];
 }
 
-interface MaterialStatsRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<MaterialStatsData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<MaterialStatsData, undefined>;
-  operationName: string;
-}
-export const materialStatsRef: MaterialStatsRef;
-
-export function materialStats(): QueryPromise<MaterialStatsData, undefined>;
-export function materialStats(dc: DataConnect): QueryPromise<MaterialStatsData, undefined>;
-
-interface RegionStatsRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<RegionStatsData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<RegionStatsData, undefined>;
-  operationName: string;
-}
-export const regionStatsRef: RegionStatsRef;
-
-export function regionStats(): QueryPromise<RegionStatsData, undefined>;
-export function regionStats(dc: DataConnect): QueryPromise<RegionStatsData, undefined>;
-
-interface NominalStatsRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<NominalStatsData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<NominalStatsData, undefined>;
-  operationName: string;
-}
-export const nominalStatsRef: NominalStatsRef;
-
-export function nominalStats(): QueryPromise<NominalStatsData, undefined>;
-export function nominalStats(dc: DataConnect): QueryPromise<NominalStatsData, undefined>;
-
-interface NameStatsRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<NameStatsData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<NameStatsData, undefined>;
-  operationName: string;
-}
-export const nameStatsRef: NameStatsRef;
-
-export function nameStats(): QueryPromise<NameStatsData, undefined>;
-export function nameStats(dc: DataConnect): QueryPromise<NameStatsData, undefined>;
-
 interface CoinMeta2byIdRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CoinMeta2byIdVariables): QueryRef<CoinMeta2byIdData, CoinMeta2byIdVariables>;
@@ -189,4 +141,52 @@ export const coinCountRef: CoinCountRef;
 
 export function coinCount(): QueryPromise<CoinCountData, undefined>;
 export function coinCount(dc: DataConnect): QueryPromise<CoinCountData, undefined>;
+
+interface MaterialStatsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<MaterialStatsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<MaterialStatsData, undefined>;
+  operationName: string;
+}
+export const materialStatsRef: MaterialStatsRef;
+
+export function materialStats(): QueryPromise<MaterialStatsData, undefined>;
+export function materialStats(dc: DataConnect): QueryPromise<MaterialStatsData, undefined>;
+
+interface RegionStatsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<RegionStatsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<RegionStatsData, undefined>;
+  operationName: string;
+}
+export const regionStatsRef: RegionStatsRef;
+
+export function regionStats(): QueryPromise<RegionStatsData, undefined>;
+export function regionStats(dc: DataConnect): QueryPromise<RegionStatsData, undefined>;
+
+interface NominalStatsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<NominalStatsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<NominalStatsData, undefined>;
+  operationName: string;
+}
+export const nominalStatsRef: NominalStatsRef;
+
+export function nominalStats(): QueryPromise<NominalStatsData, undefined>;
+export function nominalStats(dc: DataConnect): QueryPromise<NominalStatsData, undefined>;
+
+interface NameStatsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<NameStatsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<NameStatsData, undefined>;
+  operationName: string;
+}
+export const nameStatsRef: NameStatsRef;
+
+export function nameStats(): QueryPromise<NameStatsData, undefined>;
+export function nameStats(dc: DataConnect): QueryPromise<NameStatsData, undefined>;
 

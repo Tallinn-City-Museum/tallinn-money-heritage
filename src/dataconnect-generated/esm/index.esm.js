@@ -6,50 +6,6 @@ export const connectorConfig = {
   location: 'europe-north1'
 };
 
-export const materialStatsRef = (dc) => {
-  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'MaterialStats');
-}
-materialStatsRef.operationName = 'MaterialStats';
-
-export function materialStats(dc) {
-  return executeQuery(materialStatsRef(dc));
-}
-
-export const regionStatsRef = (dc) => {
-  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'RegionStats');
-}
-regionStatsRef.operationName = 'RegionStats';
-
-export function regionStats(dc) {
-  return executeQuery(regionStatsRef(dc));
-}
-
-export const nominalStatsRef = (dc) => {
-  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'NominalStats');
-}
-nominalStatsRef.operationName = 'NominalStats';
-
-export function nominalStats(dc) {
-  return executeQuery(nominalStatsRef(dc));
-}
-
-export const nameStatsRef = (dc) => {
-  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'NameStats');
-}
-nameStatsRef.operationName = 'NameStats';
-
-export function nameStats(dc) {
-  return executeQuery(nameStatsRef(dc));
-}
-
 export const coinMeta2byIdRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -92,5 +48,49 @@ coinCountRef.operationName = 'CoinCount';
 
 export function coinCount(dc) {
   return executeQuery(coinCountRef(dc));
+}
+
+export const materialStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'MaterialStats');
+}
+materialStatsRef.operationName = 'MaterialStats';
+
+export function materialStats(dc) {
+  return executeQuery(materialStatsRef(dc));
+}
+
+export const regionStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'RegionStats');
+}
+regionStatsRef.operationName = 'RegionStats';
+
+export function regionStats(dc) {
+  return executeQuery(regionStatsRef(dc));
+}
+
+export const nominalStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'NominalStats');
+}
+nominalStatsRef.operationName = 'NominalStats';
+
+export function nominalStats(dc) {
+  return executeQuery(nominalStatsRef(dc));
+}
+
+export const nameStatsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'NameStats');
+}
+nameStatsRef.operationName = 'NameStats';
+
+export function nameStats(dc) {
+  return executeQuery(nameStatsRef(dc));
 }
 
