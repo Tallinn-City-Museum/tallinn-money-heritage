@@ -696,7 +696,7 @@ export default function Flipper() {
                 (g as any).swipedUp = swipedUp;
 
                 if (!isInfoVisible && swipedRight) {
-                    router.push({ pathname: "/filter" });
+                    router.push({ pathname: "./filter" });
                     return;
                 }
 
@@ -831,7 +831,7 @@ export default function Flipper() {
                                                             {
                                                                 translateY: coinShiftAnim.interpolate({
                                                                     inputRange: [0, 1],
-                                                                    outputRange: [0, -230], // coin shifts 230px
+                                                                    outputRange: [0, -170],
                                                                 }),
                                                             },
                                                         ],
@@ -916,7 +916,6 @@ export default function Flipper() {
                             onClose={closeInfoSheet}
                             bottomSheetAnim={bottomSheetAnim}
                             dragY={dragY}
-                            sheetPanResponder={sheetPanResponder}
                         />
                     )}
 

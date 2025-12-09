@@ -162,7 +162,9 @@ predictionTitle: {
         justifyContent: "center",
         position: "relative",
         zIndex: 20,
-
+        backgroundColor: "rgba(29, 31, 31, 0.95)",
+        paddingTop: 4,
+        paddingBottom: 14,
     },
 
     sheetHandle: {
@@ -177,10 +179,10 @@ predictionTitle: {
         position: "absolute",
         right: 20,
         top: 0,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
         zIndex: 21,
-        backgroundColor: "rgba(0,0,0,0.15)",
+        backgroundColor: "transparent",
         borderRadius: 6,
     },
 
@@ -194,18 +196,18 @@ predictionTitle: {
         backgroundColor: "rgba(254, 237, 186, 0.7)",
         borderRadius: 8,
         padding: 15,
-        marginTop: 20,
+        marginTop: 12,
     },
 
     infoTitle: {
-        fontSize: 18,
+        fontSize: 15,
         marginBottom: 6,
         marginTop: 12,
         fontFamily: "ProzaDisplay-Bold",
     },
 
     infoValue: {
-        fontSize: 15,
+        fontSize: 20,
         lineHeight: 22,
         color: "#000",
     },

@@ -7,7 +7,6 @@ import {
   PanResponder,
   ScrollView,
   Dimensions,
-  PanResponderInstance,
 } from "react-native";
 import { Coin, CoinSide } from "../../data/entity/coin";
 import { styles } from "./stylesheet";
@@ -17,7 +16,6 @@ type InfoBottomSheetProps = {
   onClose: () => void;
   dragY: Animated.Value;
   bottomSheetAnim: Animated.Value;
-  sheetPanResponder?: PanResponderInstance;
 };
 
 export const InfoBottomSheet = ({
@@ -25,18 +23,12 @@ export const InfoBottomSheet = ({
   onClose,
   bottomSheetAnim,
   dragY,
-  sheetPanResponder,
 }: InfoBottomSheetProps) => {
   if (!coin) return null;
 
   const walletCoin = coin as any;
   const hasWalletData = walletCoin.flippedAt;
   const hasPrediction = walletCoin.prediction !== undefined;
-  const predictionCount =
-    walletCoin.predictionCount ??
-    walletCoin.prediction_count ??
-    walletCoin.predictions ??
-    null;
 
   let addedDateFormatted: string | null = null;
   let predictionFormatted: string | null = null;
@@ -66,8 +58,6 @@ export const InfoBottomSheet = ({
   const SHEET_HEIGHT = screenHeight * 0.5;
 
 
-
-  // PanResponder kogu sheetile, kuid aktiveerub alles siis, kui liikumine on märgatav
   const handlePanResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -101,9 +91,7 @@ export const InfoBottomSheet = ({
     })
   ).current;
 
-  const activePanResponder = sheetPanResponder ?? handlePanResponder;
-
-  // TranslateY arvutus
+  // TranslateY calculation
   const translateY = Animated.add(
     bottomSheetAnim.interpolate({
       inputRange: [0, 1],
@@ -122,32 +110,33 @@ export const InfoBottomSheet = ({
           zIndex: 10,
         },
       ]}
-      {...activePanResponder.panHandlers}
     >
-      {/* Header ja sulgemisriba */}
-      <View 
+      {/* Header + drag area */}
+      <View
         style={styles.sheetHeader}
+        {...handlePanResponder.panHandlers}
       >
         <View style={styles.sheetHandle} />
-            <TouchableOpacity
-              onPress={onClose}
-              style={styles.sheetCloseBtn}
-              accessibilityRole="button"
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.sheetCloseIcon}>✕</Text>
-            </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={onClose}
+          style={styles.sheetCloseBtn}
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text style={styles.sheetCloseIcon}>✕</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Scrollable info content */}
       <ScrollView
         style={{ flex: 1, width: "100%" }}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20, paddingTop: 8 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: 20,
+        }}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
       >
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>Nimi</Text>
@@ -162,8 +151,8 @@ export const InfoBottomSheet = ({
           <Text style={styles.infoTitle}>Riik</Text>
           <Text style={styles.infoValue}>{coin.region ?? "—"}</Text>
 
-                    <Text style={styles.infoTitle}>Läbimõõt</Text>
-                    <Text style={styles.infoValue}>{coin.diameter ?? "—"} mm</Text>
+          <Text style={styles.infoTitle}>Läbimõõt</Text>
+          <Text style={styles.infoValue}>{coin.diameter ?? "—"} mm</Text>
 
           <Text style={styles.infoTitle}>Materjal</Text>
           <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
@@ -173,14 +162,8 @@ export const InfoBottomSheet = ({
           <View style={styles.infoCard}>
             <Text style={styles.infoTitle}>Rahakotti lisatud</Text>
             <Text style={styles.infoValue}>{addedDateFormatted}</Text>
-            <Text style={styles.infoTitle}>Viimane ennustus</Text>
+            <Text style={styles.infoTitle}>Esimene ennustus</Text>
             <Text style={styles.infoValue}>{predictionFormatted ?? "—"}</Text>
-            <Text style={styles.infoTitle}>Ennustuste arv</Text>
-            <Text style={styles.infoValue}>
-              {predictionCount !== null && predictionCount !== undefined
-                ? predictionCount
-                : "—"}
-            </Text>
           </View>
         )}
       </ScrollView>
