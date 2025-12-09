@@ -128,8 +128,8 @@ export const styles = StyleSheet.create({
 },
 
 predictionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 20,
+    fontFamily: "ProzaDisplay-Bold",
     color: "#2b2b2bff",
     textAlign: "center",
     marginBottom: 16,
@@ -198,10 +198,10 @@ predictionTitle: {
     },
 
     infoTitle: {
-        fontWeight: "700",
-        fontSize: 16,
+        fontSize: 18,
         marginBottom: 6,
         marginTop: 12,
+        fontFamily: "ProzaDisplay-Bold",
     },
 
     infoValue: {
@@ -213,7 +213,7 @@ predictionTitle: {
     // Wallet Styles
     walletTitle: {
         fontSize: 28,
-        fontWeight: "700",
+        fontFamily: "ProzaDisplay-Bold",
         textAlign: "center",
         marginBottom: 8,
         color: "#B4CECC",
@@ -245,8 +245,8 @@ predictionTitle: {
         alignItems: "center",
     },
     walletEmptyText: {
-        fontSize: 20,
-        fontWeight: "600",
+        fontSize: 24,
+        fontFamily: "ProzaDisplay-Bold",
         color: "#B4CECC",
         marginBottom: 8,
     },
@@ -292,11 +292,11 @@ predictionTitle: {
     tutorialTitle: {
         color: "#2b2b2bff",
         fontSize: 16,
-        fontWeight: "800",
         textAlign: "left",
         marginBottom: 6,
         paddingRight: 44,
         paddingLeft: 44,
+        fontFamily: "ProzaDisplay-Bold",
     },
     tutorialText: {
         fontSize: 14,
@@ -319,7 +319,7 @@ predictionTitle: {
     },
     tutorialSkipStepText: {
         color: "#91603A",
-        fontWeight: "700",
+        fontFamily: "ProzaDisplay-SemiBold",
     },
     tutorialClose: {
         position: "absolute",
@@ -340,8 +340,8 @@ predictionTitle: {
     },
 
     coinTitle: {
-    fontWeight: "600",
-    fontSize: 25,
+    fontFamily: "ProzaDisplay-Bold",
+    fontSize: 28,
     color: "#e7e3e3",
     textAlign: "center",
     marginBottom: 12, 
