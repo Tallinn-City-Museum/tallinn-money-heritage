@@ -534,9 +534,7 @@ export default function Flipper() {
             setLastResult(finalSide);
             setResultSource("flip");
 
-            if (pendingPredictionRef.current !== null) {
-                setShowTitle(true);
-            }
+            setShowTitle(true);
 
             const alreadyInWallet = coins.some((c) => c.id === coin?.id);
             if (!alreadyInWallet && coin !== null) {
@@ -733,7 +731,7 @@ export default function Flipper() {
             {!coin && <ActivityIndicator size={64} />}
             {coin && (
                 <>
-                    {lastResult !== null && (
+                    {showTitle && (
                         <Animated.View
                             pointerEvents="box-none"
                             style={[
@@ -890,7 +888,7 @@ export default function Flipper() {
                                     accessibilityRole="button"
                                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                 >
-                                    <Text style={styles.predictionCloseIcon}>x</Text>
+                                    <Text style={styles.predictionCloseIcon}>✕</Text>
                                 </TouchableOpacity>
                             </Animated.View>
                         </>
