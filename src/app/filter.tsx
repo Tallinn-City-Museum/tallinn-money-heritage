@@ -5,7 +5,6 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    Modal,
     Pressable,
     PanResponder,
 } from "react-native";
@@ -13,9 +12,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { styles as commonStyles } from "../components/common/stylesheet";
 import { MaterialFilterSheet } from "./MaterialFilterSheet";
-import { MaterialStat } from "../data/entity/aggregated-meta";
-import { CountryFilterSheet} from "./CountryFilterSheet";
-import { CountryStat } from "./CountryFilterSheet";
+import { CountryFilterSheet } from "./CountryFilterSheet";
+import { AggregatedCoinMeta, MaterialStat, CountryStat, NominalStat, NameStat } from "../data/entity/aggregated-meta";
+import { buildLayeredBuckets } from "../utils/filterBuckets";
 
 type CoinFilterRow = {
     country: string;
@@ -110,6 +109,20 @@ const buildStats = (values: string[], labelOverrides: Record<string, string> = {
         });
 };
 
+const buildAvailabilityMap = (stats: { key: string; count: number }[]) =>
+    new Map(stats.map((stat) => [stat.key, Math.max(stat.count || 0, 0)]));
+
+const mergeStatsWithAvailability = <T extends AggregatedCoinMeta>(
+    baseStats: T[],
+    availableStats: { key: string; count: number }[]
+) => {
+    const availabilityMap = buildAvailabilityMap(availableStats);
+    return baseStats.map((stat) => {
+        const availableCount = availabilityMap.get(stat.key) ?? 0;
+        return { ...stat, available: availableCount > 0, availableCount };
+    });
+};
+
 const BASE_COUNTRY_STATS: CountryStat[] = buildStats(MOCK_FILTER_DATA.map((row) => row.country));
 const BASE_MATERIAL_STATS: MaterialStat[] = buildStats(MOCK_FILTER_DATA.map((row) => row.material));
 const BASE_NOMINAL_STATS: { key: string; label: string; count: number }[] = buildStats(
@@ -118,10 +131,10 @@ const BASE_NOMINAL_STATS: { key: string; label: string; count: number }[] = buil
 const BASE_NAME_STATS: { key: string; label: string; count: number }[] = buildStats(
     MOCK_FILTER_DATA.map((row) => row.name)
 );
-const BASE_PERIOD_STATS: { key: string; label: string; count: number }[] = buildStats(
+const BASE_PERIOD_STATS: AggregatedCoinMeta[] = buildStats(
     MOCK_FILTER_DATA.map((row) => row.period),
     PERIOD_LABELS
-);
+) as AggregatedCoinMeta[];
 
 export default function FilterView() {
     const router = useRouter();
@@ -136,12 +149,14 @@ export default function FilterView() {
     const [pendingMaterial, setPendingMaterial] = useState<string>("");
     const [countryStats, setCountryStats] = useState<CountryStat[]>(BASE_COUNTRY_STATS);
     const [pendingCountry, setPendingCountry] = useState<string>("");
-    const [nominalStats, setNominalStats] = useState<{ key: string; label: string; count: number; }[]>(BASE_NOMINAL_STATS);
+    const [nominalStats, setNominalStats] = useState<NominalStat[]>(BASE_NOMINAL_STATS);
     const [pendingNominal, setPendingNominal] = useState<string>("");
-    const [nameStats, setNameStats] = useState<{ key: string; label: string; count: number; }[]>(BASE_NAME_STATS);
+    const [nameStats, setNameStats] = useState<NameStat[]>(BASE_NAME_STATS);
     const [pendingName, setPendingName] = useState<string>("");
-    const [periodStats, setPeriodStats] = useState<{ key: string; label: string; count: number; }[]>(BASE_PERIOD_STATS);
+    const [periodStats, setPeriodStats] = useState<AggregatedCoinMeta[]>(BASE_PERIOD_STATS);
     const [pendingPeriod, setPendingPeriod] = useState<string>("");
+    const [topOtherPage, setTopOtherPage] = useState(-1);
+    const [bottomOtherPage, setBottomOtherPage] = useState(-1);
 
     const skipAutoPickRef = useRef(false);
     const autoPickEnabledRef = useRef(true);
@@ -247,17 +262,17 @@ export default function FilterView() {
         }
 
         const source = matched.length > 0 ? matched : MOCK_FILTER_DATA;
-        const nextCountries = buildStats(source.map((row) => row.country));
-        const nextMaterials = buildStats(source.map((row) => row.material));
-        const nextNominals = buildStats(source.map((row) => row.nominal));
-        const nextNames = buildStats(source.map((row) => row.name));
-        const nextPeriods = buildStats(source.map((row) => row.period), PERIOD_LABELS);
+        const availableCountries = buildStats(source.map((row) => row.country));
+        const availableMaterials = buildStats(source.map((row) => row.material));
+        const availableNominals = buildStats(source.map((row) => row.nominal));
+        const availableNames = buildStats(source.map((row) => row.name));
+        const availablePeriods = buildStats(source.map((row) => row.period), PERIOD_LABELS);
 
-        setCountryStats(nextCountries);
-        setMaterialStats(nextMaterials);
-        setNominalStats(nextNominals);
-        setNameStats(nextNames);
-        setPeriodStats(nextPeriods);
+        setCountryStats(mergeStatsWithAvailability(BASE_COUNTRY_STATS, availableCountries));
+        setMaterialStats(mergeStatsWithAvailability(BASE_MATERIAL_STATS, availableMaterials));
+        setNominalStats(mergeStatsWithAvailability(BASE_NOMINAL_STATS, availableNominals));
+        setNameStats(mergeStatsWithAvailability(BASE_NAME_STATS, availableNames));
+        setPeriodStats(mergeStatsWithAvailability(BASE_PERIOD_STATS, availablePeriods));
 
         const skipAutoPick = skipAutoPickRef.current;
         skipAutoPickRef.current = false;
@@ -292,11 +307,11 @@ export default function FilterView() {
                 }
             };
 
-            autoPick(pendingCountry, nextCountries, setPendingCountry);
-            autoPick(pendingMaterial, nextMaterials, setPendingMaterial);
-            autoPick(pendingNominal, nextNominals, setPendingNominal);
-            autoPick(pendingName, nextNames, setPendingName);
-            autoPick(pendingPeriod, nextPeriods, setPendingPeriod);
+            autoPick(pendingCountry, availableCountries, setPendingCountry);
+            autoPick(pendingMaterial, availableMaterials, setPendingMaterial);
+            autoPick(pendingNominal, availableNominals, setPendingNominal);
+            autoPick(pendingName, availableNames, setPendingName);
+            autoPick(pendingPeriod, availablePeriods, setPendingPeriod);
         }
     }, [pendingCountry, pendingMaterial, pendingName, pendingNominal, pendingPeriod]);
 
@@ -412,13 +427,13 @@ export default function FilterView() {
                     )}
 
                     <MaterialFilterSheet
-                        isOpen={materialSheetOpen}
-                        materials={materialStats}
-                        activeMaterial={pendingMaterial}
-                        onRequestClose={() => setMaterialSheetOpen(false)}
-                        onSelectMaterial={handleSelectMaterial}
-                        onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}
-                    />
+                            isOpen={materialSheetOpen}
+                            materials={materialStats}
+                            activeMaterial={pendingMaterial}
+                            onRequestClose={() => setMaterialSheetOpen(false)}
+                            onSelectMaterial={handleSelectMaterial}
+                            onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
+                             />
 
                     {(materialSheetOpen || countrySheetOpen) && (
                         <View
@@ -623,7 +638,7 @@ const materialStyles = StyleSheet.create({
 });
 
 type PeriodFilterRailProps = {
-    items: { key: string; label: string; count: number }[];
+    items: AggregatedCoinMeta[];
     activePeriod: string;
     onSelectPeriod: (key: string) => void;
     topOffset?: number;
@@ -688,10 +703,22 @@ const sidebarBottom =
 
                 const active = activePeriod === item.key;
 
+                const isAvailable = item.available ?? true;
+                const backgroundColor = active
+                    ? "#7bd7cc"
+                    : isAvailable
+                        ? palette[idx % palette.length]
+                        : "#1f2a29";
+                const blockOpacity = active ? 0.94 : isAvailable ? 1 : 0.35;
+                const labelColor = isAvailable ? "#e7f2ef" : "#7a8c88";
+                const handlePress = () => {
+                    if (!isAvailable) return;
+                    onSelectPeriod(active ? "" : item.key);
+                };
                 const block = (
                     <TouchableOpacity
                         key={`${item.key}-${idx}`}
-                        onPress={() => onSelectPeriod(active ? "" : item.key)}
+                        onPress={handlePress}
                         style={{
                             position: "absolute",
                             left: x,
@@ -703,13 +730,16 @@ const sidebarBottom =
                             borderColor: "#1f2a29",
                             paddingHorizontal: 8,
                             paddingVertical: 8,
-                            backgroundColor: active ? "#7bd7cc" : palette[idx % palette.length],
+                            backgroundColor,
+                            opacity: blockOpacity,
                         }}
+                        accessibilityRole="button"
+                        accessibilityState={{ disabled: !isAvailable }}
                     >
                         <Text
                             numberOfLines={2}
                             style={{
-                                color: "#e7f2ef",
+                                color: labelColor,
                                 fontWeight: "700",
                                 fontSize: 12,
                             }}
@@ -762,8 +792,8 @@ const sidebarBottom =
 
 
 type SideFiltersProps = {
-    topItems: { key: string; label: string; count: number }[];
-    bottomItems: { key: string; label: string; count: number }[];
+    topItems: AggregatedCoinMeta[];
+    bottomItems: AggregatedCoinMeta[];
     activeTop: string;
     activeBottom: string;
     onSelectTop: (key: string) => void;
@@ -784,10 +814,8 @@ const RightSideFilters = ({
 }: SideFiltersProps) => {
     const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
     const [layout, setLayout] = useState({ w: 0, h: 0 });
-    const [modalSizeTop, setModalSizeTop] = useState({ w: 0, h: 0 });
-    const [modalSizeBottom, setModalSizeBottom] = useState({ w: 0, h: 0 });
-    const [showOtherTop, setShowOtherTop] = useState(false);
-    const [showOtherBottom, setShowOtherBottom] = useState(false);
+    const [topPage, setTopPage] = useState(-1);
+    const [bottomPage, setBottomPage] = useState(-1);
     const insets = useSafeAreaInsets();
     const screenHeight = Dimensions.get("window").height;
     const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
@@ -799,22 +827,8 @@ const RightSideFilters = ({
     const nominalHeight = Math.max(30, usableHeight * 0.5);
     const namesHeight = Math.max(30, usableHeight - nominalHeight);
 
-    const prepareBuckets = (items: { key: string; label: string; count: number }[], activeKey: string) => {
-        const filtered = [...items].sort((a, b) => (b.count || 0) - (a.count || 0));
-        const primary = filtered.slice(0, 6);
-        const others = filtered.slice(6);
-        const otherCount = Math.max(1, others.reduce((sum, item) => sum + (item.count || 1), 0));
-        const primaryWithOther = others.length > 0 ? [...primary, { key: "__other__", label: "Muud", count: otherCount }] : primary;
-        const normalizedActive = primaryWithOther.some((i) => i.key === activeKey)
-            ? activeKey
-            : others.some((i) => i.key === activeKey)
-            ? "__other__"
-            : activeKey;
-        return { primary: primaryWithOther, others, normalizedActive };
-    };
-
     const renderTreemapGrid = (
-        items: { key: string; label: string; count: number }[],
+        items: AggregatedCoinMeta[],
         activeKey: string,
         width: number,
         height: number,
@@ -823,8 +837,8 @@ const RightSideFilters = ({
     ) => {
         if (items.length === 0) return null;
 
-        const left: typeof items = [];
-        const right: typeof items = [];
+        const left: AggregatedCoinMeta[] = [];
+        const right: AggregatedCoinMeta[] = [];
         let sumLeft = 0;
         let sumRight = 0;
         items.forEach((m) => {
@@ -838,7 +852,7 @@ const RightSideFilters = ({
         });
 
         const colWidth = width / 2;
-        const placeCol = (col: typeof items, colSum: number, x: number, offset: number) => {
+        const placeCol = (col: AggregatedCoinMeta[], colSum: number, x: number, offset: number) => {
             const factor = colSum > 0 ? height / colSum : 0;
             let y = 0;
             return col.map((m, idx) => {
@@ -847,10 +861,23 @@ const RightSideFilters = ({
                 if (isLast) {
                     h = height - y;
                 }
+                const isAvailable = m.available ?? true;
+                const isActive = activeKey === m.key;
+                const blockColor = isActive
+                    ? "#7bd7cc"
+                    : isAvailable
+                        ? palette[(offset + idx) % palette.length]
+                        : "#1f2a29";
+                const blockOpacity = isActive ? 0.94 : isAvailable ? 0.9 : 0.35;
+                const labelColor = isAvailable ? "#e7f2ef" : "#7a8c88";
+                const handlePress = () => {
+                    if (!isAvailable) return;
+                    onSelect(m.key);
+                };
                 const block = (
                     <TouchableOpacity
                         key={`${m.key}-${x}-${idx}`}
-                        onPress={() => onSelect(m.key)}
+                        onPress={handlePress}
                         style={[
                             sideStyles.block,
                             {
@@ -858,13 +885,15 @@ const RightSideFilters = ({
                                 top: y,
                                 width: colWidth,
                                 height: h,
-                                backgroundColor: activeKey === m.key ? "#7bd7cc" : palette[(offset + idx) % palette.length],
+                                backgroundColor: blockColor,
+                                opacity: blockOpacity,
                             },
                         ]}
                         accessibilityRole="button"
+                        accessibilityState={{ disabled: !isAvailable }}
                     >
                         <Text
-                            style={sideStyles.label}
+                            style={[sideStyles.label, { color: labelColor }]}
                             numberOfLines={1}
                             adjustsFontSizeToFit
                             minimumFontScale={0.7}
@@ -891,8 +920,74 @@ const RightSideFilters = ({
         );
     };
 
-    const topBuckets = prepareBuckets(topItems, activeTop);
-    const bottomBuckets = prepareBuckets(bottomItems, activeBottom);
+    const topBuckets = buildLayeredBuckets(topItems, activeTop);
+    const bottomBuckets = buildLayeredBuckets(bottomItems, activeBottom);
+    const showTopOthers = topPage >= 0 && topBuckets.pages.length > 0;
+    const showBottomOthers = bottomPage >= 0 && bottomBuckets.pages.length > 0;
+    const topChunk = showTopOthers ? topBuckets.pages[topPage] ?? [] : [];
+    const topMoreTile = showTopOthers ? topBuckets.moreIndicators[topPage] : null;
+    const bottomChunk = showBottomOthers ? bottomBuckets.pages[bottomPage] ?? [] : [];
+    const bottomMoreTile = showBottomOthers ? bottomBuckets.moreIndicators[bottomPage] : null;
+    const returnTile = {
+        key: "__return__",
+        label: "Tagasi",
+        count: 1,
+        available: true,
+        availableCount: 1,
+    };
+    const topDisplayItems = showTopOthers
+        ? [...topChunk, ...(topMoreTile ? [topMoreTile] : []), returnTile]
+        : topBuckets.primary;
+    const bottomDisplayItems = showBottomOthers
+        ? [...bottomChunk, ...(bottomMoreTile ? [bottomMoreTile] : []), returnTile]
+        : bottomBuckets.primary;
+    const topActiveKey = showTopOthers ? activeTop : topBuckets.normalizedActive;
+    const bottomActiveKey = showBottomOthers ? activeBottom : bottomBuckets.normalizedActive;
+
+    const handleTopSelect = (key: string) => {
+        if (showTopOthers) {
+            if (key === "__more__") {
+                setTopPage((prev) => Math.min(prev + 1, topBuckets.pages.length - 1));
+                return;
+            }
+            if (key === "__return__") {
+                setTopPage(-1);
+                return;
+            }
+            const next = key === activeTop ? "" : key;
+            onSelectTop(next);
+            setTopPage(-1);
+            return;
+        }
+        if (key === "__other__" && topBuckets.pages.length > 0) {
+            setTopPage(0);
+            return;
+        }
+        const next = key === activeTop ? "" : key;
+        onSelectTop(next);
+    };
+    const handleBottomSelect = (key: string) => {
+        if (showBottomOthers) {
+            if (key === "__more__") {
+                setBottomPage((prev) => Math.min(prev + 1, bottomBuckets.pages.length - 1));
+                return;
+            }
+            if (key === "__return__") {
+                setBottomPage(-1);
+                return;
+            }
+            const next = key === activeBottom ? "" : key;
+            onSelectBottom(next);
+            setBottomPage(-1);
+            return;
+        }
+        if (key === "__other__" && bottomBuckets.pages.length > 0) {
+            setBottomPage(0);
+            return;
+        }
+        const next = key === activeBottom ? "" : key;
+        onSelectBottom(next);
+    };
 
     return (
         <View
@@ -909,14 +1004,7 @@ const RightSideFilters = ({
             {layout.w > 0 && sidebarHeight > 0 && (
                 <>
                     <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: nominalHeight }}>
-                        {renderTreemapGrid(topBuckets.primary, topBuckets.normalizedActive, layout.w, nominalHeight, (key) => {
-                            if (key === "__other__") {
-                                setShowOtherTop(true);
-                                return;
-                            }
-                            const next = key === activeTop ? "" : key;
-                            onSelectTop(next);
-                        }, 0)}
+                        {renderTreemapGrid(topDisplayItems, topActiveKey, layout.w, nominalHeight, handleTopSelect, 0)}
                     </View>
                     <View
                         style={{
@@ -927,85 +1015,12 @@ const RightSideFilters = ({
                             height: namesHeight,
                         }}
                     >
-                        {renderTreemapGrid(bottomBuckets.primary, bottomBuckets.normalizedActive, layout.w, namesHeight, (key) => {
-                            if (key === "__other__") {
-                                setShowOtherBottom(true);
-                                return;
-                            }
-                            const next = key === activeBottom ? "" : key;
-                            onSelectBottom(next);
-                        }, 3)}
+                        {renderTreemapGrid(bottomDisplayItems, bottomActiveKey, layout.w, namesHeight, handleBottomSelect, 3)}
                     </View>
                 </>
             )}
 
-            <Modal
-                transparent
-                visible={showOtherTop}
-                animationType="fade"
-                onRequestClose={() => setShowOtherTop(false)}
-            >
-                <Pressable style={sideStyles.modalBackdrop} onPress={() => setShowOtherTop(false)}>
-                    <View style={sideStyles.modalCard} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
-                        <Text style={sideStyles.modalTitle}>Muud nominaalid</Text>
-                        <View style={sideStyles.modalTreemapWrap}>
-                            <View
-                                style={StyleSheet.absoluteFillObject}
-                                pointerEvents="none"
-                                onLayout={(e) => {
-                                    const { width, height } = e.nativeEvent.layout;
-                                    setModalSizeTop({ w: width, h: height });
-                                }}
-                            />
-                            {renderTreemapGrid(
-                                topBuckets.others,
-                                activeTop,
-                                modalSizeTop.w > 0 ? modalSizeTop.w : layout.w,
-                                modalSizeTop.h > 0 ? modalSizeTop.h : Math.max(160, nominalHeight * 2),
-                                (key) => {
-                                    const next = key === activeTop ? "" : key;
-                                    onSelectTop(next);
-                                },
-                                0
-                            )}
-                        </View>
-                    </View>
-                </Pressable>
-            </Modal>
 
-            <Modal
-                transparent
-                visible={showOtherBottom}
-                animationType="fade"
-                onRequestClose={() => setShowOtherBottom(false)}
-            >
-                <Pressable style={sideStyles.modalBackdrop} onPress={() => setShowOtherBottom(false)}>
-                    <View style={sideStyles.modalCard} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
-                        <Text style={sideStyles.modalTitle}>Muud nimetused</Text>
-                        <View style={sideStyles.modalTreemapWrap}>
-                            <View
-                                style={StyleSheet.absoluteFillObject}
-                                pointerEvents="none"
-                                onLayout={(e) => {
-                                    const { width, height } = e.nativeEvent.layout;
-                                    setModalSizeBottom({ w: width, h: height });
-                                }}
-                            />
-                            {renderTreemapGrid(
-                                bottomBuckets.others,
-                                activeBottom,
-                                modalSizeBottom.w > 0 ? modalSizeBottom.w : layout.w,
-                                modalSizeBottom.h > 0 ? modalSizeBottom.h : Math.max(160, namesHeight * 2),
-                                (key) => {
-                                    const next = key === activeBottom ? "" : key;
-                                    onSelectBottom(next);
-                                },
-                                2
-                            )}
-                        </View>
-                    </View>
-                </Pressable>
-            </Modal>
         </View>
     );
 };
@@ -1079,38 +1094,5 @@ const sideStyles = StyleSheet.create({
         color: "#e7f2ef",
         fontWeight: "700",
         fontSize: 11,
-    },
-    modalBackdrop: {
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.45)",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 18,
-    },
-    modalCard: {
-        width: "100%",
-        maxWidth: 420,
-        backgroundColor: "rgba(22, 32, 35, 0.96)",
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 12,
-        elevation: 16,
-    },
-    modalTitle: {
-        color: "#e7f2ef",
-        fontWeight: "800",
-        fontSize: 16,
-        marginBottom: 10,
-        textAlign: "center",
-    },
-    modalTreemapWrap: {
-        width: "100%",
-        aspectRatio: 1,
-        maxHeight: 360,
-        overflow: "hidden",
     },
 });
