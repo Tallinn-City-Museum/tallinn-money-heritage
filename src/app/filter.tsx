@@ -549,14 +549,14 @@ export default function FilterView() {
                 />
             )}
 
-            <MaterialFilterSheet
-                    isOpen={materialSheetOpen}
-                    materials={materialStats}
-                    activeMaterial={pendingMaterial}
-                    onRequestClose={() => setMaterialSheetOpen(false)}
-                    onSelectMaterial={handleSelectMaterial}
-                    onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
-                     />
+                    <MaterialFilterSheet
+                            isOpen={materialSheetOpen}
+                            materials={materialStats}
+                            activeMaterial={pendingMaterial}
+                            onRequestClose={() => setMaterialSheetOpen(false)}
+                            onSelectMaterial={handleSelectMaterial}
+                            onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
+                             />
 
             {(materialSheetOpen || countrySheetOpen) && (
                 <View
@@ -877,17 +877,14 @@ const sidebarBottom =
                             paddingVertical: 8,
                             backgroundColor,
                             opacity: blockOpacity,
-                            
                         }}
                         accessibilityRole="button"
                         accessibilityState={{ disabled: !isAvailable }}
-                        
                     >
                         <Text
                             numberOfLines={2}
                             style={{
                                 color: labelColor,
-                               
                                 fontWeight: "700",
                                 fontSize: 12,
                             }}
