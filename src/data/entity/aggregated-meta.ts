@@ -5,6 +5,8 @@ export type AggregatedCoinMeta = {
     key: string;
     label: string;
     count: number;
+    available?: boolean;
+    availableCount?: number;
 };
 
 export type MaterialStat = AggregatedCoinMeta;
