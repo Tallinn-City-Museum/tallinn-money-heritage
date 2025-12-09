@@ -30,7 +30,7 @@ jest.mock("../context/wallet-context", () => {
     };
 });
 
-// Mock coin service
+// Mock coin service + coin stats service
 jest.mock("../service/coin-service", () => ({
     coinService: {
         generateNewCoin: jest.fn().mockResolvedValue({
@@ -45,9 +45,15 @@ jest.mock("../service/coin-service", () => ({
             nomValue: "1",
             lemmaName: "lemma",
             headImageResource: "heads.png",
-            tailsImageResource: "tails.png"
-        })
-    }
+            tailsImageResource: "tails.png",
+        }),
+    },
+    coinStatsService: {
+        getMaterialStats: jest.fn().mockResolvedValue([]),
+        getCountryStats: jest.fn().mockResolvedValue([]),
+        getNominalStats: jest.fn().mockResolvedValue([]),
+        getNameStats: jest.fn().mockResolvedValue([]),
+    },
 }));
 
 // Mock safe-area so hooks and provider do not crash in the test environment
