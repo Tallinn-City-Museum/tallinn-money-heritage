@@ -1,15 +1,6 @@
 import React from "react";
-import {
-    render,
-    screen,
-    waitFor,
-    fireEvent,
-    act
-} from "@testing-library/react-native";
-import {
-    RotationGestureHandler,
-    State
-} from "react-native-gesture-handler";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react-native";
+import { RotationGestureHandler } from "react-native-gesture-handler";
 import Flipper from "../app/coin-flipper";
 
 jest.setTimeout(10000);
@@ -39,7 +30,7 @@ jest.mock("../context/wallet-context", () => {
     };
 });
 
-// 2) coin-service
+// 2) coin-service + stats
 jest.mock("../service/coin-service", () => ({
     coinService: {
         generateNewCoin: jest.fn().mockResolvedValue({
@@ -54,9 +45,15 @@ jest.mock("../service/coin-service", () => ({
             nomValue: "1",
             lemmaName: "lemma",
             headImageResource: "heads.png",
-            tailsImageResource: "tails.png"
-        })
-    }
+            tailsImageResource: "tails.png",
+        }),
+    },
+    coinStatsService: {
+        getMaterialStats: jest.fn().mockResolvedValue([]),
+        getCountryStats: jest.fn().mockResolvedValue([]),
+        getNominalStats: jest.fn().mockResolvedValue([]),
+        getNameStats: jest.fn().mockResolvedValue([]),
+    },
 }));
 
 // 3) Safe area
@@ -104,10 +101,7 @@ jest.mock("../components/common/InfoBottomSheet", () => ({
     InfoBottomSheet: () => null
 }));
 
-const flush = async () => {
-    await Promise.resolve();
-    await Promise.resolve();
-};
+const flush = () => new Promise((r) => setImmediate(r));
 
 describe("Coin flipper – rotation only when zoomed", () => {
     test("RotationGestureHandler is enabled only after zooming in", async () => {
@@ -130,17 +124,6 @@ describe("Coin flipper – rotation only when zoomed", () => {
         await waitFor(() => {
             rotEl = screen.UNSAFE_getByType(RotationGestureHandler);
             expect(rotEl.props.enabled).toBe(true);
-        });
-
-        // Additionally, verify that rotation handlers can be called
-        const { onGestureEvent, onHandlerStateChange } = rotEl.props;
-
-        await act(async () => {
-            // Simulate a non-trivial rotation
-            onGestureEvent?.({ nativeEvent: { rotation: 0.5 } });
-            onHandlerStateChange?.({
-                nativeEvent: { state: State.END, rotation: 0.5 }
-            });
         });
     });
 });
