@@ -8,11 +8,7 @@ import {
 
   Easing,
 
-  Modal,
-
   PanResponder,
-
-  Pressable,
 
   StyleSheet,
 
@@ -23,30 +19,9 @@ import {
   View,
 
 } from "react-native";
+import { AggregatedCoinMeta, CountryStat } from "../data/entity/aggregated-meta";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-type FilterItem = {
-  key: string;
-  label: string;
-  count: number;
-};
-
-export type CountryStat = FilterItem;
-export const DEFAULT_COUNTRIES: CountryStat[] = [
-  { key: "Eesti", label: "Eesti", count: 6 },
-  { key: "Venemaa", label: "Venemaa", count: 8 },
-  { key: "Saksamaa", label: "Saksamaa", count: 4 },
-  { key: "Rootsi", label: "Rootsi", count: 5 },
-  { key: "Soome", label: "Soome", count: 4 },
-  { key: "LĆ¤ti", label: "LĆ¤ti", count: 3 },
-  { key: "Leedu", label: "Leedu", count: 3 },
-  { key: "Poola", label: "Poola", count: 4 },
-  { key: "Ukraina", label: "Ukraina", count: 3 },
-  { key: "Taani", label: "Taani", count: 2 },
-  { key: "Norra", label: "Norra", count: 2 },
-  { key: "Hispaania", label: "Hispaania", count: 2 },
-  { key: "Itaalia", label: "Itaalia", count: 2 },
-];
+import { buildLayeredBuckets } from "../utils/filterBuckets";
 
 type CountryFilterSheetProps = {
   isOpen: boolean;
@@ -79,46 +54,25 @@ export const CountryFilterSheet = ({
 
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
 
-  const [showOthers, setShowOthers] = useState(false);
-
-  const [modalSize, setModalSize] = useState({ w: 0, h: 0 });
+  const [otherPage, setOtherPage] = useState(-1);
 
 
 
-  const { primaryItems, otherItems, activeKeyForPrimary } = useMemo(() => {
-
-    const filtered = [...countries].sort((a, b) => (b.count || 0) - (a.count || 0));
-
-    const primary = filtered.slice(0, 6);
-
-    const others = filtered.slice(6);
-
-    if (others.length === 0) {
-
-      return { primaryItems: primary, otherItems: [], activeKeyForPrimary: activeCountry };
-
-    }
-
-    const otherCount = Math.max(
-
-      1,
-
-      others.reduce((sum, item) => sum + (item.count || 1), 0)
-
-    );
-
-    const withOther = [...primary, { key: "__other__", label: "Muud", count: otherCount }];
-
-    const activeInPrimary = withOther.some((c) => c.key === activeCountry)
-
-      ? activeCountry
-
-      : others.some((c) => c.key === activeCountry)
-      ? "__other__"
-      : activeCountry;
-    return { primaryItems: withOther, otherItems: others, activeKeyForPrimary: activeInPrimary };
-
-  }, [countries, activeCountry]);
+  const buckets = useMemo(() => buildLayeredBuckets(countries, activeCountry), [countries, activeCountry]);
+  const showOthers = otherPage >= 0 && buckets.pages.length > 0;
+  const currentChunk = showOthers ? buckets.pages[otherPage] ?? [] : [];
+  const moreTile = showOthers ? buckets.moreIndicators[otherPage] : null;
+  const returnTile = {
+    key: "__return__",
+    label: "Tagasi",
+    count: 1,
+    available: true,
+    availableCount: 1,
+  };
+  const displayedItems = showOthers
+    ? [...currentChunk, ...(moreTile ? [moreTile] : []), returnTile]
+    : buckets.primary;
+  const displayedActive = showOthers ? activeCountry : buckets.normalizedActive;
 
 
 
@@ -230,6 +184,31 @@ export const CountryFilterSheet = ({
 
 
 
+  const handleTreemapSelect = (key: string) => {
+    if (showOthers) {
+      if (key === "__more__") {
+        setOtherPage((prev) => Math.min(prev + 1, buckets.pages.length - 1));
+        return;
+      }
+      if (key === "__return__") {
+        setOtherPage(-1);
+        return;
+      }
+      const next = key === activeCountry ? "" : key;
+      onSelectCountry(next);
+      setOtherPage(-1);
+      return;
+    }
+
+    if (key === "__other__" && buckets.pages.length > 0) {
+      setOtherPage(0);
+      return;
+    }
+
+    const next = key === activeCountry ? "" : key;
+    onSelectCountry(next);
+  };
+
   return (
 
     <View style={styles.absoluteWrap} pointerEvents="box-none">
@@ -268,107 +247,17 @@ export const CountryFilterSheet = ({
       >
 
         <View style={styles.treemap} pointerEvents="box-none">
-            {containerSize.w > 0 &&
-              renderTreemap({
-                items: primaryItems,
-                active: activeKeyForPrimary,
-                onSelect: (key) => {
-                  if (key === "__other__") {
-                    setShowOthers(true);
-                    return;
-                  }
-                  const next = key === activeCountry ? "Kõik" : key;
-                  onSelectCountry(next);
-                },
-                width: containerSize.w,
-                height: containerSize.h,
-              })}
+          {containerSize.w > 0 &&
+            renderTreemap({
+              items: displayedItems,
+              active: displayedActive,
+              onSelect: handleTreemapSelect,
+              width: containerSize.w,
+              height: containerSize.h,
+            })}
         </View>
 
       </Animated.View>
-
-      <Modal
-
-        transparent
-
-        visible={showOthers}
-
-        animationType="fade"
-
-        onRequestClose={() => setShowOthers(false)}
-
-      >
-
-        <Pressable style={styles.modalBackdrop} onPress={() => setShowOthers(false)}>
-
-          <View
-
-            style={styles.modalCard}
-
-            onStartShouldSetResponder={() => true}
-
-            onTouchEnd={(e) => {
-
-              e.stopPropagation();
-
-            }}
-
-          >
-
-            <Text style={styles.modalTitle}>Muud riigid</Text>
-
-            <View style={styles.modalTreemapWrap}>
-
-              <View
-
-                style={StyleSheet.absoluteFillObject}
-
-                pointerEvents="none"
-
-                onLayout={(e) => {
-
-                  const { width, height } = e.nativeEvent.layout;
-
-                  setModalSize({ w: width, h: height });
-
-                }}
-
-              />
-
-              {otherItems.length > 0 &&
-
-                renderTreemap({
-                  items: otherItems,
-                  active: activeCountry,
-                  onSelect: (key) => {
-                    const next = key === activeCountry ? "" : key;
-                    onSelectCountry(next);
-                  },
-                  width:
-                    modalSize.w > 0
-                      ? modalSize.w
-
-                      : containerSize.w > 0
-                      ? containerSize.w
-                      : Dimensions.get("window").width * 0.8,
-                  height:
-
-                    modalSize.h > 0
-
-                      ? modalSize.h
-
-                      : containerSize.h > 0
-                      ? Math.max(200, containerSize.h * 0.8)
-                      : Dimensions.get("window").height * 0.5,
-                })}
-
-            </View>
-
-          </View>
-
-        </Pressable>
-
-      </Modal>
 
     </View>
 
@@ -379,7 +268,7 @@ export const CountryFilterSheet = ({
 
 
 type TreemapProps = {
-  items: FilterItem[];
+  items: AggregatedCoinMeta[];
   active: string;
 
   onSelect: (key: string) => void;
@@ -394,11 +283,9 @@ type TreemapProps = {
 
 const palette = ["#365752", "#2c4b47", "#456d67", "#3a5f5b", "#5a8c84"];
 
-const MIN_BLOCK_HEIGHT = 32;
+const MIN_BLOCK_HEIGHT = 48;
 
-
-
-const sumCounts = (items: FilterItem[]) =>
+const sumCounts = (items: AggregatedCoinMeta[]) =>
   items.reduce((sum, item) => sum + (item.count || 1), 0);
 
 
@@ -422,7 +309,7 @@ const renderTreemap = ({
 
 
   const renderSlice = (
-    slice: FilterItem[],
+    slice: AggregatedCoinMeta[],
     x: number,
 
     y: number,
@@ -444,6 +331,23 @@ const renderTreemap = ({
       const m = slice[0];
 
       const isActive = active === m.key;
+
+      const isAvailable = m.available ?? true;
+
+      const backgroundColor = isActive
+        ? "#7bd7cc"
+        : isAvailable
+          ? palette[paletteOffset % palette.length]
+          : "#1f2a29";
+
+      const blockOpacity = isActive ? 0.94 : isAvailable ? 0.82 : 0.35;
+
+      const labelColor = isAvailable ? "#e7f2ef" : "#7a8c88";
+
+      const handlePress = () => {
+        if (!isAvailable) return;
+        onSelect(m.key);
+      };
 
       return [
 
@@ -467,23 +371,25 @@ const renderTreemap = ({
 
               height: Math.max(MIN_BLOCK_HEIGHT, h),
 
-              backgroundColor: isActive ? "#7bd7cc" : palette[paletteOffset % palette.length],
+              backgroundColor,
 
-              opacity: isActive ? 0.94 : 0.82,
+              opacity: blockOpacity,
 
             },
 
           ]}
 
-          onPress={() => onSelect(m.key)}
+          onPress={handlePress}
 
           accessibilityRole="button"
+
+          accessibilityState={{ disabled: !isAvailable }}
 
         >
 
           <Text
 
-            style={styles.cardLabel}
+            style={[styles.cardLabel, { color: labelColor }]}
 
             numberOfLines={1}
 
@@ -742,6 +648,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
 
   },
+
 
 });
 
