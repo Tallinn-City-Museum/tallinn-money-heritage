@@ -7,6 +7,7 @@ import {
     Dimensions,
     Pressable,
     PanResponder,
+    ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,16 +17,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirstRunTutorial, TutorialProgress, TutorialStepKey } from "../components/tutorial/first-run-tutorial";
 import { MaterialFilterSheet } from "./MaterialFilterSheet";
 import { CountryFilterSheet } from "./CountryFilterSheet";
-import { AggregatedCoinMeta, MaterialStat, CountryStat, NominalStat, NameStat } from "../data/entity/aggregated-meta";
+import {
+    AggregatedCoinMeta,
+    MaterialStat,
+    CountryStat,
+    NominalStat,
+    NameStat,
+    CoinFilterRow
+} from "../data/entity/aggregated-meta";
 import { buildLayeredBuckets } from "../utils/filterBuckets";
-
-type CoinFilterRow = {
-    country: string;
-    material: string;
-    nominal: string;
-    name: string;
-    period: string;
-};
+import { coinStatsService } from "../service/coin-service";
 
 const PERIOD_CLUSTERS = [
     { key: "1400-1500", label: "1400-1500" },
@@ -47,58 +48,6 @@ const RESET_KEY = "tutorial.resetToken";
 
 // Weighted pattern gives the 1500-1550 slice a bit more presence to match the supplied clusters
 const PERIOD_PATTERN = [0, 1, 1, 2, 3, 4, 5, 6];
-type BaseFilterRow = Omit<CoinFilterRow, "period">;
-
-const RAW_FILTER_DATA: BaseFilterRow[] = [
-    { country: "Saksamaa", material: "Vask", nominal: "2", name: "Mark" },
-    { country: "Saksamaa", material: "Hõbe", nominal: "1", name: "Mark" },
-    { country: "Saksamaa", material: "Vask", nominal: "5", name: "Fennig" },
-    { country: "Saksamaa", material: "Hõbe", nominal: "10", name: "Fennig" },
-    { country: "Saksamaa", material: "Nikkel", nominal: "20", name: "Mark" },
-    { country: "Saksamaa", material: "Messing", nominal: "50", name: "Fennig" },
-    { country: "Venemaa", material: "Vask", nominal: "2", name: "Kopikat" },
-    { country: "Venemaa", material: "Hõbe", nominal: "1", name: "Rubla" },
-    { country: "Venemaa", material: "Hõbe", nominal: "10", name: "Rubla" },
-    { country: "Venemaa", material: "Vask", nominal: "5", name: "Kopikat" },
-    { country: "Venemaa", material: "Pronks", nominal: "1/2", name: "Denaar" },
-    { country: "Venemaa", material: "Nikkel", nominal: "100", name: "Rubla" },
-    { country: "Rootsi", material: "Hõbe", nominal: "1", name: "Taaler" },
-    { country: "Rootsi", material: "Vask", nominal: "2", name: "Taaler" },
-    { country: "Rootsi", material: "Pronks", nominal: "5", name: "Penn" },
-    { country: "Rootsi", material: "Messing", nominal: "10", name: "Penn" },
-    { country: "Eesti", material: "Vask", nominal: "2", name: "Kroon" },
-    { country: "Eesti", material: "Vask", nominal: "1", name: "Kroon" },
-    { country: "Eesti", material: "Nikkel", nominal: "20", name: "Kroon" },
-    { country: "Eesti", material: "Hõbe", nominal: "50", name: "Kroon" },
-    { country: "Poola", material: "Vask", nominal: "5", name: "Zloty" },
-    { country: "Poola", material: "Hõbe", nominal: "10", name: "Zloty" },
-    { country: "Läti", material: "Vask", nominal: "2", name: "Lats" },
-    { country: "Läti", material: "Hõbe", nominal: "1", name: "Lats" },
-    { country: "Norra", material: "Messing", nominal: "10", name: "Kroon" },
-    { country: "Norra", material: "Pronks", nominal: "20", name: "Kroon" },
-    { country: "Itaalia", material: "Alumiinium", nominal: "1", name: "Lira" },
-    { country: "Itaalia", material: "Plii", nominal: "2", name: "Lira" },
-    { country: "Hispaania", material: "Raud", nominal: "5", name: "Peseta" },
-    { country: "Hispaania", material: "Tsingi sulam", nominal: "10", name: "Peseta" },
-    { country: "Taani", material: "Terassulam", nominal: "50", name: "Kroon" },
-    { country: "Taani", material: "Hõbe", nominal: "100", name: "Kroon" },
-    { country: "Ukraina", material: "Vask", nominal: "2", name: "Hryvnia" },
-    { country: "Ukraina", material: "Hõbe", nominal: "5", name: "Hryvnia" },
-    { country: "Leedu", material: "Nikkel", nominal: "1", name: "Litt" },
-    { country: "Leedu", material: "Messing", nominal: "2", name: "Litt" },
-    { country: "USA", material: "Kuld", nominal: "20", name: "Dollar" },
-    { country: "USA", material: "Vask", nominal: "1", name: "Penny" },
-    { country: "USA", material: "Hõbe", nominal: "50", name: "Dollar" },
-    { country: "Inglismaa", material: "Hõbe", nominal: "1", name: "Sikkel" },
-    { country: "Inglismaa", material: "Vask", nominal: "2", name: "Florin" },
-    { country: "Inglismaa", material: "Pronks", nominal: "5", name: "Penn" },
-];
-
-const MOCK_FILTER_DATA: CoinFilterRow[] = RAW_FILTER_DATA.map((row, idx) => {
-    const bucketIdx = PERIOD_PATTERN[idx % PERIOD_PATTERN.length];
-    const cluster = PERIOD_CLUSTERS[bucketIdx] ?? PERIOD_CLUSTERS[0];
-    return { ...row, period: cluster.key };
-});
 
 const buildStats = (values: string[], labelOverrides: Record<string, string> = {}) => {
     const counts = new Map<string, number>();
@@ -129,18 +78,6 @@ const mergeStatsWithAvailability = <T extends AggregatedCoinMeta>(
     });
 };
 
-const BASE_COUNTRY_STATS: CountryStat[] = buildStats(MOCK_FILTER_DATA.map((row) => row.country));
-const BASE_MATERIAL_STATS: MaterialStat[] = buildStats(MOCK_FILTER_DATA.map((row) => row.material));
-const BASE_NOMINAL_STATS: { key: string; label: string; count: number }[] = buildStats(
-    MOCK_FILTER_DATA.map((row) => row.nominal)
-);
-const BASE_NAME_STATS: { key: string; label: string; count: number }[] = buildStats(
-    MOCK_FILTER_DATA.map((row) => row.name)
-);
-const BASE_PERIOD_STATS: AggregatedCoinMeta[] = buildStats(
-    MOCK_FILTER_DATA.map((row) => row.period),
-    PERIOD_LABELS
-) as AggregatedCoinMeta[];
 const FILTER_TUTORIAL_STEPS: TutorialStepKey[] = ["filterCoins", "filteringChoice", "filterNavigation"];
 
 const buildInitialTutorial = (): TutorialProgress => ({
@@ -168,18 +105,47 @@ export default function FilterView() {
     const [showPrompt, setShowPrompt] = useState(false);
     const [materialSheetOpen, setMaterialSheetOpen] = useState(true);
     const [countrySheetOpen, setCountrySheetOpen] = useState(true);
-    const [materialStats, setMaterialStats] = useState<MaterialStat[]>(BASE_MATERIAL_STATS);
     const [pendingMaterial, setPendingMaterial] = useState<string>("");
-    const [countryStats, setCountryStats] = useState<CountryStat[]>(BASE_COUNTRY_STATS);
     const [pendingCountry, setPendingCountry] = useState<string>("");
-    const [nominalStats, setNominalStats] = useState<NominalStat[]>(BASE_NOMINAL_STATS);
     const [pendingNominal, setPendingNominal] = useState<string>("");
-    const [nameStats, setNameStats] = useState<NameStat[]>(BASE_NAME_STATS);
     const [pendingName, setPendingName] = useState<string>("");
-    const [periodStats, setPeriodStats] = useState<AggregatedCoinMeta[]>(BASE_PERIOD_STATS);
     const [pendingPeriod, setPendingPeriod] = useState<string>("");
-    const [topOtherPage, setTopOtherPage] = useState(-1);
-    const [bottomOtherPage, setBottomOtherPage] = useState(-1);
+
+    /**
+     * Coin filtering data retrieval
+     */
+    const [filterRows, setFilterRows] = useState<CoinFilterRow[] | null>(null);
+    const [materialStats, setMaterialStats] = useState<MaterialStat[] | null>(null);
+    const [countryStats, setCountryStats] = useState<CountryStat[] | null>(null);
+    const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
+    const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
+    const [periodStats, setPeriodStats] = useState<AggregatedCoinMeta[] | null>(null);
+
+    // fetch the data to use for filtering
+    const fetchData = async () => {
+        let rawFilterRows = (await coinStatsService.getCoinFilterData()).map((row, idx) => {
+            const bucketIdx = PERIOD_PATTERN[idx % PERIOD_PATTERN.length];
+            const cluster = PERIOD_CLUSTERS[bucketIdx] ?? PERIOD_CLUSTERS[0];
+            return { ...row, period: cluster.key };
+        });
+
+        // set period clusters to data
+        setFilterRows(rawFilterRows);
+
+        setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material ?? "").filter(v => v != "")));
+        setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country ?? "").filter(v => v != "")));
+        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "").filter(v => v != "")));
+        setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name ?? "").filter(v => v != "")));
+        setPeriodStats(buildStats(
+            (rawFilterRows ?? []).map(row => row.period ?? "").filter(v => v != ""),
+            PERIOD_LABELS
+        ));
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, []);
+
     const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialTutorial);
     const [tutorialHydrated, setTutorialHydrated] = useState(false);
     const [tutorialRunKey, setTutorialRunKey] = useState(0);
@@ -275,7 +241,7 @@ export default function FilterView() {
                     const token = await AsyncStorage.getItem(RESET_KEY);
                     if (cancelled) return;
                     if (token && token !== resetToken) {
-                        await AsyncStorage.removeItem(PROGRESS_KEY).catch(() => {});
+                        await AsyncStorage.removeItem(PROGRESS_KEY).catch(() => { });
                         setTutorial(buildInitialTutorial());
                         setTutorialRunKey((k) => k + 1);
                         setTutorialDone(false);
@@ -300,7 +266,7 @@ export default function FilterView() {
         if (lastDoneRef.current === false && tutorialDone === false) return;
         if (tutorialDone === false) {
             // wipe filter tutorial progress so steps show again
-            AsyncStorage.removeItem(PROGRESS_KEY).catch(() => {});
+            AsyncStorage.removeItem(PROGRESS_KEY).catch(() => { });
             setTutorial({ ...buildInitialTutorial(), filterCoins: true });
             setTutorialRunKey((k) => k + 1);
         }
@@ -387,7 +353,7 @@ export default function FilterView() {
         };
 
         const computeMatches = (filters: typeof currentFilters) =>
-            MOCK_FILTER_DATA.filter((row) => {
+            (filterRows ?? []).filter((row) => {
                 if (filters.country && row.country !== filters.country) return false;
                 if (filters.material && row.material !== filters.material) return false;
                 if (filters.nominal && row.nominal !== filters.nominal) return false;
@@ -402,7 +368,7 @@ export default function FilterView() {
         if (matched.length === 0 && hasFilters) {
             const last = lastChangedRef.current;
             const dropOrder = (["nominal", "name", "material", "country", "period"] as const)
-            .filter((k) => k !== last) as (keyof typeof currentFilters)[];
+                .filter((k) => k !== last) as (keyof typeof currentFilters)[];
 
 
             for (const key of dropOrder) {
@@ -418,18 +384,18 @@ export default function FilterView() {
             }
         }
 
-        const source = matched.length > 0 ? matched : MOCK_FILTER_DATA;
-        const availableCountries = buildStats(source.map((row) => row.country));
-        const availableMaterials = buildStats(source.map((row) => row.material));
-        const availableNominals = buildStats(source.map((row) => row.nominal));
-        const availableNames = buildStats(source.map((row) => row.name));
-        const availablePeriods = buildStats(source.map((row) => row.period), PERIOD_LABELS);
+        const source = matched.length > 0 ? matched : (filterRows ?? []);
+        const availableCountries = buildStats(source.map((row) => row.country ?? ""));
+        const availableMaterials = buildStats(source.map((row) => row.material ?? ""));
+        const availableNominals = buildStats(source.map((row) => row.nominal ?? ""));
+        const availableNames = buildStats(source.map((row) => row.name ?? ""));
+        const availablePeriods = buildStats(source.map((row) => row.period ?? ""), PERIOD_LABELS);
 
-        setCountryStats(mergeStatsWithAvailability(BASE_COUNTRY_STATS, availableCountries));
-        setMaterialStats(mergeStatsWithAvailability(BASE_MATERIAL_STATS, availableMaterials));
-        setNominalStats(mergeStatsWithAvailability(BASE_NOMINAL_STATS, availableNominals));
-        setNameStats(mergeStatsWithAvailability(BASE_NAME_STATS, availableNames));
-        setPeriodStats(mergeStatsWithAvailability(BASE_PERIOD_STATS, availablePeriods));
+        setCountryStats(mergeStatsWithAvailability(countryStats ?? [], availableCountries));
+        setMaterialStats(mergeStatsWithAvailability(materialStats ?? [], availableMaterials));
+        setNominalStats(mergeStatsWithAvailability(nominalStats ?? [], availableNominals));
+        setNameStats(mergeStatsWithAvailability(nameStats ?? [], availableNames));
+        setPeriodStats(mergeStatsWithAvailability(periodStats ?? [], availablePeriods));
 
         const skipAutoPick = skipAutoPickRef.current;
         skipAutoPickRef.current = false;
@@ -589,77 +555,111 @@ export default function FilterView() {
 
     return (
         <View style={[commonStyles.container, filterStyles.screen]} {...swipeResponder.panHandlers}>
-            <CountryFilterSheet
-                isOpen={countrySheetOpen}
-                countries={countryStats}
-                activeCountry={pendingCountry}
-                onRequestClose={() => setCountrySheetOpen(false)}
-                onSelectCountry={handleSelectCountry}
-                onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
-            />
+            {(!filterRows || !materialStats || !countryStats || !nominalStats || !nameStats || !periodStats) && <ActivityIndicator size={64} />}
+            {(filterRows && materialStats && countryStats && nominalStats && nameStats && periodStats) && (<>
+                {
+                    showPrompt ? (
+                        <View style={filterStyles.pageWrap} >
+                            <FilterLanding showPrompt onRandom={handleFilterRandomCoin} onRefine={handleFilterRefine} />
+                        </View>
+                    ) : (
+                        <>
+                            <CountryFilterSheet
+                                isOpen={countrySheetOpen}
+                                countries={countryStats ?? []}
+                                activeCountry={pendingCountry}
+                                onRequestClose={() => setCountrySheetOpen(false)}
+                                onSelectCountry={handleSelectCountry}
+                                onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
+                            />
 
-            {(materialSheetOpen || countrySheetOpen) && (
-                <PeriodFilterRail
-                    items={periodStats}
-                    activePeriod={pendingPeriod}
-                    onSelectPeriod={handleSelectPeriod}
-                    topOffset={countryFilterHeight}
-                    bottomOffset={materialFilterHeight}
-                />
+                            {(materialSheetOpen || countrySheetOpen) && (
+                                <PeriodFilterRail
+                                    items={periodStats ?? []}
+                                    activePeriod={pendingPeriod}
+                                    onSelectPeriod={handleSelectPeriod}
+                                    topOffset={countryFilterHeight}
+                                    bottomOffset={materialFilterHeight}
+                                />
+                            )}
+
+                            {(materialSheetOpen || countrySheetOpen) && (
+                                <RightSideFilters
+                                    topItems={nominalStats ?? []}
+                                    bottomItems={nameStats ?? []}
+                                    activeTop={pendingNominal}
+                                    activeBottom={pendingName}
+                                    onSelectTop={handleSelectNominal}
+                                    onSelectBottom={handleSelectName}
+                                    topOffset={countryFilterHeight}
+                                    bottomOffset={materialFilterHeight}
+                                />
+                            )}
+
+                    <MaterialFilterSheet
+                        isOpen={materialSheetOpen}
+                        materials={materialStats}
+                        activeMaterial={pendingMaterial}
+                        onRequestClose={() => setMaterialSheetOpen(false)}
+                        onSelectMaterial={handleSelectMaterial}
+                        onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}
+                    />
+
+                            {(materialSheetOpen || countrySheetOpen) && (
+                                <View
+                                    pointerEvents="box-none"
+                                    style={{
+                                        position: "absolute",
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        zIndex: 500,
+                                    }}
+                                >
+                                    <TouchableOpacity
+                                        style={[
+                                            materialStyles.applyBtn,
+                                            {
+                                                top: Math.min(
+                                                    screenHeight - insets.bottom - 160,
+                                                    Math.max(insets.top + 40, screenHeight / 2 + (coinSize / 2) - 60)
+                                                ),
+                                            },
+                                            !anyFilterSelected ? materialStyles.applyBtnDisabled : null,
+                                        ]}
+                                        disabled={!anyFilterSelected}
+                                        onPress={handleApplyFilters}
+                                        accessibilityRole="button"
+                                    >
+                                        <Text style={materialStyles.applyText}>Rakenda</Text>
+                                    </TouchableOpacity>
+
+                                    {allFiltersActive && (
+                                        <TouchableOpacity
+                                            style={[
+                                                materialStyles.resetBtn,
+                                                {
+                                                    top: Math.min(
+                                                        screenHeight - insets.bottom - 100,
+                                                        Math.max(insets.top + 90, screenHeight / 2 + (coinSize / 2))
+                                                    ),
+                                                },
+                                            ]}
+                                            onPress={handleResetAllFilters}
+                                            accessibilityRole="button"
+                                        >
+                                            <Text style={materialStyles.resetText}>Tühjenda valikud</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            )}
+                        </>
+                    )
+                }
+            </>
             )}
-
-            {(materialSheetOpen || countrySheetOpen) && (
-                <RightSideFilters
-                    topItems={nominalStats}
-                    bottomItems={nameStats}
-                    activeTop={pendingNominal}
-                    activeBottom={pendingName}
-                    onSelectTop={handleSelectNominal}
-                    onSelectBottom={handleSelectName}
-                    topOffset={countryFilterHeight}
-                    bottomOffset={materialFilterHeight}
-                />
-            )}
-
-            <MaterialFilterSheet
-                    isOpen={materialSheetOpen}
-                    materials={materialStats}
-                    activeMaterial={pendingMaterial}
-                    onRequestClose={() => setMaterialSheetOpen(false)}
-                    onSelectMaterial={handleSelectMaterial}
-                    onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
-                     />
-
-            {(materialSheetOpen || countrySheetOpen) && (
-                <View
-                    pointerEvents="box-none"
-                    style={{
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        zIndex: 500,
-                    }}
-                >
-                    <TouchableOpacity
-                        style={[
-                            materialStyles.applyBtn,
-                            {
-                                top: Math.min(
-                                    screenHeight - insets.bottom - 160,
-                                    Math.max(insets.top + 40, screenHeight / 2 + (coinSize / 2) - 60)
-                                ),
-                            },
-                            !anyFilterSelected ? materialStyles.applyBtnDisabled : null,
-                        ]}
-                        disabled={!anyFilterSelected}
-                        onPress={handleApplyFilters}
-                        accessibilityRole="button"
-                    >
-                        <Text style={materialStyles.applyText}>Rakenda</Text>
-                    </TouchableOpacity>
-
+        </View >
                     {allFiltersActive && (
                         <TouchableOpacity
                             style={[
@@ -704,6 +704,7 @@ export default function FilterView() {
             )}
         </View>
     );
+
 }
 
 type FilterLandingProps = {
@@ -731,7 +732,7 @@ const FilterLanding = ({ showPrompt, onRandom, onRefine }: FilterLandingProps) =
     </View>
 );
 
-    const filterStyles = StyleSheet.create({
+const filterStyles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: "rgba(12, 20, 22, 0.9)",
@@ -872,11 +873,11 @@ const PeriodFilterRail = ({
 
     const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
 
-const sidebarTop =
-    topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
+    const sidebarTop =
+        topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
 
-const sidebarBottom =
-    bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
+    const sidebarBottom =
+        bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
     const sidebarHeight = Math.max(80, screenHeight - sidebarTop - sidebarBottom);
 
     const palette = ["#31544f", "#365c55", "#406a63", "#2b4c46", "#548a80", "#3a5f5b", "#456d67"];
@@ -918,7 +919,7 @@ const sidebarBottom =
 
                 const active = activePeriod === item.key;
 
-        
+
                 const isAvailable = item.available ?? true;
                 const backgroundColor = active
                     ? "#7bd7cc"
@@ -948,17 +949,17 @@ const sidebarBottom =
                             paddingVertical: 8,
                             backgroundColor,
                             opacity: blockOpacity,
-                            
+
                         }}
                         accessibilityRole="button"
                         accessibilityState={{ disabled: !isAvailable }}
-                        
+
                     >
                         <Text
                             numberOfLines={2}
                             style={{
                                 color: labelColor,
-                               
+
                                 fontWeight: "700",
                                 fontSize: 12,
                             }}
