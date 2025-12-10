@@ -1,5 +1,5 @@
 query CoinFilterData @auth(level: PUBLIC) {
-    coinMetas2s {
+    coinMetas2s(limit: 10000) {
         region
         material
         nomValue
