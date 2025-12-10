@@ -97,7 +97,8 @@ export class CoinStatsService {
                 country: v.region,
                 material: v.material ? v.material.charAt(0).toUpperCase() + v.material.substring(1) : undefined,
                 nominal: v.nomValue,
-                name: v.lemmaName ? v.lemmaName.charAt(0).toUpperCase() + v.lemmaName.substring(1) : undefined
+                name: v.lemmaName ? v.lemmaName.charAt(0).toUpperCase() + v.lemmaName.substring(1) : undefined,
+                period: v.dateCluster
             } as CoinFilterRow
         });
 
