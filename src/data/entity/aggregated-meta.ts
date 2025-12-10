@@ -9,6 +9,14 @@ export type AggregatedCoinMeta = {
     availableCount?: number;
 };
 
+export type CoinFilterRow = {
+    country?: string;
+    material?: string;
+    nominal?: string;
+    name?: string;
+    period?: string;
+}
+
 export type MaterialStat = AggregatedCoinMeta;
 export type CountryStat = AggregatedCoinMeta;
 export type NominalStat = AggregatedCoinMeta;
