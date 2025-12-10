@@ -5,6 +5,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { WalletProvider } from "../context/wallet-context";
 import { useFonts } from "expo-font";
+import { NetworkProvider } from "../context/network-context";
 
 export default function RootLayout() {
   useFonts({
@@ -16,14 +17,16 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <WalletProvider>
-          <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}>
-            <Tabs.Screen name="index" options={{ href: null, title: "Kodu" }} />
-            <Tabs.Screen name="coin-flipper" options={{ href: null, title: "Viska Münti" }}/>
-            <Tabs.Screen name="filter" options={{ href: null, title: "Filtreeri" }}/>
-            <Tabs.Screen name="wallet" options={{ href: null, title: "Rahakott" }}/>
-          </Tabs>
-        </WalletProvider>
+        <NetworkProvider>
+          <WalletProvider>
+            <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: "none" } }}>
+              <Tabs.Screen name="index" options={{ href: null, title: "Kodu" }} />
+              <Tabs.Screen name="coin-flipper" options={{ href: null, title: "Viska Münti" }}/>
+              <Tabs.Screen name="filter" options={{ href: null, title: "Filtreeri" }}/>
+              <Tabs.Screen name="wallet" options={{ href: null, title: "Rahakott" }}/>
+            </Tabs>
+          </WalletProvider>
+        </NetworkProvider>
       </SafeAreaProvider>
       <Toast/>
     </GestureHandlerRootView>

@@ -32,29 +32,6 @@ export const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#e7e3e3ff",
     },
-    modalBackdrop: {
-        flex: 1,
-        backgroundColor: "#00000096",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-    },
-    modalCard: {
-        width: "100%",
-        maxWidth: 540,
-        backgroundColor: "#ccd9d5ff",
-        borderRadius: 8,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: "#ffffff0f",
-    },
-    modalTitle: {
-        color: "rgba(0, 0, 0, 1)",
-        fontSize: 18,
-        fontWeight: "700",
-        textAlign: "center",
-        marginBottom: 12,
-    },
     choicesRow: {
         width: "100%",
         flexDirection: "row",
@@ -79,11 +56,6 @@ export const styles = StyleSheet.create({
         color: "#ccd9d5ff",
         fontWeight: "600"
     },
-    separator: {
-        height: 1,
-        backgroundColor: "#ffffff14",
-        marginVertical: 10
-    },
     skipBtn: {
         alignSelf: "center",
         backgroundColor: "#B4CECC",
@@ -95,24 +67,7 @@ export const styles = StyleSheet.create({
         color: "#2b2b2bff",
         fontWeight: "700"
     },
-    closeBtn: {
-        alignSelf: "center",
-        marginTop: 10,
-        padding: 8
-    },
-    closeBtnText: {
-        color: "#5c5c5cff",
-        fontWeight: "600"
-    },
-
-    predictionSheetHeader: {
-        width: "100%",
-        position: "relative", 
-        marginBottom: 16,
-        alignItems: "center",
-        pointerEvents: "box-none",
-    },
-        predictionSheet: {
+    predictionSheet: {
         position: "absolute",
         bottom: 0,
         left: 0,
@@ -126,7 +81,6 @@ export const styles = StyleSheet.create({
         zIndex: 50,
         elevation: 10,
     },
-
     predictionTitle: {
         fontSize: 20,
         fontFamily: "ProzaDisplay-Bold",
@@ -256,21 +210,6 @@ export const styles = StyleSheet.create({
         marginBottom: 8,
         color: "#B4CECC",
     },
-    walletSubtitle: {
-        fontSize: 16,
-        textAlign: "center",
-        marginBottom: 16,
-        color: "#caccceff",
-        fontWeight: "500",
-    },
-    walletArea: {
-        flex: 1,
-        backgroundColor: "rgb(29, 31, 31)",
-        margin: 16,
-        borderRadius: 16,
-        position: "relative",
-        overflow: "hidden",
-    },
     walletCoinContainer: {
         position: "absolute",
         width: 80,
@@ -376,18 +315,16 @@ export const styles = StyleSheet.create({
         fontWeight: "800",
         lineHeight: 20,
     },
-
     coinTitle: {
-    fontFamily: "ProzaDisplay-Bold",
-    fontSize: 28,
-    color: "#e7e3e3",
-    textAlign: "center",
-    marginBottom: 12, 
-},
-    
-    
+        fontFamily: "ProzaDisplay-Bold",
+        fontSize: 28,
+        color: "#e7e3e3",
+        textAlign: "center",
+        marginBottom: 12, 
+    },
 });
 
+// index page styles
 export const indexStyles = StyleSheet.create({
     safeArea: {
         flex: 1,
@@ -473,7 +410,7 @@ export const indexStyles = StyleSheet.create({
         backgroundColor: "#B4CECC",
         paddingVertical: 12,
         paddingHorizontal: 40,
-        borderRadius: 25,
+        borderRadius: 8,
         marginBottom: -15,
     },
 
@@ -519,5 +456,55 @@ export const indexStyles = StyleSheet.create({
     paginationDotInactive: {
         backgroundColor: "#d1eeecff",
         borderWidth: 0,
+    },
+});
+
+// network error
+export const networkStyles = StyleSheet.create({
+    offlineBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    offlineContainer: {
+        width: "80%",
+        maxWidth: 480,
+        backgroundColor: "#B4CECC",
+        borderRadius: 16,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        shadowColor: "#000",
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 5,
+    },
+    offlineTitle: {
+        fontFamily: "ProzaDisplay-Bold",
+        fontSize: 20,
+        color: "#2b2b2bff",
+        textAlign: "center",
+        marginBottom: 10,
+    },
+    offlineMessage: {
+        fontSize: 14,
+        color: "#2b2b2bff",
+        textAlign: "center",
+        lineHeight: 20,
+        marginBottom: 18,
+    },
+    offlineButton: {
+        alignSelf: "center",
+        backgroundColor: "#2b2b2bff",
+        paddingVertical: 10,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+    },
+    offlineButtonText: {
+        fontSize: 16,
+        color: "#ffffff",
+        fontFamily: "ProzaDisplay-SemiBold",
+        textAlign: "center",
     },
 });
