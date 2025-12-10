@@ -21,3 +21,4 @@ export type MaterialStat = AggregatedCoinMeta;
 export type CountryStat = AggregatedCoinMeta;
 export type NominalStat = AggregatedCoinMeta;
 export type NameStat = AggregatedCoinMeta;
+export type PeriodStat = AggregatedCoinMeta;
