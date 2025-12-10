@@ -28,20 +28,6 @@ import {
 import { buildLayeredBuckets } from "../utils/filterBuckets";
 import { coinStatsService } from "../service/coin-service";
 
-const PERIOD_CLUSTERS = [
-    { key: "1400-1500", label: "1400-1500" },
-    { key: "1500-1550", label: "1500-1550" },
-    { key: "1550-1700", label: "1550-1700" },
-    { key: "1700-1800", label: "1700-1800" },
-    { key: "1800-1900", label: "1800-1900" },
-    { key: "1900-1950", label: "1900-1950" },
-    { key: "other", label: "Muud" },
-];
-
-const PERIOD_LABELS = PERIOD_CLUSTERS.reduce<Record<string, string>>((acc, item) => {
-    acc[item.key] = item.label;
-    return acc;
-}, {});
 const PROGRESS_KEY = "tutorial.progress";
 const STORAGE_DONE_KEY = "tutorial.done";
 const RESET_KEY = "tutorial.resetToken";
@@ -123,22 +109,17 @@ export default function FilterView() {
 
     // fetch the data to use for filtering
     const fetchData = async () => {
-        let rawFilterRows = (await coinStatsService.getCoinFilterData()).map((row, idx) => {
-            const bucketIdx = PERIOD_PATTERN[idx % PERIOD_PATTERN.length];
-            const cluster = PERIOD_CLUSTERS[bucketIdx] ?? PERIOD_CLUSTERS[0];
-            return { ...row, period: cluster.key };
-        });
+        let rawFilterRows = (await coinStatsService.getCoinFilterData());
 
         // set period clusters to data
         setFilterRows(rawFilterRows);
 
-        setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material ?? "").filter(v => v != "")));
-        setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country ?? "").filter(v => v != "")));
-        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "1").filter(v => v != "")));
-        setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name ?? "").filter(v => v != "")));
+        setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material ?? "Muu")));
+        setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country ?? "Muu")));
+        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "1")));
+        setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name ?? "Muu")));
         setPeriodStats(buildStats(
-            (rawFilterRows ?? []).map(row => row.period ?? "").filter(v => v != ""),
-            PERIOD_LABELS
+            (rawFilterRows ?? []).map(row => row.period ?? "Muu"),
         ));
     }
 
@@ -389,7 +370,7 @@ export default function FilterView() {
         const availableMaterials = buildStats(source.map((row) => row.material ?? ""));
         const availableNominals = buildStats(source.map((row) => row.nominal ?? ""));
         const availableNames = buildStats(source.map((row) => row.name ?? ""));
-        const availablePeriods = buildStats(source.map((row) => row.period ?? ""), PERIOD_LABELS);
+        const availablePeriods = buildStats(source.map((row) => row.period ?? ""));
 
         setCountryStats(mergeStatsWithAvailability(countryStats ?? [], availableCountries));
         setMaterialStats(mergeStatsWithAvailability(materialStats ?? [], availableMaterials));
