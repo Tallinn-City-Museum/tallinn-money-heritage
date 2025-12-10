@@ -37,6 +37,7 @@ export interface CoinFilterDataData {
     material?: string | null;
     nomValue?: string | null;
     lemmaName?: string | null;
+    dateCluster?: string | null;
   })[];
 }
 
