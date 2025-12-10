@@ -134,7 +134,7 @@ export default function FilterView() {
 
         setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material ?? "").filter(v => v != "")));
         setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country ?? "").filter(v => v != "")));
-        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "").filter(v => v != "")));
+        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "1").filter(v => v != "")));
         setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name ?? "").filter(v => v != "")));
         setPeriodStats(buildStats(
             (rawFilterRows ?? []).map(row => row.period ?? "").filter(v => v != ""),
