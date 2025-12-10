@@ -29,10 +29,60 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         paddingTop: 12,
     },
-    resultText: {
-        fontWeight: "700",
-        color: "#e7e3e3ff",
+
+    bottomCoinInfoContainer: {
+        alignItems: "center",
+        paddingTop: 36,
     },
+
+    coinInfoRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 8,
+        paddingHorizontal: 16,
+    },
+
+    coinInfoName: {
+        fontFamily: "ProzaDisplay-Bold",
+        fontSize: 22,
+        color: "#e7e3e3ff",
+        marginRight: 8,
+        textAlign: "center",
+    },
+
+    coinInfoSide: {
+        fontFamily: "ProzaDisplay-Bold",
+        fontSize: 22,
+        color: "#e7e3e3ff",
+        fontStyle: "italic",
+        textTransform: "uppercase",
+        textAlign: "center",
+    },
+
+    predictionResultSheet: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "#ccd9d5ff",
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        paddingHorizontal: 16,
+        paddingTop: 40,
+        paddingBottom: 40,
+        alignItems: "center",
+        zIndex: 45,
+        elevation: 9,
+    },
+
+    predictionResultText: {
+        fontSize: 22,
+        color: "#2b2b2bff",
+        textAlign: "center",
+        fontFamily: "ProzaDisplay-Bold",
+    },
+
     choicesRow: {
         width: "100%",
         flexDirection: "row",
@@ -88,15 +138,6 @@ export const styles = StyleSheet.create({
         color: "#2b2b2bff",
         textAlign: "center",
         marginBottom: 16,
-    },
-
-    coinTitleContainer: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        alignItems: "center",
-        justifyContent: "flex-start",
     },
 
     coinTopSpacer: {
@@ -328,13 +369,6 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "800",
         lineHeight: 20,
-    },
-    coinTitle: {
-        fontFamily: "ProzaDisplay-Bold",
-        fontSize: 28,
-        color: "#e7e3e3",
-        textAlign: "center",
-        marginBottom: 12, 
     },
 });
 

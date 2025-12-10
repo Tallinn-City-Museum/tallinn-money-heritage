@@ -1,32 +1,28 @@
-import { useState, useEffect } from "react";
-import { CoinSide } from "@/src/data/entity/coin";
+import React from "react";
 import { Text, View } from "react-native";
+import { CoinSide } from "@/src/data/entity/coin";
 import { styles } from "../../common/stylesheet";
 
-export function BottomArea({ side, predicted }: { side: CoinSide, predicted: CoinSide | null }) {
-    const [visible, setVisible] = useState(true);
-
-    useEffect(() => {
-        // Shows for 2 seconds every time the side changes
-        setVisible(true);
-        const timer = setTimeout(() => setVisible(false), 2000);
-        return () => clearTimeout(timer);
-    }, [side]);
-
-    const color = predicted === side ? "green" : "red";
-
-    if (!visible) return null; // hide when the timeout ends
+export function BottomArea({
+    side,
+    coinName,
+}: {
+    side: CoinSide;
+    coinName: string;
+}) {
+    const formattedName =
+        coinName && coinName.length > 0
+            ? coinName.charAt(0).toUpperCase() + coinName.slice(1)
+            : "";
 
     return (
-        <View style={{ flex: 1, alignItems: "center" }}>
-            <Text style={styles.resultText}>
-                {side === CoinSide.HEADS ? "Avers" : "Revers"}
-            </Text>
-            {predicted !== null && (
-                <Text style={{ color: color }}>
-                    {predicted === side ? "Ennustus läks täppi!" : "Ennustus ei läinud täppi"}
+        <View style={styles.bottomCoinInfoContainer}>
+            <View style={styles.coinInfoRow}>
+                <Text style={styles.coinInfoName}>{formattedName}</Text>
+                <Text style={styles.coinInfoSide}>
+                    {side === CoinSide.HEADS ? "AVERS" : "REVERS"}
                 </Text>
-            )}
+            </View>
         </View>
     );
 }

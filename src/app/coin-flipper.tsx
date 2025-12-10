@@ -2,9 +2,7 @@
 import {
     View,
     Text,
-    TouchableOpacity,
     Animated,
-    Pressable,
     Easing,
     PanResponder,
     ActivityIndicator,
@@ -30,19 +28,18 @@ import {
     TutorialProgress,
     TutorialStepKey,
 } from "../components/tutorial/first-run-tutorial";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Bottom sheet component import
 import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
+import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
 
 export default function Flipper() {
-    const insets = useSafeAreaInsets();
     const { addCoin, coins } = useWallet();
     const router = useRouter();
     const routeParams = useLocalSearchParams<{
@@ -74,8 +71,6 @@ export default function Flipper() {
     const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
     const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
 
-    const [showTitle, setShowTitle] = useState(false);
-
     const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
             base.diameter !== undefined
@@ -101,7 +96,6 @@ export default function Flipper() {
         setCoin(null);
         setLastResult(null);
         setPendingPrediction(null);
-        setShowTitle(false);
 
         const generatedCoin = await coinService.generateNewCoin();
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
@@ -125,7 +119,6 @@ export default function Flipper() {
         if (fromWallet) {
             setCoin(fromWallet);
             setLastResult(null);
-            setShowTitle(false);
 
             // diameterMm can be string/number or absent; coerce safely to number
             const diameterMm =
@@ -192,6 +185,7 @@ export default function Flipper() {
     // last flip result (null until the first flip finishes)
     const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
+    const [resultVisible, setResultVisible] = useState(false);
 
     // ZOOM / PAN / ROTATE state
     // ZOOM (pinch) state
@@ -282,6 +276,14 @@ export default function Flipper() {
             });
         }
     }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
+
+    useEffect(() => {
+        if (lastResult !== null) {
+            setResultVisible(true);
+            const timer = setTimeout(() => setResultVisible(false), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [lastResult]);
 
     // Re-open info whenever a fresh infoReq token arrives (even for the same coin).
     const lastInfoReqRef = useRef<string | undefined>(undefined);
@@ -534,8 +536,6 @@ export default function Flipper() {
             setLastResult(finalSide);
             setResultSource("flip");
 
-            setShowTitle(true);
-
             const alreadyInWallet = coins.some((c) => c.id === coin?.id);
             if (!alreadyInWallet && coin !== null) {
                 const chosenPrediction = pendingPredictionRef.current ?? null;
@@ -731,22 +731,6 @@ export default function Flipper() {
             {!coin && <ActivityIndicator size={64} />}
             {coin && (
                 <>
-                    {showTitle && (
-                        <Animated.View
-                            pointerEvents="box-none"
-                            style={[
-                                styles.coinTitleContainer,
-                                { top: insets.top + 20 },
-                            ]}
-                        >
-                            <Text style={styles.coinTitle}>
-                                {coin?.name
-                                    ? coin.name.charAt(0).toUpperCase() + coin.name.slice(1)
-                                    : ""}
-                            </Text>
-                        </Animated.View>
-                    )}
-
                     {/* top spacer keeps coin centered even when result appears */}
                     <View style={styles.coinTopSpacer} />
 
@@ -839,60 +823,40 @@ export default function Flipper() {
 
                     {/* bottom area holds the result; hidden while zoomed */}
                     <View style={styles.bottomArea}>
-                        {lastResult !== null && !isZoomed && (
+                        {resultVisible && lastResult !== null && !isZoomed && (
                             <BottomArea
                                 side={lastResult}
-                                predicted={resultSource === "flip" ? pendingPrediction : null}
+                                coinName={coin?.name ?? ""}
                             />
                         )}
                     </View>
 
-                    {isDialogVisible && (
-                        <>
-                            {/* Bottom sheet with drag */}
-                            <Animated.View
-                                style={[styles.predictionSheet, { transform: [{ translateY: dragY }] }]}
-                                {...sheetPanResponder.panHandlers}
-                            >
-                                <Text style={styles.predictionTitle}>Vali oma ennustus</Text>
-                                <View style={styles.choicesRow}>
-                                    <Pressable
-                                        style={styles.choiceCard}
-                                        onPress={() => handleChoosePrediction(CoinSide.TAILS)}
-                                    >
-                                        <Text style={styles.choiceLabel}>Kull</Text>
-                                    </Pressable>
-
-                                    <Pressable
-                                        style={styles.choiceCard}
-                                        onPress={() => handleChoosePrediction(CoinSide.HEADS)}
-                                    >
-                                        <Text style={styles.choiceLabel}>Kiri</Text>
-                                    </Pressable>
+                        {resultVisible &&
+                            !isZoomed &&
+                            resultSource === "flip" &&
+                            pendingPrediction !== null &&
+                            !isFlipping && (
+                                <View style={styles.predictionResultSheet}>
+                                    <Text style={styles.predictionResultText}>
+                                        {pendingPrediction === lastResult
+                                            ? "Ennustus läks täppi!"
+                                            : "Ennustus ei läinud täppi"}
+                                    </Text>
                                 </View>
+                            )}
 
-                                <TouchableOpacity
-                                    onPress={handleFlipWithoutPrediction}
-                                    style={styles.skipBtn}
-                                >
-                                    <Text style={styles.skipBtnText}>Viska ilma ennustuseta</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={styles.predictionCloseButton}
-                                    onPress={() => {
-                                        setPendingPrediction(null);
-                                        pendingPredictionRef.current = null;
-                                        setIsDialogVisible(false);
-                                    }}
-                                    accessibilityRole="button"
-                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                                >
-                                    <Text style={styles.predictionCloseIcon}>✕</Text>
-                                </TouchableOpacity>
-                            </Animated.View>
-                        </>
-                    )}
+                    <PredictionDialog
+                        visible={isDialogVisible}
+                        dragY={dragY}
+                        panHandlers={sheetPanResponder.panHandlers}
+                        onChoosePrediction={handleChoosePrediction}
+                        onFlipWithoutPrediction={handleFlipWithoutPrediction}
+                        onClose={() => {
+                            setPendingPrediction(null);
+                            pendingPredictionRef.current = null;
+                            setIsDialogVisible(false);
+                        }}
+                    />
 
                     {/* BOTTOM SHEET */}
                     {isInfoVisible && (
