@@ -18,7 +18,7 @@ const dataConnect = getDataConnect(app, connectorConfig)
 const storage = getStorage(app)
 
 /**
- * Coin service provides
+ * Coin service provides coin-related operations
  */
 export class CoinService {
     coinCount?: number
@@ -27,9 +27,10 @@ export class CoinService {
      * Generates new coin for the coin flipper game
      * and returns its value
      */
-    public async generateNewCoin() : Promise<Coin> {
-        if (this.coinCount === undefined)
+    public async generateNewCoin(): Promise<Coin> {
+        if (this.coinCount === undefined) {
             this.coinCount = (await coinMeta2count()).data.coinMetas2?.id_count
+        }
 
         const idx = Math.floor(Math.random() * (this.coinCount === undefined ? 1 : this.coinCount) + 1)
 
@@ -38,7 +39,7 @@ export class CoinService {
         const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
         const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
 
-        // Pre-fetch images
+        // Pre-fetch images so the UI can show them instantly
         await Image.prefetch(headsURL)
         await Image.prefetch(tailsURL)
 
@@ -73,8 +74,7 @@ export class CoinService {
             material,
         }
     }
-
-};
+}
 
 /**
  * This service provides access for aggregated metadata
@@ -84,17 +84,20 @@ export class CoinStatsService {
     materials?: MaterialStat[];
     countries?: CountryStat[];
     nominals?: NominalStat[];
-    names?: NominalStat[];
+    names?: NameStat[];
 
-    public async getMaterialStats() : Promise<MaterialStat[]> {
-        if (this.materials !== undefined)
+    public async getMaterialStats(): Promise<MaterialStat[]> {
+        if (this.materials !== undefined) {
             return this.materials;
+        }
 
-        this.materials = []
-        let res = (await materialStats()).data.coinMetas2s;
+        this.materials = [];
+        const res = (await materialStats()).data.coinMetas2s;
+
         for (let i = 0; i < res.length; i++) {
-            if (res[i].material != undefined)
+            if (res[i].material != undefined) {
                 this.materials.push({ key: res[i].material ?? "", label: res[i].material ?? "", count: res[i]._count });
+            }
         }
 
         this.materials.push({key: "Kõik", label: "Kõik", count: this.materials.reduce((a, b) => a + b.count, 0)})
@@ -102,15 +105,18 @@ export class CoinStatsService {
         return this.materials;
     }
 
-    public async getCountryStats() : Promise<CountryStat[]> {
-        if (this.countries !== undefined)
+    public async getCountryStats(): Promise<CountryStat[]> {
+        if (this.countries !== undefined) {
             return this.countries;
+        }
 
-        this.countries = []
-        let res = (await regionStats()).data.coinMetas2s;
+        this.countries = [];
+        const res = (await regionStats()).data.coinMetas2s;
+
         for (let i = 0; i < res.length; i++) {
-            if (res[i].region != undefined)
+            if (res[i].region != undefined) {
                 this.countries.push({ key: res[i].region ?? "", label: res[i].region ?? "", count: res[i]._count });
+            }
         }
 
         this.countries.push({key: "Kõik", label: "Kõik", count: this.countries.reduce((a, b) => a + b.count, 0)})
@@ -118,15 +124,18 @@ export class CoinStatsService {
         return this.countries;
     }
 
-    public async getNominalStats() : Promise<NominalStat[]> {
-        if (this.nominals !== undefined)
+    public async getNominalStats(): Promise<NominalStat[]> {
+        if (this.nominals !== undefined) {
             return this.nominals;
+        }
 
-        this.nominals = []
-        let res = (await nominalStats()).data.coinMetas2s;
+        this.nominals = [];
+        const res = (await nominalStats()).data.coinMetas2s;
+
         for (let i = 0; i < res.length; i++) {
-            if (res[i].nomValue != undefined)
+            if (res[i].nomValue != undefined) {
                 this.nominals.push({ key: res[i].nomValue ?? "", label: res[i].nomValue ?? "", count: res[i]._count });
+            }
         }
 
         this.nominals.push({key: "Kõik", label: "Kõik", count: this.nominals.reduce((a, b) => a + b.count, 0)})
@@ -134,15 +143,22 @@ export class CoinStatsService {
         return this.nominals;
     }
 
-    public async getNameStats() : Promise<NameStat[]> {
-        if (this.names !== undefined)
+    public async getNameStats(): Promise<NameStat[]> {
+        if (this.names !== undefined) {
             return this.names;
+        }
 
-        this.names = []
-        let res = (await nameStats()).data.coinMetas2s;
+        this.names = [];
+        const res = (await nameStats()).data.coinMetas2s;
+
         for (let i = 0; i < res.length; i++) {
-            if (res[i].lemmaName != undefined)
-                this.names.push({ key: res[i].lemmaName ?? "", label: res[i].lemmaName ?? "", count: res[i]._count });
+            if (res[i].lemmaName != undefined) {
+                this.names.push({
+                    key: res[i].lemmaName ?? "",
+                    label: res[i].lemmaName ?? "",
+                    count: res[i]._count,
+                });
+            }
         }
 
         this.names.push({key: "Kõik", label: "Kõik", count: this.names.reduce((a, b) => a + b.count, 0)})
