@@ -23,6 +23,7 @@ export const styles = StyleSheet.create({
         zIndex: 22,
         elevation: 22,
     },
+
     bottomArea: {
         flex: 1,
         alignItems: "center",
@@ -179,17 +180,30 @@ export const styles = StyleSheet.create({
         marginTop: 12,
     },
 
+    infoRow: {
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 4,
+    },
+
     infoTitle: {
-        fontSize: 15,
+        fontSize: 17,
         marginBottom: 6,
         marginTop: 12,
-        fontFamily: "ProzaDisplay-Bold",
+        fontFamily: "ProzaDisplay-SemiBold",
+        textAlign: "left",
+        flexShrink: 1,
     },
 
     infoValue: {
-        fontSize: 20,
+        fontSize: 22,
         lineHeight: 22,
-        color: "#000",
+        fontFamily: "ProzaDisplay-Bold",
+        textAlign: "right",
+        flexShrink: 1,
+        marginLeft: 16,
     },
 
     infoScroll: {

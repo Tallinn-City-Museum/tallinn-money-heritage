@@ -128,40 +128,59 @@ export const InfoBottomSheet = ({
 
       {/* Scrollable info content */}
       <ScrollView
-        style={styles.infoScroll}
-        contentContainerStyle={styles.infoScrollContent}
-        showsVerticalScrollIndicator={true}
-        showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
+          style={styles.infoScroll}
+          contentContainerStyle={styles.infoScrollContent}
+          showsVerticalScrollIndicator={true}
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={16}
       >
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Nimi</Text>
-          <Text style={styles.infoValue}>{coin.name ?? "—"}</Text>
-
-          <Text style={styles.infoTitle}>Museaali nr</Text>
-          <Text style={styles.infoValue}>{coin.muisId ?? "—"}</Text>
-
-          <Text style={styles.infoTitle}>Aasta</Text>
-          <Text style={styles.infoValue}>{coin.date ?? "—"}</Text>
-
-          <Text style={styles.infoTitle}>Riik</Text>
-          <Text style={styles.infoValue}>{coin.region ?? "—"}</Text>
-
-          <Text style={styles.infoTitle}>Läbimõõt</Text>
-          <Text style={styles.infoValue}>{coin.diameter ?? "—"} mm</Text>
-
-          <Text style={styles.infoTitle}>Materjal</Text>
-          <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
-        </View>
-
-        {hasWalletData && (
           <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>Rahakotti lisatud</Text>
-            <Text style={styles.infoValue}>{addedDateFormatted}</Text>
-            <Text style={styles.infoTitle}>Esimene ennustus</Text>
-            <Text style={styles.infoValue}>{predictionFormatted ?? "—"}</Text>
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Nimetus</Text>
+                  <Text style={styles.infoValue}>{coin.name ?? "—"}</Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Dateering</Text>
+                  <Text style={styles.infoValue}>{coin.date ?? "—"}</Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Riik</Text>
+                  <Text style={styles.infoValue}>{coin.region ?? "—"}</Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Läbimõõt</Text>
+                  <Text style={styles.infoValue}>
+                      {coin.diameter ?? "—"} mm
+                  </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Materjal</Text>
+                  <Text style={styles.infoValue}>{coin.material ?? "—"}</Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                  <Text style={styles.infoTitle}>Museaali nr</Text>
+                  <Text style={styles.infoValue}>{coin.muisId ?? "—"}</Text>
+              </View>
           </View>
-        )}
+
+          {hasWalletData && (
+              <View style={styles.infoCard}>
+                  <View style={styles.infoRow}>
+                      <Text style={styles.infoTitle}>Rahakotti lisatud</Text>
+                      <Text style={styles.infoValue}>{addedDateFormatted}</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                      <Text style={styles.infoTitle}>Esimene ennustus</Text>
+                      <Text style={styles.infoValue}>{predictionFormatted ?? "—"}</Text>
+                  </View>
+              </View>
+          )}
       </ScrollView>
     </Animated.View>
   );
