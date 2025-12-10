@@ -1,3 +1,12 @@
+query CoinFilterData @auth(level: PUBLIC) {
+    coinMetas2s {
+        region
+        material
+        nomValue
+        lemmaName
+    }
+}
+
 query MaterialStats @auth(level: PUBLIC) {
     coinMetas2s {
         material
