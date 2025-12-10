@@ -9,6 +9,7 @@ type CoinMetas2 @table(key: ["id"]) {
     region: String
     nomValue: String
     lemmaName: String
+    dateCluster: String
 }
 
 type CoinMeta @table(key: ["muisId"]) {

@@ -4,6 +4,7 @@ query CoinFilterData @auth(level: PUBLIC) {
         material
         nomValue
         lemmaName
+        dateCluster
     }
 }
 
