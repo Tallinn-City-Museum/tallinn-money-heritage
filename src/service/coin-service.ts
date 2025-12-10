@@ -7,12 +7,13 @@ import {
     materialStats,
     regionStats,
     nominalStats,
-    nameStats
+    nameStats,
+    coinFilterData
 } from '@dataconnect/generated'
 import { app  } from "../config"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
 import { Image } from "react-native"
-import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta"
+import { CoinFilterRow, CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta"
 
 const dataConnect = getDataConnect(app, connectorConfig)
 const storage = getStorage(app)
@@ -84,7 +85,24 @@ export class CoinStatsService {
     materials?: MaterialStat[];
     countries?: CountryStat[];
     nominals?: NominalStat[];
-    names?: NameStat[];
+    names?: NominalStat[];
+    filterRows?: CoinFilterRow[]
+
+    public async getCoinFilterData(): Promise<CoinFilterRow[]> {
+        if (this.filterRows !== undefined)
+            return this.filterRows;
+
+        this.filterRows = (await coinFilterData()).data.coinMetas2s.map((v) => {
+            return {
+                country: v.region,
+                material: v.material ? v.material.charAt(0).toUpperCase() + v.material.substring(1) : undefined,
+                nominal: v.nomValue,
+                name: v.lemmaName ? v.lemmaName.charAt(0).toUpperCase() + v.lemmaName.substring(1) : undefined
+            } as CoinFilterRow
+        });
+
+        return this.filterRows;
+    }
 
     public async getMaterialStats(): Promise<MaterialStat[]> {
         if (this.materials !== undefined) {
