@@ -1,4 +1,4 @@
-import { CoinMeta2byIdData, CoinMeta2byIdVariables, CoinByIdData, CoinByIdVariables, CoinMeta2countData, CoinCountData, MaterialStatsData, RegionStatsData, NominalStatsData, NameStatsData } from '../';
+import { CoinMeta2byIdData, CoinMeta2byIdVariables, CoinByIdData, CoinByIdVariables, CoinMeta2countData, CoinCountData, CoinFilterDataData, MaterialStatsData, RegionStatsData, NominalStatsData, NameStatsData } from '../';
 import { UseDataConnectQueryResult, useDataConnectQueryOptions} from '@tanstack-query-firebase/react/data-connect';
 import { UseQueryResult} from '@tanstack/react-query';
 import { DataConnect } from 'firebase/data-connect';
@@ -16,6 +16,9 @@ export function useCoinMeta2count(dc: DataConnect, options?: useDataConnectQuery
 
 export function useCoinCount(options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
 export function useCoinCount(dc: DataConnect, options?: useDataConnectQueryOptions<CoinCountData>): UseDataConnectQueryResult<CoinCountData, undefined>;
+
+export function useCoinFilterData(options?: useDataConnectQueryOptions<CoinFilterDataData>): UseDataConnectQueryResult<CoinFilterDataData, undefined>;
+export function useCoinFilterData(dc: DataConnect, options?: useDataConnectQueryOptions<CoinFilterDataData>): UseDataConnectQueryResult<CoinFilterDataData, undefined>;
 
 export function useMaterialStats(options?: useDataConnectQueryOptions<MaterialStatsData>): UseDataConnectQueryResult<MaterialStatsData, undefined>;
 export function useMaterialStats(dc: DataConnect, options?: useDataConnectQueryOptions<MaterialStatsData>): UseDataConnectQueryResult<MaterialStatsData, undefined>;

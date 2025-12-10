@@ -12,7 +12,7 @@ For each operation, there is a wrapper hook that can be used to call the operati
 
 Here are all of the hooks that get generated:
 ```ts
-import { useCoinMeta2byId, useCoinById, useCoinMeta2count, useCoinCount, useMaterialStats, useRegionStats, useNominalStats, useNameStats } from '@dataconnect/generated/react';
+import { useCoinMeta2byId, useCoinById, useCoinMeta2count, useCoinCount, useCoinFilterData, useMaterialStats, useRegionStats, useNominalStats, useNameStats } from '@dataconnect/generated/react';
 // The types of these hooks are available in react/index.d.ts
 
 const { data, isPending, isSuccess, isError, error } = useCoinMeta2byId(coinMeta2byIdVars);
@@ -22,6 +22,8 @@ const { data, isPending, isSuccess, isError, error } = useCoinById(coinByIdVars)
 const { data, isPending, isSuccess, isError, error } = useCoinMeta2count();
 
 const { data, isPending, isSuccess, isError, error } = useCoinCount();
+
+const { data, isPending, isSuccess, isError, error } = useCoinFilterData();
 
 const { data, isPending, isSuccess, isError, error } = useMaterialStats();
 
@@ -68,7 +70,7 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { coinMeta2byId, coinById, coinMeta2count, coinCount, materialStats, regionStats, nominalStats, nameStats } from '@dataconnect/generated';
+import { coinMeta2byId, coinById, coinMeta2count, coinCount, coinFilterData, materialStats, regionStats, nominalStats, nameStats } from '@dataconnect/generated';
 
 
 // Operation CoinMeta2ById:  For variables, look at type CoinMeta2byIdVars in ../index.d.ts
@@ -82,6 +84,9 @@ const { data } = await CoinMeta2count(dataConnect);
 
 // Operation CoinCount: 
 const { data } = await CoinCount(dataConnect);
+
+// Operation CoinFilterData: 
+const { data } = await CoinFilterData(dataConnect);
 
 // Operation MaterialStats: 
 const { data } = await MaterialStats(dataConnect);

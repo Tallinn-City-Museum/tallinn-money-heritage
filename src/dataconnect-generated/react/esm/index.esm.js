@@ -1,4 +1,4 @@
-import { coinMeta2byIdRef, coinByIdRef, coinMeta2countRef, coinCountRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } from '../../esm/index.esm.js';
+import { coinMeta2byIdRef, coinByIdRef, coinMeta2countRef, coinCountRef, coinFilterDataRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } from '../../esm/index.esm.js';
 import { CallerSdkTypeEnum } from 'firebase/data-connect';
 import { useDataConnectQuery, validateReactArgs } from '@tanstack-query-firebase/react/data-connect';
 
@@ -24,6 +24,12 @@ export function useCoinMeta2count(dcOrOptions, options) {
 export function useCoinCount(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
   const ref = coinCountRef(dcInstance);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
+
+export function useCoinFilterData(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
+  const ref = coinFilterDataRef(dcInstance);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 

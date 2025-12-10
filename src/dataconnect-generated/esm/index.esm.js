@@ -50,6 +50,17 @@ export function coinCount(dc) {
   return executeQuery(coinCountRef(dc));
 }
 
+export const coinFilterDataRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'CoinFilterData');
+}
+coinFilterDataRef.operationName = 'CoinFilterData';
+
+export function coinFilterData(dc) {
+  return executeQuery(coinFilterDataRef(dc));
+}
+
 export const materialStatsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();

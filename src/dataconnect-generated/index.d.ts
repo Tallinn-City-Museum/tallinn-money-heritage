@@ -31,6 +31,15 @@ export interface CoinCountData {
   };
 }
 
+export interface CoinFilterDataData {
+  coinMetas2s: ({
+    region?: string | null;
+    material?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+  })[];
+}
+
 export interface CoinMeta2byIdData {
   coinMetas2s: ({
     id: Int64String;
@@ -141,6 +150,18 @@ export const coinCountRef: CoinCountRef;
 
 export function coinCount(): QueryPromise<CoinCountData, undefined>;
 export function coinCount(dc: DataConnect): QueryPromise<CoinCountData, undefined>;
+
+interface CoinFilterDataRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<CoinFilterDataData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<CoinFilterDataData, undefined>;
+  operationName: string;
+}
+export const coinFilterDataRef: CoinFilterDataRef;
+
+export function coinFilterData(): QueryPromise<CoinFilterDataData, undefined>;
+export function coinFilterData(dc: DataConnect): QueryPromise<CoinFilterDataData, undefined>;
 
 interface MaterialStatsRef {
   /* Allow users to create refs without passing in DataConnect */
