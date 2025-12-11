@@ -77,7 +77,7 @@ export default function Flipper() {
     const [flipped, setFlipped] = useState(1);
     const [isFlipping, setIsFlipping] = useState(false);
     const flipAnimation = useRef(new Animated.Value(0)).current;
-
+    
     const buildFreshTutorialState = (): TutorialProgress => ({
         filterCoins: false,
         filteringChoice: true, // filter-specific step stays off this screen
@@ -294,40 +294,9 @@ export default function Flipper() {
         AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
     }, [tutorial, tutorialHydrated]);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const raw = await AsyncStorage.getItem(PROGRESS_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    setTutorial((prev) => ({ ...prev, ...parsed }));
-                }
-            } catch {
-                // ignore
-            } finally {
-                setTutorialHydrated(true);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        if (!tutorialHydrated) return;
-        setTutorial((prev) => ({
-            ...prev,
-            filteringChoice: true,
-            filterNavigation: true,
-        }));
-    }, [tutorialHydrated]);
-
-    useEffect(() => {
-        if (!tutorialHydrated) return;
-        AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
-    }, [tutorial, tutorialHydrated]);
-
     const handleSkipStep = (step: TutorialStepKey) => {
         setTutorial((prev) => ({ ...prev, [step]: true }));
     };
-
 
     const handleSkipAll = () => {
         setTutorial({
@@ -381,34 +350,6 @@ export default function Flipper() {
         }, [routeParams?.fromWallet, routeParams?.coinId])
     );
 
-    // If returning from Wallet, normalize wallet steps and show "last" here (unless caller says done)
-    useEffect(() => {
-        if (routeParams?.fromWallet) {
-            setTutorial((prev) => {
-                const normalized = {
-                    ...prev,
-                    filterCoins: true,
-                    filteringChoice: true,
-                    filterNavigation: true,
-                    tapTwice: true,
-                    zoomedIn: true,
-                    rotated: true,
-                    zoomedOut: true,
-                    doubleTapped: true,
-                    openedInfo: true,
-                    swipeWallet: true,
-                    dragCoin: true,
-                    walletInfo: true,
-                };
-                if (routeParams.tutorialDone === "1") {
-                    return { ...normalized, last: true };
-                }
-                return { ...normalized, last: false };
-            });
-            // Remount tutorial overlay to ensure "last" shows after coming from Wallet
-            setTutorialRunKey((k) => k + 1);
-        }
-    }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
     // If returning from Wallet, normalize wallet steps and show "last" here (unless caller says done)
     useEffect(() => {
         if (routeParams?.fromWallet) {
@@ -674,10 +615,12 @@ export default function Flipper() {
                 setCoin(updatedCoin);
 
                 addCoin(coin, finalSide, chosenPrediction);
-                added = true;
+                Toast.show({
+                    type: "success",
+                    text1: "Münt on lisatud rahakotti",
+                    text2: `Münt '${coin?.name}' on lisatud teie rahakotti ??`,
+                });
             }
-
-            setJustAddedToWallet(added);
         });
 
         const step = duration / (rotations + 1);
@@ -817,7 +760,6 @@ export default function Flipper() {
 
                 if (!isInfoVisible && swipedRight) {
                     setTutorial((prev) => ({ ...prev, filterCoins: true }));
-                    setTutorial((prev) => ({ ...prev, filterCoins: true }));
                     router.push({ pathname: "/filter" });
                     return;
                 }
@@ -850,7 +792,6 @@ export default function Flipper() {
         setTutorial((prev) => ({ ...prev, last: true }));
         await AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
     };
-
     const handleRestartTutorial = async () => {
         try {
             await AsyncStorage.multiRemove(["tutorial.done", "tutorial.skips", "tutorial.progress"]);
@@ -861,36 +802,13 @@ export default function Flipper() {
         setTutorial(buildFreshTutorialState());
         setTutorialRunKey((k) => k + 1);
     };
+
     // --- Render ---
     return (
         <View style={styles.container} {...swipeResponder.panHandlers}>
             {!coin && <ActivityIndicator size={64} />}
             {coin && (
                 <>
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel="Ava juhend uuesti"
-                        onPress={handleRestartTutorial}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        style={{
-                            position: "absolute",
-                            top: insets.top + 12,
-                            right: 16,
-                            padding: 10,
-                            borderRadius: 18,
-                            backgroundColor: "rgba(23, 24, 35, 0.85)",
-                            borderWidth: 1,
-                            borderColor: "#32403d",
-                            zIndex: 22,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.2,
-                            shadowRadius: 4,
-                            shadowOffset: { width: 0, height: 2 },
-                        }}
-                    >
-                        <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
-                    </TouchableOpacity>
-
                     <TouchableOpacity
                         accessibilityRole="button"
                         accessibilityLabel="Ava juhend uuesti"
@@ -1077,22 +995,6 @@ export default function Flipper() {
         </View>
     );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
