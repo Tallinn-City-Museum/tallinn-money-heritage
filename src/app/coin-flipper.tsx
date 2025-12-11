@@ -1,12 +1,15 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
 import {
     View,
+    Text,
     Animated,
     Easing,
     PanResponder,
     ActivityIndicator,
-} from "react-native";
-import {
+    TouchableOpacity,
+    } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+    import {
     TapGestureHandler,
     PinchGestureHandler,
     PanGestureHandler,
@@ -32,10 +35,24 @@ import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
+const PROGRESS_KEY = "tutorial.progress";
 import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
+import Toast from "react-native-toast-message";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
+const COIN_TUTORIAL_STEPS: TutorialStepKey[] = [
+    "filterCoins",
+    "tapTwice",
+    "zoomedIn",
+    "rotated",
+    "zoomedOut",
+    "doubleTapped",
+    "openedInfo",
+    "swipeWallet",
+    "last",
+];
 
 export default function Flipper() {
     const { addCoin, coins } = useWallet();
@@ -60,6 +77,21 @@ export default function Flipper() {
     const [flipped, setFlipped] = useState(1);
     const [isFlipping, setIsFlipping] = useState(false);
     const flipAnimation = useRef(new Animated.Value(0)).current;
+    const buildFreshTutorialState = (): TutorialProgress => ({
+        filterCoins: false,
+        filteringChoice: true, // filter-specific step stays off this screen
+        filterNavigation: true, // filter-specific step stays off this screen
+        tapTwice: false,
+        zoomedIn: false,
+        rotated: false,
+        zoomedOut: false,
+        doubleTapped: false,
+        openedInfo: false,
+        swipeWallet: false,
+        dragCoin: false,
+        walletInfo: false,
+        last: false,
+    });
 
     const [coin, setCoin] = useState<WalletCoin | null>(null);
     const [coinSize, setCoinSize] = useState<number>(200);
@@ -68,7 +100,7 @@ export default function Flipper() {
     const [countryStats, setCountryStats] = useState<CountryStat[] | null>(null);
     const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
     const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
-
+    const insets = useSafeAreaInsets();
     const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
             base.diameter !== undefined
@@ -226,25 +258,50 @@ export default function Flipper() {
     };
 
     // TUTORIAL: progress & helpers
-    const [tutorial, setTutorial] = useState<TutorialProgress>({
-        tapTwice: false,
-        zoomedIn: false,
-        rotated: false,
-        zoomedOut: false,
-        doubleTapped: false,
-        openedInfo: false,
-        swipeWallet: false,
-        dragCoin: false,
-        walletInfo: false,
-        last: false,
-    });
+    const [tutorial, setTutorial] = useState<TutorialProgress>(buildFreshTutorialState);
+    const [tutorialHydrated, setTutorialHydrated] = useState(false);
+    const [tutorialRunKey, setTutorialRunKey] = useState(0);
     const tapCounterRef = useRef(0);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const raw = await AsyncStorage.getItem(PROGRESS_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    setTutorial((prev) => ({ ...prev, ...parsed }));
+                }
+            } catch {
+                // ignore
+            } finally {
+                setTutorialHydrated(true);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        setTutorial((prev) => ({
+            ...prev,
+            filteringChoice: true,
+            filterNavigation: true,
+        }));
+    }, [tutorialHydrated]);
+
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
+    }, [tutorial, tutorialHydrated]);
 
     const handleSkipStep = (step: TutorialStepKey) => {
         setTutorial((prev) => ({ ...prev, [step]: true }));
     };
+
     const handleSkipAll = () => {
         setTutorial({
+            filterCoins: true,
+            filteringChoice: true,
+            filterNavigation: true,
             tapTwice: true,
             zoomedIn: true,
             rotated: true,
@@ -258,25 +315,6 @@ export default function Flipper() {
         });
         AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
     };
-    useEffect(() => {
-        // touch AsyncStorage once (defensive; FirstRunTutorial persists itself)
-        AsyncStorage.getItem("tutorial.done").then(() => { });
-    }, []);
-
-    // If returning from Wallet, normalize wallet steps and show "last" here (unless caller says done)
-    useEffect(() => {
-        if (routeParams?.fromWallet) {
-            setTutorial((prev) => {
-                const merged = { ...prev, swipeWallet: true, dragCoin: true, walletInfo: true };
-                if (routeParams.tutorialDone === "1") {
-                    // parent already finished; mark last as done too
-                    return { ...merged, last: true };
-                }
-                // leave "last" false so it shows here
-                return { ...merged, last: false };
-            });
-        }
-    }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
 
     // Re-open info whenever a fresh infoReq token arrives (even for the same coin).
     const lastInfoReqRef = useRef<string | undefined>(undefined);
@@ -311,11 +349,42 @@ export default function Flipper() {
         }, [routeParams?.fromWallet, routeParams?.coinId])
     );
 
+    // If returning from Wallet, normalize wallet steps and show "last" here (unless caller says done)
+    useEffect(() => {
+        if (routeParams?.fromWallet) {
+            setTutorial((prev) => {
+                const normalized = {
+                    ...prev,
+                    filterCoins: true,
+                    filteringChoice: true,
+                    filterNavigation: true,
+                    tapTwice: true,
+                    zoomedIn: true,
+                    rotated: true,
+                    zoomedOut: true,
+                    doubleTapped: true,
+                    openedInfo: true,
+                    swipeWallet: true,
+                    dragCoin: true,
+                    walletInfo: true,
+                };
+                if (routeParams.tutorialDone === "1") {
+                    return { ...normalized, last: true };
+                }
+                return { ...normalized, last: false };
+            });
+            // Remount tutorial overlay to ensure "last" shows after coming from Wallet
+            setTutorialRunKey((k) => k + 1);
+        }
+    }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
     // If Wallet told us tutorial is done, suppress overlay here immediately
     useEffect(() => {
         if (routeParams?.tutorialDone === "1") {
             setTutorial((prev) => ({
                 ...prev,
+                filterCoins: true,
+                filteringChoice: true,
+                filterNavigation: true,
                 // normalize wallet steps too to avoid bouncing back
                 swipeWallet: true,
                 dragCoin: true,
@@ -687,7 +756,8 @@ export default function Flipper() {
                 (g as any).swipedUp = swipedUp;
 
                 if (!isInfoVisible && swipedRight) {
-                    router.push({ pathname: "./filter" });
+                    setTutorial((prev) => ({ ...prev, filterCoins: true }));
+                    router.push({ pathname: "/filter" });
                     return;
                 }
 
@@ -720,12 +790,68 @@ export default function Flipper() {
         await AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
     };
 
+    const handleRestartTutorial = async () => {
+        try {
+            await AsyncStorage.multiRemove(["tutorial.done", "tutorial.skips", "tutorial.progress"]);
+            await AsyncStorage.setItem("tutorial.done", "0");
+            await AsyncStorage.setItem("tutorial.resetToken", String(Date.now()));
+        } catch { }
+        tapCounterRef.current = 0;
+        setTutorial(buildFreshTutorialState());
+        setTutorialRunKey((k) => k + 1);
+    };
+
     // --- Render ---
     return (
         <View style={styles.container} {...swipeResponder.panHandlers}>
             {!coin && <ActivityIndicator size={64} />}
             {coin && (
                 <>
+                    <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel="Ava juhend uuesti"
+                        onPress={handleRestartTutorial}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        style={{
+                            position: "absolute",
+                            top: insets.top + 12,
+                            right: 16,
+                            padding: 10,
+                            borderRadius: 18,
+                            backgroundColor: "rgba(23, 24, 35, 0.85)",
+                            borderWidth: 1,
+                            borderColor: "#32403d",
+                            zIndex: 22,
+                            shadowColor: "#000",
+                            shadowOpacity: 0.2,
+                            shadowRadius: 4,
+                            shadowOffset: { width: 0, height: 2 },
+                        }}
+                    >
+                        <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
+                    </TouchableOpacity>
+
+                    {lastResult !== null && (
+                        <Animated.View
+                            pointerEvents="box-none"
+                            style={{
+                                position: "absolute",
+                                top: insets.top + 20,
+                                left: 0,
+                                right: 0,
+                                zIndex: 10,
+                                alignItems: "center",
+                                justifyContent: "flex-start",
+                            }}
+                        >
+                            <Text style={styles.coinTitle}>
+                                {coin?.name
+                                    ? coin.name.charAt(0).toUpperCase() + coin.name.slice(1)
+                                    : ""}
+                            </Text>
+                        </Animated.View>
+                    )}
+
                     {/* top spacer keeps coin centered even when result appears */}
                     <View style={styles.coinTopSpacer} />
 
@@ -855,9 +981,11 @@ export default function Flipper() {
 
                     {/* TUTORIAL OVERLAY */}
                     <FirstRunTutorial
+                        key={tutorialRunKey}
                         progress={tutorial}
                         onSkipStep={handleSkipStep}
                         onSkipAll={handleSkipAll}
+                        allowedSteps={COIN_TUTORIAL_STEPS}
                         onFinish={handleFinishTutorialHere}
                     />
                 </>
@@ -865,3 +993,19 @@ export default function Flipper() {
         </View>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
