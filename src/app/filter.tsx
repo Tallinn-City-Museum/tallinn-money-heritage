@@ -1244,3 +1244,4 @@ const sideStyles = StyleSheet.create({
         fontSize: 11,
     },
 });
+
