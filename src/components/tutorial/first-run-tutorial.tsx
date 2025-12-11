@@ -4,6 +4,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "../common/stylesheet";
 
 export type TutorialProgress = {
+    filterCoins: boolean;
+    filteringChoice: boolean;
+    filterNavigation: boolean;
     tapTwice: boolean;
     zoomedIn: boolean;
     rotated: boolean;
@@ -16,12 +19,30 @@ export type TutorialProgress = {
     last: boolean,
 };
 
-export type TutorialStepKey = "tapTwice" | "zoomedIn" | "rotated" | "zoomedOut" | "doubleTapped" | "openedInfo" | "swipeWallet" | "dragCoin" | "walletInfo" | "last";
+export type TutorialStepKey =
+    | "filterCoins"
+    | "filteringChoice"
+    | "filterNavigation"
+    | "tapTwice"
+    | "zoomedIn"
+    | "rotated"
+    | "zoomedOut"
+    | "doubleTapped"
+    | "openedInfo"
+    | "swipeWallet"
+    | "dragCoin"
+    | "walletInfo"
+    | "last";
 
 type Props = {
     progress: TutorialProgress;
     onSkipStep: (step: TutorialStepKey) => void;
     onSkipAll: () => void;
+    allowedSteps?: TutorialStepKey[];
+    // Optional: prevent persisting tutorial.done (for scoped helpers)
+    persistDone?: boolean;
+    // Optional: ignore persisted tutorial.done (for scoped helpers)
+    ignorePersistedDone?: boolean;
     // Optional: force show (for testing)
     visibleOverride?: boolean;
     // Optional: called when the final screen's CTA ("Mine mängima") is pressed
@@ -31,9 +52,29 @@ type Props = {
 const STORAGE_DONE_KEY = "tutorial.done";
 const STORAGE_SKIPS_KEY = "tutorial.skips";
 
-const ORDER: TutorialStepKey[] = ["tapTwice", "zoomedIn", "rotated", "zoomedOut", "doubleTapped", "openedInfo", "swipeWallet", "dragCoin", "walletInfo", "last"];
+const ORDER: TutorialStepKey[] = [
+    "filterCoins",
+    "filteringChoice",
+    "filterNavigation",
+    "tapTwice",
+    "zoomedIn",
+    "rotated",
+    "zoomedOut",
+    "doubleTapped",
+    "openedInfo",
+    "swipeWallet",
+    "dragCoin",
+    "walletInfo",
+    "last",
+];
 
 const TEXTS: Record<TutorialStepKey, string> = {
+    filterCoins:
+        "Libista ekraanil vasakult paremale, et avada filtrid ja leida sobiv münt.",
+    filteringChoice:
+        "Vali meelepärased kitsendused väljadele vajutades.",
+    filterNavigation:
+        "Kui filtrid on valitud, vajuta all nuppu „Rakenda“, et minna münti vaatama ja viskama.",
     tapTwice:
         "Kliki mündil, et külge vahetada.\nVaheta külge kaks korda, et näha järgmist juhist.",
     zoomedIn:
@@ -60,11 +101,17 @@ export function FirstRunTutorial({
     progress,
     onSkipStep,
     onSkipAll,
+    allowedSteps,
+    persistDone = true,
+    ignorePersistedDone = false,
     visibleOverride,
     onFinish,
 }: Props) {
     const [done, setDone] = useState<boolean>(false);
     const [skips, setSkips] = useState<Record<TutorialStepKey, boolean>>({
+        filterCoins: false,
+        filteringChoice: false,
+        filterNavigation: false,
         tapTwice: false,
         zoomedIn: false,
         rotated: false,
@@ -82,6 +129,10 @@ export function FirstRunTutorial({
 
     // Load persisted flags once
     useEffect(() => {
+        if (ignorePersistedDone) {
+            setHydrated(true);
+            return;
+        }
         (async () => {
         try {
             const rawDone = await AsyncStorage.getItem(STORAGE_DONE_KEY);
@@ -105,7 +156,9 @@ export function FirstRunTutorial({
     // Persist completion
     useEffect(() => {
         if (allComplete && !done) {
-            AsyncStorage.setItem(STORAGE_DONE_KEY, "1").catch(() => {});
+            if (persistDone) {
+                AsyncStorage.setItem(STORAGE_DONE_KEY, "1").catch(() => {});
+            }
             setDone(true);
         }
     }, [allComplete, done]);
@@ -114,10 +167,14 @@ export function FirstRunTutorial({
     const nextStep: TutorialStepKey | null = useMemo(() => {
         if (done) return null;
         for (const k of ORDER) {
-        if (!progress[k] && !skips[k]) return k;
+            if (!progress[k] && !skips[k]) {
+                // If this step isn't allowed on the current screen, pause here and wait
+                if (allowedSteps && !allowedSteps.includes(k)) return null;
+                return k;
+            }
         }
         return null;
-    }, [progress, skips, done]);
+    }, [progress, skips, done, allowedSteps]);
 
     const visible = hydrated && (visibleOverride ?? (!!nextStep && !done));
     if (!visible || !nextStep) return null;
@@ -150,7 +207,7 @@ export function FirstRunTutorial({
             ]}
             pointerEvents="auto"
         >
-            {nextStep === "tapTwice" && (<Text style={styles.tutorialTitle}>Kuidas alustada</Text>)}
+            {nextStep === "filterCoins" && (<Text style={styles.tutorialTitle}>Kuidas alustada</Text>)}
             <Text style={styles.tutorialText}>{TEXTS[nextStep]}</Text>
 
             {/* Last step */}
