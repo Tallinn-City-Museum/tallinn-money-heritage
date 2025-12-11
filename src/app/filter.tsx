@@ -549,14 +549,14 @@ export default function FilterView() {
                 />
             )}
 
-                    <MaterialFilterSheet
-                            isOpen={materialSheetOpen}
-                            materials={materialStats}
-                            activeMaterial={pendingMaterial}
-                            onRequestClose={() => setMaterialSheetOpen(false)}
-                            onSelectMaterial={handleSelectMaterial}
-                            onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
-                             />
+            <MaterialFilterSheet
+                    isOpen={materialSheetOpen}
+                    materials={materialStats}
+                    activeMaterial={pendingMaterial}
+                    onRequestClose={() => setMaterialSheetOpen(false)}
+                    onSelectMaterial={handleSelectMaterial}
+                    onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
+                     />
 
             {(materialSheetOpen || countrySheetOpen) && (
                 <View
