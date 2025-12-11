@@ -52,13 +52,14 @@ async function saveProgress(update: Partial<TutorialProgress>) {
     } catch {}
 }
 
-// Small hook to check "tutorial.done" and avoid showing the overlay after completion
-function useTutorialDone() {
-    const [hydrated, setHydrated] = useState(false);
-    const [done, setDone] = useState(false);
-    const readFlag = async (mountedRef: { current: boolean }) => {
-        try {
-            const v = await AsyncStorage.getItem("tutorial.done");
+    // Small hook to check "tutorial.done" and avoid showing the overlay after completion
+    function useTutorialDone() {
+        const navigation = React.useContext(NavigationContext);
+        const [hydrated, setHydrated] = useState(false);
+        const [done, setDone] = useState(false);
+        const readFlag = async (mountedRef: { current: boolean }) => {
+            try {
+                const v = await AsyncStorage.getItem("tutorial.done");
             if (mountedRef.current) setDone(v === "1");
         } finally {
             if (mountedRef.current) setHydrated(true);
