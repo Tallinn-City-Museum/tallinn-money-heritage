@@ -185,7 +185,6 @@ export default function Flipper() {
     // last flip result (null until the first flip finishes)
     const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
-    const [resultVisible, setResultVisible] = useState(false);
 
     // ZOOM / PAN / ROTATE state
     // ZOOM (pinch) state
@@ -276,14 +275,6 @@ export default function Flipper() {
             });
         }
     }, [routeParams?.fromWallet, routeParams?.tutorialDone]);
-
-    useEffect(() => {
-        if (lastResult !== null) {
-            setResultVisible(true);
-            const timer = setTimeout(() => setResultVisible(false), 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [lastResult]);
 
     // Re-open info whenever a fresh infoReq token arrives (even for the same coin).
     const lastInfoReqRef = useRef<string | undefined>(undefined);
@@ -823,27 +814,15 @@ export default function Flipper() {
 
                     {/* bottom area holds the result; hidden while zoomed */}
                     <View style={styles.bottomArea}>
-                        {resultVisible && lastResult !== null && !isZoomed && (
+                        {lastResult !== null && !isZoomed && (
                             <BottomArea
                                 side={lastResult}
                                 coinName={coin?.name ?? ""}
+                                predicted={resultSource === "flip" ? pendingPrediction : null}
+                                isFlipping={isFlipping}
                             />
                         )}
                     </View>
-
-                        {resultVisible &&
-                            !isZoomed &&
-                            resultSource === "flip" &&
-                            pendingPrediction !== null &&
-                            !isFlipping && (
-                                <View style={styles.predictionResultSheet}>
-                                    <Text style={styles.predictionResultText}>
-                                        {pendingPrediction === lastResult
-                                            ? "Ennustus läks täppi!"
-                                            : "Ennustus ei läinud täppi"}
-                                    </Text>
-                                </View>
-                            )}
 
                     <PredictionDialog
                         visible={isDialogVisible}

@@ -56,31 +56,22 @@ export const styles = StyleSheet.create({
         fontSize: 22,
         color: "#e7e3e3ff",
         fontStyle: "italic",
-        textTransform: "uppercase",
         textAlign: "center",
     },
 
-    predictionResultSheet: {
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
+    predictionResultBox: {
+        marginTop: 4,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        borderRadius: 8,
         backgroundColor: "#ccd9d5ff",
-        borderTopLeftRadius: 8,
-        borderTopRightRadius: 8,
-        paddingHorizontal: 16,
-        paddingTop: 40,
-        paddingBottom: 40,
-        alignItems: "center",
-        zIndex: 45,
-        elevation: 9,
     },
 
     predictionResultText: {
-        fontSize: 22,
+        fontSize: 20,
         color: "#2b2b2bff",
         textAlign: "center",
-        fontFamily: "ProzaDisplay-Bold",
+        fontFamily: "ProzaDisplay-SemiBold",
     },
 
     choicesRow: {
