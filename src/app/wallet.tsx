@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Text, Image, Animated, PanResponder, Dimensions } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+import { NavigationContext } from "@react-navigation/native";
 import { useWallet } from "../context/wallet-context";
 import { styles } from "../components/common/stylesheet";
 import { CoinSide } from "../data/entity/coin";
@@ -52,13 +52,14 @@ async function saveProgress(update: Partial<TutorialProgress>) {
     } catch {}
 }
 
-// Small hook to check "tutorial.done" and avoid showing the overlay after completion
-function useTutorialDone() {
-    const [hydrated, setHydrated] = useState(false);
-    const [done, setDone] = useState(false);
-    const readFlag = async (mountedRef: { current: boolean }) => {
-        try {
-            const v = await AsyncStorage.getItem("tutorial.done");
+    // Small hook to check "tutorial.done" and avoid showing the overlay after completion
+    function useTutorialDone() {
+        const navigation = React.useContext(NavigationContext);
+        const [hydrated, setHydrated] = useState(false);
+        const [done, setDone] = useState(false);
+        const readFlag = async (mountedRef: { current: boolean }) => {
+            try {
+                const v = await AsyncStorage.getItem("tutorial.done");
             if (mountedRef.current) setDone(v === "1");
         } finally {
             if (mountedRef.current) setHydrated(true);
@@ -73,24 +74,27 @@ function useTutorialDone() {
         };
     }, []);
 
-    // Also refresh when screen gains focus (covers cases where component stays mounted)
-    useFocusEffect(
-        React.useCallback(() => {
+        // Also refresh when screen gains focus (covers cases where component stays mounted)
+        useEffect(() => {
+            if (!navigation) return;
             const mounted = { current: true };
-            readFlag(mounted);
+            const unsubscribe = navigation.addListener("focus", () => {
+                readFlag(mounted);
+            });
             return () => {
                 mounted.current = false;
+                unsubscribe && unsubscribe();
             };
-        }, [])
-    );
-    return { hydrated, done };
-}
+        }, [navigation]);
+        return { hydrated, done };
+    }
 
 export default function Wallet() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const params = useLocalSearchParams<{ teach?: string }>();
     const { coins, updateCoinPosition } = useWallet();
+    const navigation = React.useContext(NavigationContext);
     const { hydrated: tutHydrated, done: tutorialDone } = useTutorialDone(); // gate overlay
     const [tutorialRunKey, setTutorialRunKey] = useState(0);
     const [resetToken, setResetToken] = useState<string | null>(null);
@@ -140,25 +144,26 @@ export default function Wallet() {
     }, []);
 
     // Watch reset token on focus
-    useFocusEffect(
-        useCallback(() => {
-            let cancelled = false;
-            (async () => {
-                try {
-                    const token = await AsyncStorage.getItem(RESET_KEY);
-                    if (cancelled) return;
-                    if (token && token !== resetToken) {
-                        await resetWalletTutorial(token);
-                    }
-                } catch {
-                    // ignore
+    useEffect(() => {
+        let cancelled = false;
+        const checkReset = async () => {
+            try {
+                const token = await AsyncStorage.getItem(RESET_KEY);
+                if (cancelled) return;
+                if (token && token !== resetToken) {
+                    await resetWalletTutorial(token);
                 }
-            })();
-            return () => {
-                cancelled = true;
-            };
-        }, [resetToken, resetWalletTutorial])
-    );
+            } catch {
+                // ignore
+            }
+        };
+        checkReset();
+        const unsubscribe = navigation?.addListener("focus", checkReset);
+        return () => {
+            cancelled = true;
+            unsubscribe && unsubscribe();
+        };
+    }, [resetToken, resetWalletTutorial, navigation]);
 
     // hydrate tutorial progress from storage and merge
     useEffect(() => {
