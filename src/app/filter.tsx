@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { styles as commonStyles } from "../components/common/stylesheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FirstRunTutorial, TutorialProgress, TutorialStepKey } from "../components/tutorial/first-run-tutorial";
 import { MaterialFilterSheet } from "./MaterialFilterSheet";
 import { CountryFilterSheet } from "./CountryFilterSheet";
 import { AggregatedCoinMeta, MaterialStat, CountryStat, NominalStat, NameStat } from "../data/entity/aggregated-meta";
@@ -38,6 +41,8 @@ const PERIOD_LABELS = PERIOD_CLUSTERS.reduce<Record<string, string>>((acc, item)
     acc[item.key] = item.label;
     return acc;
 }, {});
+const PROGRESS_KEY = "tutorial.progress";
+const STORAGE_DONE_KEY = "tutorial.done";
 
 // Weighted pattern gives the 1500-1550 slice a bit more presence to match the supplied clusters
 const PERIOD_PATTERN = [0, 1, 1, 2, 3, 4, 5, 6];
@@ -135,6 +140,23 @@ const BASE_PERIOD_STATS: AggregatedCoinMeta[] = buildStats(
     MOCK_FILTER_DATA.map((row) => row.period),
     PERIOD_LABELS
 ) as AggregatedCoinMeta[];
+const FILTER_TUTORIAL_STEPS: TutorialStepKey[] = ["filterCoins", "filteringChoice", "filterNavigation"];
+
+const buildInitialTutorial = (): TutorialProgress => ({
+    filterCoins: false,
+    filteringChoice: false,
+    filterNavigation: false,
+    tapTwice: false,
+    zoomedIn: false,
+    rotated: false,
+    zoomedOut: false,
+    doubleTapped: false,
+    openedInfo: false,
+    swipeWallet: false,
+    dragCoin: false,
+    walletInfo: false,
+    last: false,
+});
 
 export default function FilterView() {
     const router = useRouter();
@@ -142,9 +164,9 @@ export default function FilterView() {
     const screenHeight = Dimensions.get("window").height;
     const [countryFilterHeight, setCountryFilterHeight] = useState(0);
     const [materialFilterHeight, setMaterialFilterHeight] = useState(0);
-    const [showPrompt, setShowPrompt] = useState(true);
-    const [materialSheetOpen, setMaterialSheetOpen] = useState(false);
-    const [countrySheetOpen, setCountrySheetOpen] = useState(false);
+    const [showPrompt, setShowPrompt] = useState(false);
+    const [materialSheetOpen, setMaterialSheetOpen] = useState(true);
+    const [countrySheetOpen, setCountrySheetOpen] = useState(true);
     const [materialStats, setMaterialStats] = useState<MaterialStat[]>(BASE_MATERIAL_STATS);
     const [pendingMaterial, setPendingMaterial] = useState<string>("");
     const [countryStats, setCountryStats] = useState<CountryStat[]>(BASE_COUNTRY_STATS);
@@ -157,10 +179,76 @@ export default function FilterView() {
     const [pendingPeriod, setPendingPeriod] = useState<string>("");
     const [topOtherPage, setTopOtherPage] = useState(-1);
     const [bottomOtherPage, setBottomOtherPage] = useState(-1);
+    const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialTutorial);
+    const [tutorialHydrated, setTutorialHydrated] = useState(false);
+    const [tutorialRunKey, setTutorialRunKey] = useState(0);
+    const [tutorialDone, setTutorialDone] = useState(false);
+    const lastDoneRef = useRef<boolean | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const [rawProgress, rawDone] = await Promise.all([
+                    AsyncStorage.getItem(PROGRESS_KEY),
+                    AsyncStorage.getItem(STORAGE_DONE_KEY),
+                ]);
+                if (rawProgress) {
+                    const parsed = JSON.parse(rawProgress);
+                    setTutorial((prev) => ({ ...prev, ...parsed, filterCoins: true }));
+                } else {
+                    setTutorial((prev) => ({ ...prev, filterCoins: true }));
+                }
+                setTutorialDone(rawDone === "1");
+            } catch {
+                // ignore
+            } finally {
+                setTutorialHydrated(true);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
+    }, [tutorial, tutorialHydrated]);
+
+    // Refresh tutorial.done flag when screen gains focus so restart via icon works
+    useFocusEffect(
+        useCallback(() => {
+            let mounted = true;
+            (async () => {
+                try {
+                    const rawDone = await AsyncStorage.getItem(STORAGE_DONE_KEY);
+                    if (mounted) setTutorialDone(rawDone === "1");
+                } catch {
+                    // ignore
+                }
+            })();
+            return () => {
+                mounted = false;
+            };
+        }, [])
+    );
+
+    // If global tutorial is cleared (e.g., via icon), remount filter steps once
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        if (lastDoneRef.current === false && tutorialDone === false) return;
+        if (tutorialDone === false) {
+            // wipe filter tutorial progress so steps show again
+            AsyncStorage.removeItem(PROGRESS_KEY).catch(() => {});
+            setTutorial({ ...buildInitialTutorial(), filterCoins: true });
+            setTutorialRunKey((k) => k + 1);
+        }
+        lastDoneRef.current = tutorialDone;
+    }, [tutorialDone, tutorialHydrated]);
 
     const skipAutoPickRef = useRef(false);
     const autoPickEnabledRef = useRef(true);
     const lastChangedRef = useRef<"country" | "material" | "nominal" | "name" | "period" | null>(null);
+    const markTutorial = useCallback((update: Partial<TutorialProgress>) => {
+        setTutorial((prev) => ({ ...prev, ...update }));
+    }, []);
 
     const handleSelectMaterial = (material: string) => {
         lastChangedRef.current = "material";
@@ -172,6 +260,7 @@ export default function FilterView() {
         }
         autoPickEnabledRef.current = true;
         setPendingMaterial(material);
+        if (material) markTutorial({ filteringChoice: true });
     };
 
     const handleSelectCountry = (country: string) => {
@@ -184,6 +273,7 @@ export default function FilterView() {
         }
         autoPickEnabledRef.current = true;
         setPendingCountry(country);
+        if (country) markTutorial({ filteringChoice: true });
     };
     const handleSelectNominal = (nominal: string) => {
         lastChangedRef.current = "nominal";
@@ -195,6 +285,7 @@ export default function FilterView() {
         }
         autoPickEnabledRef.current = true;
         setPendingNominal(nominal);
+        if (nominal) markTutorial({ filteringChoice: true });
     };
     const handleSelectName = (name: string) => {
         lastChangedRef.current = "name";
@@ -206,6 +297,7 @@ export default function FilterView() {
         }
         autoPickEnabledRef.current = true;
         setPendingName(name);
+        if (name) markTutorial({ filteringChoice: true });
     };
     const handleSelectPeriod = (period: string) => {
         lastChangedRef.current = "period";
@@ -217,6 +309,7 @@ export default function FilterView() {
         }
         autoPickEnabledRef.current = true;
         setPendingPeriod(period);
+        if (period) markTutorial({ filteringChoice: true });
     };
 
     const syncFilterOptions = useCallback(() => {
@@ -329,13 +422,7 @@ export default function FilterView() {
 
     const handleFilterRefine = () => {
         setShowPrompt(false);
-        setPendingCountry("");
-        setPendingMaterial("");
-        setPendingNominal("");
-        setPendingName("");
-        setPendingPeriod("");
-        setCountrySheetOpen(true);
-        setMaterialSheetOpen(true);
+        resetFiltersToInitial();
     };
 
     const handleResetAllFilters = () => {
@@ -348,9 +435,21 @@ export default function FilterView() {
         setPendingPeriod("");
     };
 
+    const resetFiltersToInitial = useCallback(() => {
+        skipAutoPickRef.current = true;
+        autoPickEnabledRef.current = true;
+        setPendingCountry("");
+        setPendingMaterial("");
+        setPendingNominal("");
+        setPendingName("");
+        setPendingPeriod("");
+        setCountrySheetOpen(true);
+        setMaterialSheetOpen(true);
+    }, []);
+
     const handleApplyFilters = () => {
-        // ensure the next visit starts with the prompt again
-        setShowPrompt(true);
+        setShowPrompt(false);
+        markTutorial({ filterNavigation: true });
         router.replace({
             pathname: "/coin-flipper",
             params: {
@@ -362,11 +461,41 @@ export default function FilterView() {
                 filterReq: String(Date.now()),
             },
         });
+        resetFiltersToInitial();
     };
 
     const anyFilterSelected = Boolean(pendingMaterial || pendingCountry || pendingNominal || pendingName || pendingPeriod);
     const allFiltersActive = Boolean(pendingCountry && pendingMaterial && pendingNominal && pendingName && pendingPeriod);
+    const handleSkipStep = (step: TutorialStepKey) => {
+        markTutorial({ [step]: true } as Partial<TutorialProgress>);
+    };
+    const handleSkipAll = () => {
+        markTutorial({
+            filterCoins: true,
+            filteringChoice: true,
+            filterNavigation: true,
+            tapTwice: true,
+            zoomedIn: true,
+            rotated: true,
+            zoomedOut: true,
+            doubleTapped: true,
+            openedInfo: true,
+            swipeWallet: true,
+            dragCoin: true,
+            walletInfo: true,
+            last: true,
+        });
+    };
     const coinSize = 200;
+    // Reset sheets when screen gains focus and ensure they are open by default
+    useFocusEffect(
+        useCallback(() => {
+            setShowPrompt(false);
+            setCountrySheetOpen(true);
+            setMaterialSheetOpen(true);
+            // keep filter helper visibility as-is
+        }, [])
+    );
     const swipeResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: (_, g) => {
@@ -388,105 +517,120 @@ export default function FilterView() {
 
     return (
         <View style={[commonStyles.container, filterStyles.screen]} {...swipeResponder.panHandlers}>
-            {showPrompt ? (
-                <View style={filterStyles.pageWrap}>
-                    <FilterLanding showPrompt onRandom={handleFilterRandomCoin} onRefine={handleFilterRefine} />
-                </View>
-            ) : (
-                <>
-                    <CountryFilterSheet
-                        isOpen={countrySheetOpen}
-                        countries={countryStats}
-                        activeCountry={pendingCountry}
-                        onRequestClose={() => setCountrySheetOpen(false)}
-                        onSelectCountry={handleSelectCountry}
-                        onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
-                    />
+            <CountryFilterSheet
+                isOpen={countrySheetOpen}
+                countries={countryStats}
+                activeCountry={pendingCountry}
+                onRequestClose={() => setCountrySheetOpen(false)}
+                onSelectCountry={handleSelectCountry}
+                onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
+            />
 
-                    {(materialSheetOpen || countrySheetOpen) && (
-                        <PeriodFilterRail
-                            items={periodStats}
-                            activePeriod={pendingPeriod}
-                            onSelectPeriod={handleSelectPeriod}
-                            topOffset={countryFilterHeight}
-                            bottomOffset={materialFilterHeight}
-                        />
-                    )}
-
-                    {(materialSheetOpen || countrySheetOpen) && (
-                        <RightSideFilters
-                            topItems={nominalStats}
-                            bottomItems={nameStats}
-                            activeTop={pendingNominal}
-                            activeBottom={pendingName}
-                            onSelectTop={handleSelectNominal}
-                            onSelectBottom={handleSelectName}
-                            topOffset={countryFilterHeight}
-                            bottomOffset={materialFilterHeight}
-                        />
-                    )}
-
-                    <MaterialFilterSheet
-                            isOpen={materialSheetOpen}
-                            materials={materialStats}
-                            activeMaterial={pendingMaterial}
-                            onRequestClose={() => setMaterialSheetOpen(false)}
-                            onSelectMaterial={handleSelectMaterial}
-                            onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
-                             />
-
-                    {(materialSheetOpen || countrySheetOpen) && (
-                        <View
-                            pointerEvents="box-none"
-                            style={{
-                                position: "absolute",
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                bottom: 0,
-                                zIndex: 500,
-                            }}
-                        >
-                            <TouchableOpacity
-                                style={[
-                                    materialStyles.applyBtn,
-                                    {
-                                        top: Math.min(
-                                            screenHeight - insets.bottom - 160,
-                                            Math.max(insets.top + 40, screenHeight / 2 + (coinSize / 2) - 60)
-                                        ),
-                                    },
-                                    !anyFilterSelected ? materialStyles.applyBtnDisabled : null,
-                                ]}
-                                disabled={!anyFilterSelected}
-                                onPress={handleApplyFilters}
-                                accessibilityRole="button"
-                            >
-                                <Text style={materialStyles.applyText}>Rakenda</Text>
-                            </TouchableOpacity>
-
-                            {allFiltersActive && (
-                                <TouchableOpacity
-                                    style={[
-                                        materialStyles.resetBtn,
-                                        {
-                                            top: Math.min(
-                                                screenHeight - insets.bottom - 100,
-                                                Math.max(insets.top + 90, screenHeight / 2 + (coinSize / 2))
-                                            ),
-                                        },
-                                    ]}
-                                    onPress={handleResetAllFilters}
-                                    accessibilityRole="button"
-                                >
-                                    <Text style={materialStyles.resetText}>Tühjenda valikud</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>
-                    )}
-                </>
+            {(materialSheetOpen || countrySheetOpen) && (
+                <PeriodFilterRail
+                    items={periodStats}
+                    activePeriod={pendingPeriod}
+                    onSelectPeriod={handleSelectPeriod}
+                    topOffset={countryFilterHeight}
+                    bottomOffset={materialFilterHeight}
+                />
             )}
 
+            {(materialSheetOpen || countrySheetOpen) && (
+                <RightSideFilters
+                    topItems={nominalStats}
+                    bottomItems={nameStats}
+                    activeTop={pendingNominal}
+                    activeBottom={pendingName}
+                    onSelectTop={handleSelectNominal}
+                    onSelectBottom={handleSelectName}
+                    topOffset={countryFilterHeight}
+                    bottomOffset={materialFilterHeight}
+                />
+            )}
+
+            <MaterialFilterSheet
+                    isOpen={materialSheetOpen}
+                    materials={materialStats}
+                    activeMaterial={pendingMaterial}
+                    onRequestClose={() => setMaterialSheetOpen(false)}
+                    onSelectMaterial={handleSelectMaterial}
+                    onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}                  
+                     />
+
+            {(materialSheetOpen || countrySheetOpen) && (
+                <View
+                    pointerEvents="box-none"
+                    style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        zIndex: 500,
+                    }}
+                >
+                    <TouchableOpacity
+                        style={[
+                            materialStyles.applyBtn,
+                            {
+                                top: Math.min(
+                                    screenHeight - insets.bottom - 160,
+                                    Math.max(insets.top + 40, screenHeight / 2 + (coinSize / 2) - 60)
+                                ),
+                            },
+                            !anyFilterSelected ? materialStyles.applyBtnDisabled : null,
+                        ]}
+                        disabled={!anyFilterSelected}
+                        onPress={handleApplyFilters}
+                        accessibilityRole="button"
+                    >
+                        <Text style={materialStyles.applyText}>Rakenda</Text>
+                    </TouchableOpacity>
+
+                    {allFiltersActive && (
+                        <TouchableOpacity
+                            style={[
+                                materialStyles.resetBtn,
+                                {
+                                    top: Math.min(
+                                        screenHeight - insets.bottom - 100,
+                                        Math.max(insets.top + 90, screenHeight / 2 + (coinSize / 2))
+                                    ),
+                                },
+                            ]}
+                            onPress={handleResetAllFilters}
+                            accessibilityRole="button"
+                        >
+                            <Text style={materialStyles.resetText}>Tühjenda valikud</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            )}
+
+            {tutorialHydrated && !tutorialDone && (
+                <View
+                    pointerEvents="box-none"
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 999,
+                    }}
+                >
+                    <FirstRunTutorial
+                        key={tutorialRunKey}
+                        progress={tutorial}
+                        onSkipStep={handleSkipStep}
+                        onSkipAll={handleSkipAll}
+                        allowedSteps={FILTER_TUTORIAL_STEPS}
+                        persistDone={false}
+                        ignorePersistedDone
+                    />
+                </View>
+            )}
         </View>
     );
 }
@@ -516,7 +660,7 @@ const FilterLanding = ({ showPrompt, onRandom, onRefine }: FilterLandingProps) =
     </View>
 );
 
-const filterStyles = StyleSheet.create({
+    const filterStyles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: "rgba(12, 20, 22, 0.9)",
@@ -1096,3 +1240,4 @@ const sideStyles = StyleSheet.create({
         fontSize: 11,
     },
 });
+
