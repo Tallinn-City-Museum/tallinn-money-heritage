@@ -1,7 +1,6 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
 import {
     View,
-    Text,
     Animated,
     Easing,
     PanResponder,
@@ -18,7 +17,6 @@ import { coinService, coinStatsService } from "../service/coin-service";
 import { Coin, CoinSide } from "../data/entity/coin";
 import { styles } from "../components/common/stylesheet";
 import { BottomArea } from "../components/specific/coin-flipper/bottom-area";
-import Toast from "react-native-toast-message";
 import { useWallet } from "../context/wallet-context";
 import { WalletCoin } from "../service/wallet-service";
 // TUTORIAL: imports
@@ -96,6 +94,7 @@ export default function Flipper() {
         setCoin(null);
         setLastResult(null);
         setPendingPrediction(null);
+        setJustAddedToWallet(false);
 
         const generatedCoin = await coinService.generateNewCoin();
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
@@ -119,6 +118,7 @@ export default function Flipper() {
         if (fromWallet) {
             setCoin(fromWallet);
             setLastResult(null);
+            setJustAddedToWallet(false);
 
             // diameterMm can be string/number or absent; coerce safely to number
             const diameterMm =
@@ -156,6 +156,7 @@ export default function Flipper() {
             setPendingPrediction(null);
             pendingPredictionRef.current = null;
             clearFlipTimers();
+            setJustAddedToWallet(false);
 
             if (action === "random") {
                 await fetchData(true);
@@ -185,6 +186,7 @@ export default function Flipper() {
     // last flip result (null until the first flip finishes)
     const [lastResult, setLastResult] = useState<CoinSide | null>(null);
     const [resultSource, setResultSource] = useState<"flip" | "manual">("manual");
+    const [justAddedToWallet, setJustAddedToWallet] = useState(false);
 
     // ZOOM / PAN / ROTATE state
     // ZOOM (pinch) state
@@ -433,6 +435,7 @@ export default function Flipper() {
             setCoinSide(nextSide);
             setLastResult(nextSide);
             setResultSource("manual"); // hide prediction verdict in BottomArea
+            setJustAddedToWallet(false);
 
             // TUTORIAL: two single taps required
             tapCounterRef.current += 1;
@@ -484,6 +487,7 @@ export default function Flipper() {
     // Coin flip logic and animation
     const flipCoin = async () => {
         setIsFlipping(true);
+        setJustAddedToWallet(false);
         // Animation parameters
         const MAX_ROTATIONS_LOCAL = 30; // maximum amount of rotations the coin can do
         const MIN_ROTATIONS_LOCAL = 15;
@@ -528,6 +532,8 @@ export default function Flipper() {
             setResultSource("flip");
 
             const alreadyInWallet = coins.some((c) => c.id === coin?.id);
+            let added = false;
+
             if (!alreadyInWallet && coin !== null) {
                 const chosenPrediction = pendingPredictionRef.current ?? null;
 
@@ -539,12 +545,10 @@ export default function Flipper() {
                 setCoin(updatedCoin);
 
                 addCoin(coin, finalSide, chosenPrediction);
-                Toast.show({
-                    type: "success",
-                    text1: "Münt on lisatud rahakotti",
-                    text2: `Münt '${coin?.name}' on lisatud teie rahakotti 🪙`,
-                });
+                added = true;
             }
+
+            setJustAddedToWallet(added);
         });
 
         const step = duration / (rotations + 1);
@@ -820,6 +824,8 @@ export default function Flipper() {
                                 coinName={coin?.name ?? ""}
                                 predicted={resultSource === "flip" ? pendingPrediction : null}
                                 isFlipping={isFlipping}
+                                resultSource={resultSource}
+                                justAddedToWallet={justAddedToWallet}
                             />
                         )}
                     </View>
