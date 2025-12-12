@@ -130,12 +130,6 @@ export const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 16,
     },
-    coinTitle: {
-    fontFamily: "ProzaDisplay-Bold",
-    fontSize: 22,
-    color: "#e7e3e3",
-    textAlign: "center",
-    },
 
     coinTopSpacer: {
         flex: 1,

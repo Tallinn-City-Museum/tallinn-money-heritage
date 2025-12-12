@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
-import { View, Text, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable } from "react-native";
+import { View, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
     import {
     TapGestureHandler,
@@ -30,7 +30,6 @@ import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity
 const PROGRESS_KEY = "tutorial.progress";
 import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
@@ -606,12 +605,9 @@ export default function Flipper() {
                 setCoin(updatedCoin);
 
                 addCoin(coin, finalSide, chosenPrediction);
-                Toast.show({
-                    type: "success",
-                    text1: "Münt on lisatud rahakotti",
-                    text2: `Münt '${coin?.name}' on lisatud teie rahakotti ??`,
-                });
+                added = true;
             }
+            setJustAddedToWallet(added);
         });
 
         const step = duration / (rotations + 1);
