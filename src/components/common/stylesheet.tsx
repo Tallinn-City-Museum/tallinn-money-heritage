@@ -130,10 +130,23 @@ export const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 16,
     },
+    coinTitle: {
+    fontFamily: "ProzaDisplay-Bold",
+    fontSize: 22,
+    color: "#e7e3e3",
+    textAlign: "center",
+  },
 
     coinTopSpacer: {
         flex: 1,
     },
+    
+    coinTitle: {
+    fontFamily: "ProzaDisplay-Bold",
+    fontSize: 22,
+    color: "#e7e3e3",
+    textAlign: "center",
+  },
 
     predictionCloseButton: {
         position: "absolute",
@@ -439,6 +452,7 @@ export const indexStyles = StyleSheet.create({
         color: "#ffffff",
         textAlign: "left",
         lineHeight: 24,
+        fontFamily: "ProzaDisplay-Regular",
     },
 
     bodyTextWithMargin: {
@@ -450,7 +464,8 @@ export const indexStyles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 40,
         borderRadius: 8,
-        marginBottom: -15,
+        marginTop: 32,
+        marginBottom: 0,
     },
 
     exploreButtonText: {

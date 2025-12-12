@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -10,38 +10,16 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { indexStyles, screenWidth } from "../components/common/stylesheet";
 
 export default function HomeScreen() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isFirstRun, setIsFirstRun] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkFirstRun = async () => {
-      const value = await AsyncStorage.getItem("hasRunBefore");
-      if (value === "true") {
-        // If the app has already been opened before, go directly to the coin flipper screen
-        router.replace("/coin-flipper");
-        return;
-      }
-      // First run – show onboarding screen
-      setIsFirstRun(true);
-    };
-    checkFirstRun();
-  }, [router]);
 
   const handleExplore = async () => {
-    await AsyncStorage.setItem("hasRunBefore", "true");
     router.replace("/coin-flipper");
   };
-
-  if (isFirstRun === null) {
-    // Keep native splash screen visible while we check first run
-    return null;
-  }
 
   const goToPage = (idx: number) => {
     setActiveIndex(idx);
@@ -49,9 +27,7 @@ export default function HomeScreen() {
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slide = Math.round(
-      event.nativeEvent.contentOffset.x / screenWidth
-    );
+    const slide = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
     if (slide !== activeIndex) {
       setActiveIndex(slide);
     }
@@ -84,57 +60,61 @@ export default function HomeScreen() {
               Iga münt jutustab loo
             </Text>
             <Text style={indexStyles.bodyText}>
-              Numismaatika uurib raha ajalugu – peamiselt müntide, aga ka
+              Numismaatika uurib raha ajalugu — peamiselt müntide, aga ka
               paberraha ja medalite kaudu. Mündid näitavad, kuidas võim, kunst
               ja majandus on ajas muutunud. Need väikesed esemed on väga
               mitmekesised ajalooallikad.
             </Text>
+            <TouchableOpacity
+              onPress={handleExplore}
+              style={[indexStyles.exploreButton, { marginTop: 24 }]}
+            >
+              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Page 2 */}
           <View style={[indexStyles.pageBase, indexStyles.page2]}>
             <Text style={[indexStyles.titleText, indexStyles.titleTextSecond]}>
-              Kull või kiri - juhuse võim
+              Avers, revers ja serv
             </Text>
             <Text style={indexStyles.bodyText}>
-              Mündiviske tava ulatub antiikaega. Roomlased otsustasid „laev või
-              pea“ abil, kes alustab mängu või saab eelise. Hiljem levis see
-              tava üle maailma kui lihtne ja õiglane otsustamisviis.
+              Mündi esikülg on avers — seal on tavaliselt valitseja portree ja
+              sageli nimiväärtus. Tagakülg on revers — seal leidub vapp,
+              sümbolid või dekoratiivne kujundus. Servale lisati sooned või tekst,
+              et vältida mündi võltsimist.
             </Text>
           </View>
 
           {/* Page 3 */}
           <View style={[indexStyles.pageBase, indexStyles.page3]}>
             <Text style={[indexStyles.titleText, indexStyles.titleTextThird]}>
-              Miks just “kull ja kiri”?
+              Kull või kiri - juhuse võim
             </Text>
             <Text style={indexStyles.bodyText}>
-              Nii hakati sellist liisuheitmise viisi nimetama tsaariajal: vene
-              müntidel oli ühel pool kotkas („kull“) ja teisel pool kiri ehk
-              mündi nominaalväärtus. Avasta vanu Tallinnaga seotud münte ja
-              ennusta, kumb mündi külg seekord peale jääb.
+              Mündiviske tava ulatub antiikaega. Roomlased otsustasid „laev või
+              pea” abil, kes alustab mängu või saab eelise. Hiljem levis see
+              tava üle maailma kui lihtne ja õiglane otsustamisviis.
             </Text>
           </View>
 
           {/* Page 4 */}
           <View style={[indexStyles.pageBase, indexStyles.page4]}>
             <Text style={[indexStyles.titleText, indexStyles.titleTextFourth]}>
-              Avers, revers ja serv
+              Miks just „kull ja kiri”?
             </Text>
             <Text style={[indexStyles.bodyText, indexStyles.bodyTextWithMargin]}>
-              Mündi esikülg on avers – seal on tavaliselt valitseja portree ja
-              sageli nimiväärtus. Tagakülg on revers – seal leidub vapp,
-              sümbolid või dekoratiivne kujundus. Servale lisati sooned või tekst,
-              et vältida mündi võltsimist.
+              Nii hakati sellist liisuheitmise viisi nimetama tsaariajal: vene
+              müntidel oli ühel pool kotkas („kull”) ja teisel pool kiri ehk
+              mündi nominaalväärtus. Avasta vanu Tallinnaga seotud münte ja
+              ennusta, kumb mündi külg seekord peale jääb.
             </Text>
 
             <TouchableOpacity
               onPress={handleExplore}
               style={indexStyles.exploreButton}
             >
-              <Text style={indexStyles.exploreButtonText}>
-                Mine avastama
-              </Text>
+              <Text style={indexStyles.exploreButtonText}>Mine avastama</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -160,8 +140,8 @@ export default function HomeScreen() {
                   isActive
                     ? indexStyles.paginationDotActive
                     : indexStyles.paginationDotInactive,
-                  ]}
-                />
+                ]}
+              />
             );
           })}
         </View>
