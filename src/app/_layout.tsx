@@ -8,12 +8,17 @@ import { useFonts } from "expo-font";
 import { NetworkProvider } from "../context/network-context";
 
 export default function RootLayout() {
-  useFonts({
+  const [fontsLoaded] = useFonts({
       "ProzaDisplay-Regular": require("../../assets/fonts/ProzaDisplay-Regular.ttf"),
       "ProzaDisplay-SemiBold": require("../../assets/fonts/ProzaDisplay-SemiBold.ttf"),
       "ProzaDisplay-SemiBoldItalic": require("../../assets/fonts/ProzaDisplay-SemiBoldItalic.ttf"),
       "ProzaDisplay-Bold": require("../../assets/fonts/ProzaDisplay-Bold.ttf"),
   });
+
+  // Wait for custom fonts before rendering screens to avoid fallback fonts flashing on index
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

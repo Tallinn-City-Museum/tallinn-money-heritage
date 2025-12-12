@@ -354,11 +354,28 @@ export default function Wallet() {
                     onSkipAll={handleSkipAll}
                     allowedSteps={WALLET_TUTORIAL_STEPS}
                     onFinish={async () => {
-                        // back to coin flip page
-                        const upd = { last: true };
-                        setTutorial((p) => ({ ...p, ...upd }));
-                        saveProgress(upd);
-                        await AsyncStorage.setItem("tutorial.done", "1"); // await before navigation
+                        // Mark every step done across app, persist, then go back to coin flipper
+                        const allDone: TutorialProgress = {
+                            filterCoins: true,
+                            filteringChoice: true,
+                            filterNavigation: true,
+                            tapTwice: true,
+                            zoomedIn: true,
+                            rotated: true,
+                            zoomedOut: true,
+                            doubleTapped: true,
+                            openedInfo: true,
+                            swipeWallet: true,
+                            dragCoin: true,
+                            walletInfo: true,
+                            last: true,
+                        };
+                        setTutorial(allDone);
+                        await AsyncStorage.multiSet([
+                            [PROGRESS_KEY, JSON.stringify(allDone)],
+                            ["tutorial.done", "1"],
+                        ]).catch(() => {});
+                        saveProgress(allDone);
 
                         // IMPORTANT: pass a one-shot param so Coin-Flipper suppresses overlay immediately
                         router.replace({
@@ -532,7 +549,6 @@ function DraggableCoin({
         </Animated.View>
     );
 }
-
 
 
 

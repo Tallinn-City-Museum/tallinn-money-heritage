@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -65,6 +65,12 @@ export default function HomeScreen() {
               ja majandus on ajas muutunud. Need väikesed esemed on väga
               mitmekesised ajalooallikad.
             </Text>
+            <TouchableOpacity
+              onPress={handleExplore}
+              style={[indexStyles.exploreButton, { marginTop: 24 }]}
+            >
+              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Page 2 */}
