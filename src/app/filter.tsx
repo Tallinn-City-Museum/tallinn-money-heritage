@@ -43,6 +43,7 @@ const PERIOD_LABELS = PERIOD_CLUSTERS.reduce<Record<string, string>>((acc, item)
 }, {});
 const PROGRESS_KEY = "tutorial.progress";
 const STORAGE_DONE_KEY = "tutorial.done";
+const RESET_KEY = "tutorial.resetToken";
 
 // Weighted pattern gives the 1500-1550 slice a bit more presence to match the supplied clusters
 const PERIOD_PATTERN = [0, 1, 1, 2, 3, 4, 5, 6];
@@ -183,6 +184,7 @@ export default function FilterView() {
     const [tutorialHydrated, setTutorialHydrated] = useState(false);
     const [tutorialRunKey, setTutorialRunKey] = useState(0);
     const [tutorialDone, setTutorialDone] = useState(false);
+    const [resetToken, setResetToken] = useState<string | null>(null);
     const lastDoneRef = useRef<boolean | null>(null);
 
     useEffect(() => {
@@ -212,6 +214,38 @@ export default function FilterView() {
         AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
     }, [tutorial, tutorialHydrated]);
 
+    // If tutorial is globally done, force local filter tutorial to completed to prevent overlay
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        if (tutorialDone) {
+            const allDone: TutorialProgress = {
+                filterCoins: true,
+                filteringChoice: true,
+                filterNavigation: true,
+                tapTwice: true,
+                zoomedIn: true,
+                rotated: true,
+                zoomedOut: true,
+                doubleTapped: true,
+                openedInfo: true,
+                swipeWallet: true,
+                dragCoin: true,
+                walletInfo: true,
+                last: true,
+            };
+            setTutorial(allDone);
+            setTutorialRunKey((k) => k + 1);
+        }
+    }, [tutorialDone, tutorialHydrated]);
+
+    // Auto-complete the "filterCoins" step when user is already on the Filter screen
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        if (!tutorial.filterCoins) {
+            setTutorial((prev) => ({ ...prev, filterCoins: true }));
+        }
+    }, [tutorialHydrated, tutorial.filterCoins]);
+
     // Refresh tutorial.done flag when screen gains focus so restart via icon works
     useFocusEffect(
         useCallback(() => {
@@ -228,6 +262,36 @@ export default function FilterView() {
                 mounted = false;
             };
         }, [])
+    );
+
+    // If a global reset token appears (set by the restart icon in coin-flipper), wipe filter tutorial progress
+    useFocusEffect(
+        useCallback(() => {
+            if (!tutorialHydrated) return;
+
+            let cancelled = false;
+            const checkReset = async () => {
+                try {
+                    const token = await AsyncStorage.getItem(RESET_KEY);
+                    if (cancelled) return;
+                    if (token && token !== resetToken) {
+                        await AsyncStorage.removeItem(PROGRESS_KEY).catch(() => {});
+                        setTutorial(buildInitialTutorial());
+                        setTutorialRunKey((k) => k + 1);
+                        setTutorialDone(false);
+                        lastDoneRef.current = null;
+                        setResetToken(token);
+                    }
+                } catch {
+                    // ignore
+                }
+            };
+
+            checkReset();
+            return () => {
+                cancelled = true;
+            };
+        }, [tutorialHydrated, resetToken])
     );
 
     // If global tutorial is cleared (e.g., via icon), remount filter steps once
@@ -467,6 +531,14 @@ export default function FilterView() {
     const anyFilterSelected = Boolean(pendingMaterial || pendingCountry || pendingNominal || pendingName || pendingPeriod);
     const allFiltersActive = Boolean(pendingCountry && pendingMaterial && pendingNominal && pendingName && pendingPeriod);
     const handleSkipStep = (step: TutorialStepKey) => {
+        if (step === "filterCoins") {
+            markTutorial({
+                filterCoins: true,
+                filteringChoice: true,
+                filterNavigation: true,
+            });
+            return;
+        }
         markTutorial({ [step]: true } as Partial<TutorialProgress>);
     };
     const handleSkipAll = () => {
@@ -627,7 +699,6 @@ export default function FilterView() {
                         onSkipAll={handleSkipAll}
                         allowedSteps={FILTER_TUTORIAL_STEPS}
                         persistDone={false}
-                        ignorePersistedDone
                     />
                 </View>
             )}
@@ -1244,4 +1315,3 @@ const sideStyles = StyleSheet.create({
         fontSize: 11,
     },
 });
-

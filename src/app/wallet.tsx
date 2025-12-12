@@ -52,29 +52,15 @@ async function saveProgress(update: Partial<TutorialProgress>) {
     } catch {}
 }
 
-    // Small hook to check "tutorial.done" and avoid showing the overlay after completion
-    function useTutorialDone() {
-        const navigation = React.useContext(NavigationContext);
-        const [hydrated, setHydrated] = useState(false);
-        const [done, setDone] = useState(false);
-        const readFlag = async (mountedRef: { current: boolean }) => {
-    // Small hook to check "tutorial.done" and avoid showing the overlay after completion
-    function useTutorialDone() {
-        const navigation = React.useContext(NavigationContext);
-        const [hydrated, setHydrated] = useState(false);
-        const [done, setDone] = useState(false);
-        const readFlag = async (mountedRef: { current: boolean }) => {
-            try {
-                const v = await AsyncStorage.getItem("tutorial.done");
-            if (mountedRef.current) setDone(v === "1");
-        } finally {
-            if (mountedRef.current) setHydrated(true);
-        }
-    };
+// Small hook to check "tutorial.done" and avoid showing the overlay after completion
+function useTutorialDone() {
+    const navigation = React.useContext(NavigationContext);
+    const [hydrated, setHydrated] = useState(false);
+    const [done, setDone] = useState(false);
 
-    useEffect(() => {
-        const mounted = { current: true };
-        readFlag(mounted);
+    const readFlag = async (mountedRef: { current: boolean }) => {
+        try {
+            const v = await AsyncStorage.getItem("tutorial.done");
             if (mountedRef.current) setDone(v === "1");
         } finally {
             if (mountedRef.current) setHydrated(true);
@@ -86,39 +72,24 @@ async function saveProgress(update: Partial<TutorialProgress>) {
         readFlag(mounted);
         return () => {
             mounted.current = false;
-            mounted.current = false;
         };
     }, []);
 
-        // Also refresh when screen gains focus (covers cases where component stays mounted)
-        useEffect(() => {
-            if (!navigation) return;
-            const mounted = { current: true };
-            const unsubscribe = navigation.addListener("focus", () => {
-                readFlag(mounted);
-            });
-            return () => {
-                mounted.current = false;
-                unsubscribe && unsubscribe();
-            };
-        }, [navigation]);
-        return { hydrated, done };
-    }
+    // Also refresh when screen gains focus (covers cases where component stays mounted)
+    useEffect(() => {
+        if (!navigation) return;
+        const mounted = { current: true };
+        const unsubscribe = navigation.addListener("focus", () => {
+            readFlag(mounted);
+        });
+        return () => {
+            mounted.current = false;
+            unsubscribe && unsubscribe();
+        };
+    }, [navigation]);
 
-        // Also refresh when screen gains focus (covers cases where component stays mounted)
-        useEffect(() => {
-            if (!navigation) return;
-            const mounted = { current: true };
-            const unsubscribe = navigation.addListener("focus", () => {
-                readFlag(mounted);
-            });
-            return () => {
-                mounted.current = false;
-                unsubscribe && unsubscribe();
-            };
-        }, [navigation]);
-        return { hydrated, done };
-    }
+    return { hydrated, done };
+}
 
 export default function Wallet() {
     const insets = useSafeAreaInsets();
@@ -126,79 +97,15 @@ export default function Wallet() {
     const params = useLocalSearchParams<{ teach?: string }>();
     const { coins, updateCoinPosition } = useWallet();
     const navigation = React.useContext(NavigationContext);
-    const navigation = React.useContext(NavigationContext);
     const { hydrated: tutHydrated, done: tutorialDone } = useTutorialDone(); // gate overlay
-    const [tutorialRunKey, setTutorialRunKey] = useState(0);
-    const [resetToken, setResetToken] = useState<string | null>(null);
     const [tutorialRunKey, setTutorialRunKey] = useState(0);
     const [resetToken, setResetToken] = useState<string | null>(null);
 
     // --- Tutorial state for Wallet screen only ---
     const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialWalletTutorial);
-    const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialWalletTutorial);
 
     // allow forcing "last" to show on Wallet (when user skips walletInfo)
     const [forceLastHere, setForceLastHere] = useState(false);
-    const [tutorialStorageReady, setTutorialStorageReady] = useState(false);
-
-    // Normalize persisted skips so wallet steps can show again
-    useEffect(() => {
-        (async () => {
-            try {
-                const rawDone = await AsyncStorage.getItem("tutorial.done");
-                if (rawDone === "1") {
-                    setTutorialStorageReady(true);
-                    return;
-                }
-
-                const rawSkips = await AsyncStorage.getItem("tutorial.skips");
-                const parsed = rawSkips ? JSON.parse(rawSkips) : {};
-                const cleared = { ...parsed, dragCoin: false, walletInfo: false };
-                if (
-                    parsed.dragCoin !== cleared.dragCoin ||
-                    parsed.walletInfo !== cleared.walletInfo
-                ) {
-                    await AsyncStorage.setItem("tutorial.skips", JSON.stringify(cleared));
-                }
-            } catch {
-                // ignore
-            } finally {
-                setTutorialStorageReady(true);
-            }
-        })();
-    }, []);
-
-    // Reset wallet tutorial state when a new resetToken is observed (set by coin-flipper reset button)
-    const resetWalletTutorial = useCallback(async (token: string | null) => {
-        // clear persisted wallet skips/progress to allow showing steps again
-        await AsyncStorage.multiRemove(["tutorial.skips", PROGRESS_KEY]).catch(() => {});
-        setTutorial(buildInitialWalletTutorial());
-        setForceLastHere(false);
-        setTutorialRunKey((k) => k + 1);
-        setResetToken(token);
-    }, []);
-
-    // Watch reset token on focus
-    useEffect(() => {
-        let cancelled = false;
-        const checkReset = async () => {
-            try {
-                const token = await AsyncStorage.getItem(RESET_KEY);
-                if (cancelled) return;
-                if (token && token !== resetToken) {
-                    await resetWalletTutorial(token);
-                }
-            } catch {
-                // ignore
-            }
-        };
-        checkReset();
-        const unsubscribe = navigation?.addListener("focus", checkReset);
-        return () => {
-            cancelled = true;
-            unsubscribe && unsubscribe();
-        };
-    }, [resetToken, resetWalletTutorial, navigation]);
     const [tutorialStorageReady, setTutorialStorageReady] = useState(false);
 
     // Normalize persisted skips so wallet steps can show again
@@ -265,19 +172,6 @@ export default function Wallet() {
         loadProgress().then((stored) => {
             setTutorial((prev) => {
                 const merged = { ...prev, ...stored };
-                // force flip-page tasks as completed when on Wallet
-                const normalized: TutorialProgress = {
-                    ...merged,
-                    filterCoins: true,
-                    tapTwice: true,
-                    zoomedIn: true,
-                    rotated: true,
-                    zoomedOut: true,
-                    doubleTapped: true,
-                    openedInfo: true,
-                    swipeWallet: true,
-                };
-                return normalized;
                 // force flip-page tasks as completed when on Wallet
                 const normalized: TutorialProgress = {
                     ...merged,
@@ -462,11 +356,28 @@ export default function Wallet() {
                     onSkipAll={handleSkipAll}
                     allowedSteps={WALLET_TUTORIAL_STEPS}
                     onFinish={async () => {
-                        // back to coin flip page
-                        const upd = { last: true };
-                        setTutorial((p) => ({ ...p, ...upd }));
-                        saveProgress(upd);
-                        await AsyncStorage.setItem("tutorial.done", "1"); // await before navigation
+                        // Mark every step done across app, persist, then go back to coin flipper
+                        const allDone: TutorialProgress = {
+                            filterCoins: true,
+                            filteringChoice: true,
+                            filterNavigation: true,
+                            tapTwice: true,
+                            zoomedIn: true,
+                            rotated: true,
+                            zoomedOut: true,
+                            doubleTapped: true,
+                            openedInfo: true,
+                            swipeWallet: true,
+                            dragCoin: true,
+                            walletInfo: true,
+                            last: true,
+                        };
+                        setTutorial(allDone);
+                        await AsyncStorage.multiSet([
+                            [PROGRESS_KEY, JSON.stringify(allDone)],
+                            ["tutorial.done", "1"],
+                        ]).catch(() => {});
+                        saveProgress(allDone);
 
                         // IMPORTANT: pass a one-shot param so Coin-Flipper suppresses overlay immediately
                         router.replace({
@@ -640,7 +551,6 @@ function DraggableCoin({
         </Animated.View>
     );
 }
-
 
 
 

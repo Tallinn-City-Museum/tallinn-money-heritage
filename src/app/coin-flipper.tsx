@@ -1,12 +1,5 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
-import {
-    View,
-    Text,
-    Animated,
-    Easing,
-    PanResponder,
-    ActivityIndicator,
-    } from "react-native";
+import { View, Text, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
     import {
     TapGestureHandler,
@@ -37,20 +30,9 @@ import { useFocusEffect } from "@react-navigation/native";
 import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
 const PROGRESS_KEY = "tutorial.progress";
 import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
-const COIN_TUTORIAL_STEPS: TutorialStepKey[] = [
-    "filterCoins",
-    "tapTwice",
-    "zoomedIn",
-    "rotated",
-    "zoomedOut",
-    "doubleTapped",
-    "openedInfo",
-    "swipeWallet",
-    "last",
-];
 const COIN_TUTORIAL_STEPS: TutorialStepKey[] = [
     "filterCoins",
     "tapTwice",
@@ -109,7 +91,7 @@ export default function Flipper() {
     const [countryStats, setCountryStats] = useState<CountryStat[] | null>(null);
     const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
     const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
-
+    const insets = useSafeAreaInsets();
     const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
             base.diameter !== undefined
@@ -789,8 +771,26 @@ export default function Flipper() {
         if (isInfoVisible) {
             closeInfoSheet();
         }
-        setTutorial((prev) => ({ ...prev, last: true }));
-        await AsyncStorage.setItem("tutorial.done", "1").catch(() => { });
+        const allDone: TutorialProgress = {
+            filterCoins: true,
+            filteringChoice: true,
+            filterNavigation: true,
+            tapTwice: true,
+            zoomedIn: true,
+            rotated: true,
+            zoomedOut: true,
+            doubleTapped: true,
+            openedInfo: true,
+            swipeWallet: true,
+            dragCoin: true,
+            walletInfo: true,
+            last: true,
+        };
+        setTutorial(allDone);
+        await AsyncStorage.multiSet([
+            [PROGRESS_KEY, JSON.stringify(allDone)],
+            ["tutorial.done", "1"],
+        ]).catch(() => { });
     };
 
     const handleRestartTutorial = async () => {
@@ -833,27 +833,6 @@ export default function Flipper() {
                     >
                         <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
                     </TouchableOpacity>
-
-                    {lastResult !== null && (
-                        <Animated.View
-                            pointerEvents="box-none"
-                            style={{
-                                position: "absolute",
-                                top: insets.top + 20,
-                                left: 0,
-                                right: 0,
-                                zIndex: 10,
-                                alignItems: "center",
-                                justifyContent: "flex-start",
-                            }}
-                        >
-                            <Text style={styles.coinTitle}>
-                                {coin?.name
-                                    ? coin.name.charAt(0).toUpperCase() + coin.name.slice(1)
-                                    : ""}
-                            </Text>
-                        </Animated.View>
-                    )}
 
                     {/* top spacer keeps coin centered even when result appears */}
                     <View style={styles.coinTopSpacer} />
@@ -994,8 +973,6 @@ export default function Flipper() {
         </View>
     );
 }
-
-
 
 
 
