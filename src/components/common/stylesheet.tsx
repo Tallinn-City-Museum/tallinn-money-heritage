@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     },
 
     coinInfoSide: {
-        fontFamily: "ProzaDisplay-Bold",
+        fontFamily: "ProzaDisplay-SemiBoldItalic",
         fontSize: 22,
         color: "#e7e3e3ff",
         fontStyle: "italic",

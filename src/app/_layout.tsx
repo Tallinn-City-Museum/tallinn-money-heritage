@@ -11,6 +11,7 @@ export default function RootLayout() {
   useFonts({
       "ProzaDisplay-Regular": require("../../assets/fonts/ProzaDisplay-Regular.ttf"),
       "ProzaDisplay-SemiBold": require("../../assets/fonts/ProzaDisplay-SemiBold.ttf"),
+      "ProzaDisplay-SemiBoldItalic": require("../../assets/fonts/ProzaDisplay-SemiBoldItalic.ttf"),
       "ProzaDisplay-Bold": require("../../assets/fonts/ProzaDisplay-Bold.ttf"),
   });
 

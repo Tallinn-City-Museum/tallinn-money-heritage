@@ -8,20 +8,29 @@ export function BottomArea({
     coinName,
     predicted,
     isFlipping,
+    resultSource,
+    justAddedToWallet,
 }: {
     side: CoinSide;
     coinName: string;
     predicted: CoinSide | null;
     isFlipping: boolean;
+    resultSource: "flip" | "manual";
+    justAddedToWallet: boolean;
 }) {
     const [visible, setVisible] = useState(true);
 
     useEffect(() => {
-        // Show for 2 seconds every time the side changes
+        let duration = 2500;
+
+        if (resultSource === "flip") {
+            duration = justAddedToWallet ? 5000 : 3000;
+        }
+
         setVisible(true);
-        const timer = setTimeout(() => setVisible(false), 2000);
+        const timer = setTimeout(() => setVisible(false), duration);
         return () => clearTimeout(timer);
-    }, [side]);
+    }, [side, resultSource, justAddedToWallet]);
 
     if (!visible) {
         return null;
@@ -34,22 +43,34 @@ export function BottomArea({
 
     const sideLabel = side === CoinSide.HEADS ? "avers" : "revers";
 
+    const hasPrediction = predicted !== null;
+    const predictionHit = hasPrediction && predicted === side;
+
     return (
         <View style={styles.bottomCoinInfoContainer}>
             <View style={styles.coinInfoRow}>
+                {/* Single Text so that name + side share the same baseline */}
                 <Text style={styles.coinInfoName}>
-                    {formattedName ? `${formattedName},` : ""}
+                    {formattedName ? `${formattedName}, ` : ""}
+                    <Text style={styles.coinInfoSide}>{sideLabel}</Text>
                 </Text>
-                <Text style={styles.coinInfoSide}>{sideLabel}</Text>
             </View>
 
-            {predicted !== null && !isFlipping && (
+            {(justAddedToWallet || hasPrediction) && !isFlipping && (
                 <View style={styles.predictionResultBox}>
-                    <Text style={styles.predictionResultText}>
-                        {predicted === side
-                            ? "Ennustus läks täppi!"
-                            : "Ennustus ei läinud täppi"}
-                    </Text>
+                    {hasPrediction && (
+                        <Text style={styles.predictionResultText}>
+                            {predictionHit
+                                ? "Ennustus läks täppi!"
+                                : "Ennustus ei läinud täppi"}
+                        </Text>
+                    )}
+
+                    {justAddedToWallet && (
+                        <Text style={styles.predictionResultText}>
+                            Münt on lisatud rahakotti
+                        </Text>
+                    )}
                 </View>
             )}
         </View>
