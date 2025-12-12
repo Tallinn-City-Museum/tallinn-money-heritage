@@ -135,18 +135,11 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     color: "#e7e3e3",
     textAlign: "center",
-  },
+    },
 
     coinTopSpacer: {
         flex: 1,
     },
-    
-    coinTitle: {
-    fontFamily: "ProzaDisplay-Bold",
-    fontSize: 22,
-    color: "#e7e3e3",
-    textAlign: "center",
-  },
 
     predictionCloseButton: {
         position: "absolute",
