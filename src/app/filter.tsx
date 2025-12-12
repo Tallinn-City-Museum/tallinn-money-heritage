@@ -948,14 +948,17 @@ const sidebarBottom =
                             paddingVertical: 8,
                             backgroundColor,
                             opacity: blockOpacity,
+                            
                         }}
                         accessibilityRole="button"
                         accessibilityState={{ disabled: !isAvailable }}
+                        
                     >
                         <Text
                             numberOfLines={2}
                             style={{
                                 color: labelColor,
+                               
                                 fontWeight: "700",
                                 fontSize: 12,
                             }}

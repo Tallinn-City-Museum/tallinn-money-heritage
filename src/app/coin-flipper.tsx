@@ -29,8 +29,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
 const PROGRESS_KEY = "tutorial.progress";
 import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
-import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;

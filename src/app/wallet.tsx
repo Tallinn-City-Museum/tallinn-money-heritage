@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { View, Text, Image, Animated, PanResponder, Dimensions } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { NavigationContext } from "@react-navigation/native";
@@ -52,14 +52,15 @@ async function saveProgress(update: Partial<TutorialProgress>) {
     } catch {}
 }
 
-    // Small hook to check "tutorial.done" and avoid showing the overlay after completion
-    function useTutorialDone() {
-        const navigation = React.useContext(NavigationContext);
-        const [hydrated, setHydrated] = useState(false);
-        const [done, setDone] = useState(false);
-        const readFlag = async (mountedRef: { current: boolean }) => {
-            try {
-                const v = await AsyncStorage.getItem("tutorial.done");
+// Small hook to check "tutorial.done" and avoid showing the overlay after completion
+function useTutorialDone() {
+    const navigation = React.useContext(NavigationContext);
+    const [hydrated, setHydrated] = useState(false);
+    const [done, setDone] = useState(false);
+
+    const readFlag = async (mountedRef: { current: boolean }) => {
+        try {
+            const v = await AsyncStorage.getItem("tutorial.done");
             if (mountedRef.current) setDone(v === "1");
         } finally {
             if (mountedRef.current) setHydrated(true);
@@ -74,20 +75,21 @@ async function saveProgress(update: Partial<TutorialProgress>) {
         };
     }, []);
 
-        // Also refresh when screen gains focus (covers cases where component stays mounted)
-        useEffect(() => {
-            if (!navigation) return;
-            const mounted = { current: true };
-            const unsubscribe = navigation.addListener("focus", () => {
-                readFlag(mounted);
-            });
-            return () => {
-                mounted.current = false;
-                unsubscribe && unsubscribe();
-            };
-        }, [navigation]);
-        return { hydrated, done };
-    }
+    // Also refresh when screen gains focus (covers cases where component stays mounted)
+    useEffect(() => {
+        if (!navigation) return;
+        const mounted = { current: true };
+        const unsubscribe = navigation.addListener("focus", () => {
+            readFlag(mounted);
+        });
+        return () => {
+            mounted.current = false;
+            unsubscribe && unsubscribe();
+        };
+    }, [navigation]);
+
+    return { hydrated, done };
+}
 
 export default function Wallet() {
     const insets = useSafeAreaInsets();
