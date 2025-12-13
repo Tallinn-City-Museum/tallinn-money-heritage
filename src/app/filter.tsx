@@ -577,14 +577,14 @@ export default function FilterView() {
                                 />
                             )}
 
-                    <MaterialFilterSheet
-                        isOpen={materialSheetOpen}
-                        materials={materialStats}
-                        activeMaterial={pendingMaterial}
-                        onRequestClose={() => setMaterialSheetOpen(false)}
-                        onSelectMaterial={handleSelectMaterial}
-                        onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}
-                    />
+                            <MaterialFilterSheet
+                                isOpen={materialSheetOpen}
+                                materials={materialStats}
+                                activeMaterial={pendingMaterial}
+                                onRequestClose={() => setMaterialSheetOpen(false)}
+                                onSelectMaterial={handleSelectMaterial}
+                                onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}
+                            />
 
                             {(materialSheetOpen || countrySheetOpen) && (
                                 <View
@@ -635,57 +635,36 @@ export default function FilterView() {
                                     )}
                                 </View>
                             )}
+
+                            {tutorialHydrated && !tutorialDone && (
+                                <View
+                                    pointerEvents="box-none"
+                                    style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        zIndex: 999,
+                                    }}
+                                >
+                                    <FirstRunTutorial
+                                        key={tutorialRunKey}
+                                        progress={tutorial}
+                                        onSkipStep={handleSkipStep}
+                                        onSkipAll={handleSkipAll}
+                                        allowedSteps={FILTER_TUTORIAL_STEPS}
+                                        persistDone={false}
+                                    />
+                                </View>
+                            )}
                         </>
                     )
                 }
             </>
             )}
         </View >
-                    {allFiltersActive && (
-                        <TouchableOpacity
-                            style={[
-                                materialStyles.resetBtn,
-                                {
-                                    top: Math.min(
-                                        screenHeight - insets.bottom - 100,
-                                        Math.max(insets.top + 90, screenHeight / 2 + (coinSize / 2))
-                                    ),
-                                },
-                            ]}
-                            onPress={handleResetAllFilters}
-                            accessibilityRole="button"
-                        >
-                            <Text style={materialStyles.resetText}>Tühjenda valikud</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
-            )}
-
-            {tutorialHydrated && !tutorialDone && (
-                <View
-                    pointerEvents="box-none"
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: 999,
-                    }}
-                >
-                    <FirstRunTutorial
-                        key={tutorialRunKey}
-                        progress={tutorial}
-                        onSkipStep={handleSkipStep}
-                        onSkipAll={handleSkipAll}
-                        allowedSteps={FILTER_TUTORIAL_STEPS}
-                        persistDone={false}
-                    />
-                </View>
-            )}
-        </View>
     );
-
 }
 
 type FilterLandingProps = {
