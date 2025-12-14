@@ -1,5 +1,5 @@
 import { AggregatedCoinMeta } from "../data/entity/aggregated-meta";
-import buildTreemapBuckets from "../utils/treemap-bucketing";
+import buildTreemapBuckets, { BACK_KEY, OTHER_KEY } from "../utils/treemap-bucketing";
 
 /**
  * Simple unit test to verify whether treemap bucketing works as expected
@@ -35,5 +35,5 @@ test('Bucketing works as expected', async () => {
 
     const res = buildTreemapBuckets(testData, 2);
     expect(res.length).toEqual(3);
-    expect(res.map(v => v.map(v2 => v2.key)).flat(1)).toEqual(["key5", "key4", "key2", "key1", "key3"])
+    expect(res.map(v => v.map(v2 => v2.key).filter(v => v != OTHER_KEY && v != BACK_KEY)).flat(1)).toEqual(["key5", "key4", "key2", "key1", "key3"])
 });

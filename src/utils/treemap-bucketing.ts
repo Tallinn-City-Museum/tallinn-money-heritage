@@ -2,6 +2,9 @@ import { AggregatedCoinMeta } from "../data/entity/aggregated-meta";
 
 const DEFAULT_CHUNK_SIZE = 6;
 
+export const OTHER_KEY = "__other__"
+export const BACK_KEY = "__back__"
+
 /**
  * Utility function, which splits provided items into buckets
  * by descending count order
@@ -17,11 +20,23 @@ export default function buildTreemapBuckets(
     // sort the array in descending order by its count
     items.sort((a, b) => b.count - a.count);
 
+    // calculate the so called "others" count for each bucket
+    let countSums = items.map(v => v.count);
+    for (let i = countSums.length - 1; i >= 0; i--)
+        if (i != countSums.length - 1)
+            countSums[i] += countSums[i+1]
+
     const buckets: AggregatedCoinMeta[][] = []
     let currentBucket: AggregatedCoinMeta[] = []
     for (let i = 0; i < items.length; i++) {
         // flush the currentBucket if new bucket should be created
         if (i % chunkSize === 0 && currentBucket.length !== 0) {
+            currentBucket.push({
+                key: OTHER_KEY,
+                label: "Muud",
+                count: countSums[i],
+                available: true
+            });
             buckets.push(currentBucket);
             currentBucket = [];
         }
@@ -29,8 +44,15 @@ export default function buildTreemapBuckets(
         currentBucket.push(items[i]);
     }
 
-    if (currentBucket.length !== 0)
+    if (currentBucket.length !== 0) {
+        currentBucket.push({
+                key: BACK_KEY,
+                label: "Tagasi",
+                count: 1,
+                available: true
+        })
         buckets.push(currentBucket)
+    }
 
     return buckets;
 }
