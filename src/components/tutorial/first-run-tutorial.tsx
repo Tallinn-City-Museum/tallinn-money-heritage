@@ -134,17 +134,17 @@ export function FirstRunTutorial({
             return;
         }
         (async () => {
-        try {
-            const rawDone = await AsyncStorage.getItem(STORAGE_DONE_KEY);
-            const rawSkips = await AsyncStorage.getItem(STORAGE_SKIPS_KEY);
-            // in the first useEffect after loading AsyncStorage:
-            if (rawDone === "1") setDone(true);
-            if (rawSkips) setSkips((prev) => ({ ...prev, ...JSON.parse(rawSkips) }));
-        } catch {
-            // ignore
-        } finally {
-            setHydrated(true); // mark loaded
-        }
+            try {
+                const rawDone = await AsyncStorage.getItem(STORAGE_DONE_KEY);
+                const rawSkips = await AsyncStorage.getItem(STORAGE_SKIPS_KEY);
+                // in the first useEffect after loading AsyncStorage:
+                if (rawDone === "1") setDone(true);
+                if (rawSkips) setSkips((prev) => ({ ...prev, ...JSON.parse(rawSkips) }));
+            } catch {
+                // ignore
+            } finally {
+                setHydrated(true); // mark loaded
+            }
         })();
     }, []);
 
@@ -157,7 +157,7 @@ export function FirstRunTutorial({
     useEffect(() => {
         if (allComplete && !done) {
             if (persistDone) {
-                AsyncStorage.setItem(STORAGE_DONE_KEY, "1").catch(() => {});
+                AsyncStorage.setItem(STORAGE_DONE_KEY, "1").catch(() => { });
             }
             setDone(true);
         }
@@ -184,7 +184,7 @@ export function FirstRunTutorial({
         setSkips(updated);
         try {
             await AsyncStorage.setItem(STORAGE_SKIPS_KEY, JSON.stringify(updated));
-        } catch {}
+        } catch { }
         onSkipStep(nextStep);
     };
 
@@ -192,7 +192,7 @@ export function FirstRunTutorial({
         setDone(true);
         try {
             await AsyncStorage.setItem(STORAGE_DONE_KEY, "1");
-        } catch {}
+        } catch { }
         onSkipAll();
     };
 
@@ -200,51 +200,51 @@ export function FirstRunTutorial({
     return (
         <View style={styles.tutorialOverlay} pointerEvents="box-none">
 
-        {/* The card itself at the top, centered horizontally */}
-        <View
-            style={[
-            styles.tutorialCard,
-            ]}
-            pointerEvents="auto"
-        >
-            {nextStep === "filterCoins" && (<Text style={styles.tutorialTitle}>Kuidas alustada</Text>)}
-            <Text style={styles.tutorialText}>{TEXTS[nextStep]}</Text>
-
-            {/* Last step */}
-            {nextStep === "last" && (
-                <View style={styles.tutorialActions}>
-                    <TouchableOpacity
-                        onPress={onFinish}
-                        style={styles.tutorialSkipStepBtn}
-                        accessibilityLabel="Mine mängima"
-                    >
-                        <Text style={styles.tutorialSkipStepText}>Mine mängima</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
-            {/* Bottom-right: skip current step */}
-            {nextStep !== "last" && (
-                <View style={styles.tutorialActions}>
-                    <TouchableOpacity
-                        onPress={handleSkipStep}
-                        style={styles.tutorialSkipStepBtn}
-                        accessibilityLabel="Jäta samm vahele"
-                    >
-                        <Text style={styles.tutorialSkipStepText}>Jäta samm vahele</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
-            {/* Top-right global close (Jäta õpetus vahele = X) */}
-            <TouchableOpacity
-                onPress={handleSkipAll}
-                style={styles.tutorialClose}
-                accessibilityLabel="Jäta õpetus vahele"
+            {/* The card itself at the top, centered horizontally */}
+            <View
+                style={[
+                    styles.tutorialCard,
+                ]}
+                pointerEvents="auto"
             >
-                <Text style={styles.tutorialCloseText}>×</Text>
-            </TouchableOpacity>
+                {nextStep === "filterCoins" && (<Text style={styles.tutorialTitle}>Kuidas alustada</Text>)}
+                <Text style={styles.tutorialText}>{TEXTS[nextStep]}</Text>
+
+                {/* Last step */}
+                {nextStep === "last" && (
+                    <View style={styles.tutorialActions}>
+                        <TouchableOpacity
+                            onPress={onFinish}
+                            style={styles.tutorialSkipStepBtn}
+                            accessibilityLabel="Mine mängima"
+                        >
+                            <Text style={styles.tutorialSkipStepText}>Mine mängima</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Bottom-right: skip current step */}
+                {nextStep !== "last" && (
+                    <View style={styles.tutorialActions}>
+                        <TouchableOpacity
+                            onPress={handleSkipStep}
+                            style={styles.tutorialSkipStepBtn}
+                            accessibilityLabel="Jäta samm vahele"
+                        >
+                            <Text style={styles.tutorialSkipStepText}>Jäta samm vahele</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Top-right global close (Jäta õpetus vahele = X) */}
+                <TouchableOpacity
+                    onPress={handleSkipAll}
+                    style={styles.tutorialClose}
+                    accessibilityLabel="Jäta õpetus vahele"
+                >
+                    <Text style={styles.tutorialCloseText}>×</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-    </View>
     );
 }
