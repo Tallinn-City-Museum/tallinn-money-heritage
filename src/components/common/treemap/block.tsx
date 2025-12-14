@@ -1,7 +1,7 @@
 import { Text } from "@react-navigation/elements";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
-interface TreemapBlockProps {
+export interface TreemapBlockProps {
     key: string;
     label: string;
     x: number;
