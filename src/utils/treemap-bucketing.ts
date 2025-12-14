@@ -46,10 +46,10 @@ export default function buildTreemapBuckets(
 
     if (currentBucket.length !== 0) {
         currentBucket.push({
-                key: BACK_KEY,
-                label: "Tagasi",
-                count: 1,
-                available: true
+            key: BACK_KEY,
+            label: "Tagasi",
+            count: currentBucket.length > 0 ? currentBucket[currentBucket.length-1].count : 1,
+            available: true
         })
         buckets.push(currentBucket)
     }
