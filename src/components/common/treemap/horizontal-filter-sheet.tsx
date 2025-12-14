@@ -28,7 +28,6 @@ export default function HorizontalFilterSheet({
     displayHeightRatio,
     onLayout
 }: HorizontalFilterSheetProps) {
-    const insets = useSafeAreaInsets();
     const screenHeight = Dimensions.get("window").height;
     const screenWidth = Dimensions.get("window").width;
     const sheetHeight = Math.max(screenHeight * displayHeightRatio, MIN_HEIGHT);
@@ -51,7 +50,6 @@ export default function HorizontalFilterSheet({
                 stylesheet.sheetContainer,
                 {
                     height: sheetHeight,
-                    marginTop: insets.top
                 }
             ]}
             pointerEvents={enabled ? "auto" : "none"}
