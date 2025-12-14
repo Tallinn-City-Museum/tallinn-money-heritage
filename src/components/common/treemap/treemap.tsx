@@ -118,7 +118,7 @@ function renderSlice(
         );
     }
 
-    return [];
+    return nodes;
 }
 
 /**
