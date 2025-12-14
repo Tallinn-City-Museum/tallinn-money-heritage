@@ -2,7 +2,6 @@ import { AggregatedCoinMeta } from "@/src/data/entity/aggregated-meta";
 import buildTreemapBuckets, { BACK_KEY, OTHER_KEY } from "@/src/utils/treemap-bucketing";
 import { useMemo, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BaseTreemap from "./treemap";
 
 // Minimum supported height
