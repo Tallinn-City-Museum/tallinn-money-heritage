@@ -9,14 +9,12 @@ import {
     PanResponder,
     ActivityIndicator,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { styles as commonStyles } from "../components/common/stylesheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirstRunTutorial, TutorialProgress, TutorialStepKey } from "../components/tutorial/first-run-tutorial";
-import { MaterialFilterSheet } from "./MaterialFilterSheet";
-import { CountryFilterSheet } from "./CountryFilterSheet";
 import {
     AggregatedCoinMeta,
     MaterialStat,
@@ -25,8 +23,9 @@ import {
     NameStat,
     CoinFilterRow
 } from "../data/entity/aggregated-meta";
-import { buildLayeredBuckets } from "../utils/filterBuckets";
 import { coinStatsService } from "../service/coin-service";
+import HorizontalFilterSheet from "../components/common/treemap/horizontal-filter-sheet";
+import VerticalFilterSheet from "../components/common/treemap/vertical-filter-sheet";
 
 const PROGRESS_KEY = "tutorial.progress";
 const STORAGE_DONE_KEY = "tutorial.done";
@@ -88,6 +87,7 @@ export default function FilterView() {
     const screenHeight = Dimensions.get("window").height;
     const [countryFilterHeight, setCountryFilterHeight] = useState(0);
     const [materialFilterHeight, setMaterialFilterHeight] = useState(0);
+    const [sideFilterHeight, setSideFilterHeight] = useState(0);
     const [showPrompt, setShowPrompt] = useState(false);
     const [materialSheetOpen, setMaterialSheetOpen] = useState(true);
     const [countrySheetOpen, setCountrySheetOpen] = useState(true);
@@ -114,12 +114,12 @@ export default function FilterView() {
         // set period clusters to data
         setFilterRows(rawFilterRows);
 
-        setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material ?? "Muu")));
-        setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country ?? "Muu")));
-        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal ?? "1")));
-        setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name ?? "Muu")));
+        setMaterialStats(buildStats((rawFilterRows ?? []).map(row => row.material).filter(row => row != null)));
+        setCountryStats(buildStats((rawFilterRows ?? []).map(row => row.country).filter(row => row != null)));
+        setNominalStats(buildStats((rawFilterRows ?? []).map(row => row.nominal).filter(row => row != null)));
+        setNameStats(buildStats((rawFilterRows ?? []).map(row => row.name).filter(row => row != null)));
         setPeriodStats(buildStats(
-            (rawFilterRows ?? []).map(row => row.period ?? "Muu"),
+            (rawFilterRows ?? []).map(row => row.period).filter(row => row != null),
         ));
     }
 
@@ -544,45 +544,74 @@ export default function FilterView() {
                             <FilterLanding showPrompt onRandom={handleFilterRandomCoin} onRefine={handleFilterRefine} />
                         </View>
                     ) : (
-                        <>
-                            <CountryFilterSheet
-                                isOpen={countrySheetOpen}
-                                countries={countryStats ?? []}
-                                activeCountry={pendingCountry}
-                                onRequestClose={() => setCountrySheetOpen(false)}
-                                onSelectCountry={handleSelectCountry}
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                justifyContent: "space-between",
+                                width: "100%",
+                                height: "100%"
+                            }}
+                            onLayout={e => setSideFilterHeight(e.nativeEvent.layout.height)}
+                        >
+                            <HorizontalFilterSheet
+                                enabled={countrySheetOpen}
+                                metas={countryStats}
+                                activeKey={pendingCountry}
+                                onSelect={handleSelectCountry}
+                                displayHeightRatio={0.15}
                                 onLayout={(e) => setCountryFilterHeight(e.nativeEvent.layout.height)}
                             />
 
-                            {(materialSheetOpen || countrySheetOpen) && (
-                                <PeriodFilterRail
-                                    items={periodStats ?? []}
-                                    activePeriod={pendingPeriod}
-                                    onSelectPeriod={handleSelectPeriod}
-                                    topOffset={countryFilterHeight}
-                                    bottomOffset={materialFilterHeight}
+                            <View
+                                style={{
+                                    flex: 1,
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                    height: sideFilterHeight - materialFilterHeight - countryFilterHeight - insets.top - insets.bottom
+                                }}
+                            >
+                                <VerticalFilterSheet
+                                    enabled={materialSheetOpen || countrySheetOpen}
+                                    metas={periodStats}
+                                    activeKey={pendingPeriod}
+                                    onSelect={handleSelectPeriod}
+                                    displayWidthRatio={0.2}
+                                    height={sideFilterHeight - materialFilterHeight - countryFilterHeight - insets.top - insets.bottom}
                                 />
-                            )}
 
-                            {(materialSheetOpen || countrySheetOpen) && (
-                                <RightSideFilters
-                                    topItems={nominalStats ?? []}
-                                    bottomItems={nameStats ?? []}
-                                    activeTop={pendingNominal}
-                                    activeBottom={pendingName}
-                                    onSelectTop={handleSelectNominal}
-                                    onSelectBottom={handleSelectName}
-                                    topOffset={countryFilterHeight}
-                                    bottomOffset={materialFilterHeight}
-                                />
-                            )}
+                                <View
+                                    style={{
+                                        height: "auto"
+                                    }}
+                                >
+                                    <VerticalFilterSheet
+                                        enabled={materialSheetOpen || countrySheetOpen}
+                                        metas={nominalStats}
+                                        activeKey={pendingNominal}
+                                        onSelect={handleSelectNominal}
+                                        displayWidthRatio={0.2}
+                                        height={(sideFilterHeight - materialFilterHeight - countryFilterHeight - insets.top - insets.bottom) / 2}
+                                    />
 
-                            <MaterialFilterSheet
-                                isOpen={materialSheetOpen}
-                                materials={materialStats}
-                                activeMaterial={pendingMaterial}
-                                onRequestClose={() => setMaterialSheetOpen(false)}
-                                onSelectMaterial={handleSelectMaterial}
+                                    <VerticalFilterSheet
+                                        enabled={materialSheetOpen || countrySheetOpen}
+                                        metas={nameStats}
+                                        activeKey={pendingName}
+                                        onSelect={handleSelectName}
+                                        displayWidthRatio={0.2}
+                                        height={(sideFilterHeight - materialFilterHeight - countryFilterHeight - insets.top - insets.bottom) / 2}
+                                    />
+                                </View>
+                            </View>
+
+                            <HorizontalFilterSheet
+                                enabled={materialSheetOpen}
+                                metas={materialStats}
+                                activeKey={pendingMaterial}
+                                onSelect={handleSelectMaterial}
+                                displayHeightRatio={0.15}
                                 onLayout={(e) => setMaterialFilterHeight(e.nativeEvent.layout.height)}
                             />
 
@@ -658,7 +687,7 @@ export default function FilterView() {
                                     />
                                 </View>
                             )}
-                        </>
+                        </SafeAreaView>
                     )
                 }
             </>
@@ -810,469 +839,5 @@ const materialStyles = StyleSheet.create({
         fontWeight: "800",
         fontSize: 15,
         textAlign: "center",
-    },
-});
-
-type PeriodFilterRailProps = {
-    items: AggregatedCoinMeta[];
-    activePeriod: string;
-    onSelectPeriod: (key: string) => void;
-    topOffset?: number;
-    bottomOffset?: number;
-};
-
-const PeriodFilterRail = ({
-    items,
-    activePeriod,
-    onSelectPeriod,
-    topOffset = 0,
-    bottomOffset = 0,
-}: PeriodFilterRailProps) => {
-    const insets = useSafeAreaInsets();
-    const screenHeight = Dimensions.get("window").height;
-
-    const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
-
-    const sidebarTop =
-        topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
-
-    const sidebarBottom =
-        bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
-    const sidebarHeight = Math.max(80, screenHeight - sidebarTop - sidebarBottom);
-
-    const palette = ["#31544f", "#365c55", "#406a63", "#2b4c46", "#548a80", "#3a5f5b", "#456d67"];
-
-    const [layout, setLayout] = useState({ w: 0, h: 0 });
-
-    // ----- Treemap builder (same style as RightSideFilters) -----
-    const renderTreemap = () => {
-        if (layout.w <= 0 || layout.h <= 0) return null;
-
-        const sorted = [...items].sort((a, b) => (b.count || 1) - (a.count || 1));
-
-        const left: typeof sorted = [];
-        const right: typeof sorted = [];
-        let sumLeft = 0;
-        let sumRight = 0;
-
-        sorted.forEach((item) => {
-            if (sumLeft <= sumRight) {
-                left.push(item);
-                sumLeft += item.count || 1;
-            } else {
-                right.push(item);
-                sumRight += item.count || 1;
-            }
-        });
-
-        const colWidth = layout.w / 2;
-
-        const placeCol = (colItems: typeof sorted, sum: number, x: number) => {
-            const factor = layout.h / sum;
-            let y = 0;
-
-            return colItems.map((item, idx) => {
-                let h = (item.count || 1) * factor;
-                if (idx === colItems.length - 1) {
-                    h = layout.h - y; // fill last block
-                }
-
-                const active = activePeriod === item.key;
-
-
-                const isAvailable = item.available ?? true;
-                const backgroundColor = active
-                    ? "#7bd7cc"
-                    : isAvailable
-                        ? palette[idx % palette.length]
-                        : "#1f2a29";
-                const blockOpacity = active ? 0.94 : isAvailable ? 1 : 0.35;
-                const labelColor = isAvailable ? "#e7f2ef" : "#7a8c88";
-                const handlePress = () => {
-                    if (!isAvailable) return;
-                    onSelectPeriod(active ? "" : item.key);
-                };
-                const block = (
-                    <TouchableOpacity
-                        key={`${item.key}-${idx}`}
-                        onPress={handlePress}
-                        style={{
-                            position: "absolute",
-                            left: x,
-                            top: y,
-                            width: colWidth,
-                            height: h,
-                            borderRadius: 6,
-                            borderWidth: 1,
-                            borderColor: "#1f2a29",
-                            paddingHorizontal: 8,
-                            paddingVertical: 8,
-                            backgroundColor,
-                            opacity: blockOpacity,
-
-                        }}
-                        accessibilityRole="button"
-                        accessibilityState={{ disabled: !isAvailable }}
-
-                    >
-                        <Text
-                            numberOfLines={2}
-                            style={{
-                                color: labelColor,
-
-                                fontWeight: "700",
-                                fontSize: 12,
-                            }}
-                        >
-                            {item.label}
-                        </Text>
-                    </TouchableOpacity>
-                );
-
-                y += h;
-                return block;
-            });
-        };
-
-        return (
-            <>
-                {placeCol(left, sumLeft, 0)}
-                {placeCol(right, sumRight, colWidth)}
-            </>
-        );
-    };
-
-    return (
-        <View
-            pointerEvents="auto"
-            style={[
-                {
-                    position: "absolute",
-                    left: 0,
-                    width: "26%",
-                    top: sidebarTop,
-                    bottom: sidebarBottom,
-                    padding: 0,
-                    zIndex: 130,
-                },
-            ]}
-        >
-            <View
-                style={{ flex: 1 }}
-                onLayout={(e) => {
-                    const { width, height } = e.nativeEvent.layout;
-                    setLayout({ w: width, h: height });
-                }}
-            >
-                {renderTreemap()}
-            </View>
-        </View>
-    );
-};
-
-
-type SideFiltersProps = {
-    topItems: AggregatedCoinMeta[];
-    bottomItems: AggregatedCoinMeta[];
-    activeTop: string;
-    activeBottom: string;
-    onSelectTop: (key: string) => void;
-    onSelectBottom: (key: string) => void;
-    topOffset?: number;
-    bottomOffset?: number;
-};
-
-const RightSideFilters = ({
-    topItems,
-    bottomItems,
-    activeTop,
-    activeBottom,
-    onSelectTop,
-    onSelectBottom,
-    topOffset = 0,
-    bottomOffset = 0,
-}: SideFiltersProps) => {
-    const palette = ["#3a5f5b", "#2c4b47", "#456d67", "#365752", "#5a8c84"];
-    const [layout, setLayout] = useState({ w: 0, h: 0 });
-    const [topPage, setTopPage] = useState(-1);
-    const [bottomPage, setBottomPage] = useState(-1);
-    const insets = useSafeAreaInsets();
-    const screenHeight = Dimensions.get("window").height;
-    const fallbackMaterial = Math.max(screenHeight * 0.135, 128) + insets.bottom + 12;
-    const topMargin = topOffset > 0 ? topOffset + insets.top + 12 : fallbackMaterial;
-    const bottomMargin = bottomOffset > 0 ? Math.max(60, bottomOffset - insets.top + 8) : fallbackMaterial;
-    const sidebarHeight = Math.max(60, screenHeight - (topMargin + bottomMargin));
-    const sectionGap = Math.max(12, sidebarHeight * 0.04);
-    const usableHeight = Math.max(40, sidebarHeight - sectionGap);
-    const nominalHeight = Math.max(30, usableHeight * 0.5);
-    const namesHeight = Math.max(30, usableHeight - nominalHeight);
-
-    const renderTreemapGrid = (
-        items: AggregatedCoinMeta[],
-        activeKey: string,
-        width: number,
-        height: number,
-        onSelect: (key: string) => void,
-        paletteOffset: number
-    ) => {
-        if (items.length === 0) return null;
-
-        const left: AggregatedCoinMeta[] = [];
-        const right: AggregatedCoinMeta[] = [];
-        let sumLeft = 0;
-        let sumRight = 0;
-        items.forEach((m) => {
-            if (sumLeft <= sumRight) {
-                left.push(m);
-                sumLeft += m.count || 1;
-            } else {
-                right.push(m);
-                sumRight += m.count || 1;
-            }
-        });
-
-        const colWidth = width / 2;
-        const placeCol = (col: AggregatedCoinMeta[], colSum: number, x: number, offset: number) => {
-            const factor = colSum > 0 ? height / colSum : 0;
-            let y = 0;
-            return col.map((m, idx) => {
-                const isLast = idx === col.length - 1;
-                let h = Math.max(20, (m.count || 1) * factor);
-                if (isLast) {
-                    h = height - y;
-                }
-                const isAvailable = m.available ?? true;
-                const isActive = activeKey === m.key;
-                const blockColor = isActive
-                    ? "#7bd7cc"
-                    : isAvailable
-                        ? palette[(offset + idx) % palette.length]
-                        : "#1f2a29";
-                const blockOpacity = isActive ? 0.94 : isAvailable ? 0.9 : 0.35;
-                const labelColor = isAvailable ? "#e7f2ef" : "#7a8c88";
-                const handlePress = () => {
-                    if (!isAvailable) return;
-                    onSelect(m.key);
-                };
-                const block = (
-                    <TouchableOpacity
-                        key={`${m.key}-${x}-${idx}`}
-                        onPress={handlePress}
-                        style={[
-                            sideStyles.block,
-                            {
-                                left: x,
-                                top: y,
-                                width: colWidth,
-                                height: h,
-                                backgroundColor: blockColor,
-                                opacity: blockOpacity,
-                            },
-                        ]}
-                        accessibilityRole="button"
-                        accessibilityState={{ disabled: !isAvailable }}
-                    >
-                        <Text
-                            style={[sideStyles.label, { color: labelColor }]}
-                            numberOfLines={1}
-                            adjustsFontSizeToFit
-                            minimumFontScale={0.7}
-                            ellipsizeMode="clip"
-                            maxFontSizeMultiplier={1.1}
-                        >
-                            {m.label}
-                        </Text>
-                    </TouchableOpacity>
-                );
-                y += h;
-                return block;
-            });
-        };
-
-        const sumLeftCount = left.reduce((s, m) => s + (m.count || 1), 0);
-        const sumRightCount = right.reduce((s, m) => s + (m.count || 1), 0);
-
-        return (
-            <>
-                {placeCol(left, sumLeftCount, 0, paletteOffset)}
-                {placeCol(right, sumRightCount, colWidth, paletteOffset + left.length)}
-            </>
-        );
-    };
-
-    const topBuckets = buildLayeredBuckets(topItems, activeTop);
-    const bottomBuckets = buildLayeredBuckets(bottomItems, activeBottom);
-    const showTopOthers = topPage >= 0 && topBuckets.pages.length > 0;
-    const showBottomOthers = bottomPage >= 0 && bottomBuckets.pages.length > 0;
-    const topChunk = showTopOthers ? topBuckets.pages[topPage] ?? [] : [];
-    const topMoreTile = showTopOthers ? topBuckets.moreIndicators[topPage] : null;
-    const bottomChunk = showBottomOthers ? bottomBuckets.pages[bottomPage] ?? [] : [];
-    const bottomMoreTile = showBottomOthers ? bottomBuckets.moreIndicators[bottomPage] : null;
-    const returnTile = {
-        key: "__return__",
-        label: "Tagasi",
-        count: 1,
-        available: true,
-        availableCount: 1,
-    };
-    const topDisplayItems = showTopOthers
-        ? [...topChunk, ...(topMoreTile ? [topMoreTile] : []), returnTile]
-        : topBuckets.primary;
-    const bottomDisplayItems = showBottomOthers
-        ? [...bottomChunk, ...(bottomMoreTile ? [bottomMoreTile] : []), returnTile]
-        : bottomBuckets.primary;
-    const topActiveKey = showTopOthers ? activeTop : topBuckets.normalizedActive;
-    const bottomActiveKey = showBottomOthers ? activeBottom : bottomBuckets.normalizedActive;
-
-    const handleTopSelect = (key: string) => {
-        if (showTopOthers) {
-            if (key === "__more__") {
-                setTopPage((prev) => Math.min(prev + 1, topBuckets.pages.length - 1));
-                return;
-            }
-            if (key === "__return__") {
-                setTopPage(-1);
-                return;
-            }
-            const next = key === activeTop ? "" : key;
-            onSelectTop(next);
-            setTopPage(-1);
-            return;
-        }
-        if (key === "__other__" && topBuckets.pages.length > 0) {
-            setTopPage(0);
-            return;
-        }
-        const next = key === activeTop ? "" : key;
-        onSelectTop(next);
-    };
-    const handleBottomSelect = (key: string) => {
-        if (showBottomOthers) {
-            if (key === "__more__") {
-                setBottomPage((prev) => Math.min(prev + 1, bottomBuckets.pages.length - 1));
-                return;
-            }
-            if (key === "__return__") {
-                setBottomPage(-1);
-                return;
-            }
-            const next = key === activeBottom ? "" : key;
-            onSelectBottom(next);
-            setBottomPage(-1);
-            return;
-        }
-        if (key === "__other__" && bottomBuckets.pages.length > 0) {
-            setBottomPage(0);
-            return;
-        }
-        const next = key === activeBottom ? "" : key;
-        onSelectBottom(next);
-    };
-
-    return (
-        <View
-            pointerEvents="auto"
-            style={[
-                sideStyles.wrap,
-                { top: topMargin, bottom: bottomMargin },
-            ]}
-            onLayout={(e) => {
-                const { width, height } = e.nativeEvent.layout;
-                setLayout({ w: width, h: height });
-            }}
-        >
-            {layout.w > 0 && sidebarHeight > 0 && (
-                <>
-                    <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: nominalHeight }}>
-                        {renderTreemapGrid(topDisplayItems, topActiveKey, layout.w, nominalHeight, handleTopSelect, 0)}
-                    </View>
-                    <View
-                        style={{
-                            position: "absolute",
-                            left: 0,
-                            right: 0,
-                            top: nominalHeight + sectionGap,
-                            height: namesHeight,
-                        }}
-                    >
-                        {renderTreemapGrid(bottomDisplayItems, bottomActiveKey, layout.w, namesHeight, handleBottomSelect, 3)}
-                    </View>
-                </>
-            )}
-
-
-        </View>
-    );
-};
-
-const periodStyles = StyleSheet.create({
-    wrap: {
-        position: "absolute",
-        left: 0,
-        width: "26%",
-        paddingTop: 6,
-        paddingHorizontal: 6,
-        zIndex: 130,
-    },
-    header: {
-        color: "#dfe8e4",
-        fontWeight: "800",
-        fontSize: 12,
-        marginBottom: 6,
-        paddingLeft: 4,
-    },
-    blocksWrap: {
-        position: "absolute",
-        top: 24,
-        left: 0,
-        right: 0,
-        bottom: 0,
-    },
-    block: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        borderRadius: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: "#1f2a29",
-        shadowColor: "#000",
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-    },
-    label: {
-        color: "#e7f2ef",
-        fontWeight: "700",
-        fontSize: 12,
-        lineHeight: 16,
-    },
-});
-
-const sideStyles = StyleSheet.create({
-    wrap: {
-        position: "absolute",
-        right: 0,
-        width: "26%",
-        paddingTop: 12,
-        paddingBottom: 12,
-        paddingHorizontal: 4,
-        zIndex: 140,
-    },
-    block: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        borderRadius: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: "#1f2a29",
-    },
-    label: {
-        color: "#e7f2ef",
-        fontWeight: "700",
-        fontSize: 11,
     },
 });
