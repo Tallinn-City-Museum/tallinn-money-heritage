@@ -65,13 +65,7 @@ export default function HomeScreen() {
               ja majandus on ajas muutunud. Need väikesed esemed on väga
               mitmekesised ajalooallikad.
             </Text>
-            <TouchableOpacity
-              onPress={handleExplore}
-              style={[indexStyles.exploreButton, { marginTop: 24 }]}
-            >
-              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
-            </TouchableOpacity>
-          </View>
+                      </View>
 
           {/* Page 2 */}
           <View style={[indexStyles.pageBase, indexStyles.page2]}>
@@ -145,6 +139,14 @@ export default function HomeScreen() {
             );
           })}
         </View>
+
+        <TouchableOpacity
+          onPress={handleExplore}
+          style={[indexStyles.exploreButton, indexStyles.skipButton]}
+        >
+          <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+        </TouchableOpacity>
+
       </LinearGradient>
     </SafeAreaView>
   );

@@ -129,6 +129,7 @@ export default function Flipper() {
 
         setCoin(hydrated);
         setCoinSize((160 * hydrated.diameter) / 25.4);
+        resetCoinPose();
     };
 
     // Load a specific coin from Wallet when coinId is provided via route params
@@ -152,6 +153,7 @@ export default function Flipper() {
                         : 25.4; // sensible fallback
 
             setCoinSize((160 * diameterMm) / 25.4);
+            resetCoinPose();
         }
         // if not found, do nothing; fetchData() doesn't run when coinId exists
     }, [routeParams?.coinId, coins]);
@@ -196,6 +198,7 @@ export default function Flipper() {
                 name: name || (hydrated as any).name,
             });
             setCoinSize((160 * hydrated.diameter) / 25.4);
+            resetCoinPose();
         };
 
         applyFilters();
@@ -811,71 +814,70 @@ export default function Flipper() {
 
     // --- Render ---
     return (
-        <View style={styles.container} {...swipeResponder.panHandlers}>
-            {!coin && <ActivityIndicator size={64} />}
-            {coin && (
-                <>
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel="Ava juhend uuesti"
-                        onPress={handleRestartTutorial}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        style={{
-                            position: "absolute",
-                            top: insets.top + 12,
-                            right: 16,
-                            padding: 10,
-                            borderRadius: 18,
-                            backgroundColor: "rgba(23, 24, 35, 0.85)",
-                            borderWidth: 1,
-                            borderColor: "#32403d",
-                            zIndex: 22,
-                            shadowColor: "#000",
-                            shadowOpacity: 0.2,
-                            shadowRadius: 4,
-                            shadowOffset: { width: 0, height: 2 },
-                        }}
-                    >
-                        <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
-                    </TouchableOpacity>
-
-                    {/* top spacer keeps coin centered even when result appears */}
-                    <View style={styles.coinTopSpacer} />
-
-                    {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
-                    <TapGestureHandler
-                        ref={doubleTapRef}
-                        numberOfTaps={2}
-                        waitFor={[pinchRef, panRef, rotateRef]}
-                        onHandlerStateChange={onDoubleTap}
-                    >
-                        <TapGestureHandler
-                            ref={singleTapRef}
-                            waitFor={[doubleTapRef, pinchRef, panRef, rotateRef]}
-                            onHandlerStateChange={onSingleTap}
-                            testID="coin-tap"
-                        >
-                            {/* Pinch, rotate and pan recognize simultaneously (rotate/pan only when zoomed) */}
-                            <PinchGestureHandler
-                                ref={pinchRef}
-                                simultaneousHandlers={[panRef, rotateRef]}
-                                onGestureEvent={onPinchEvent}
-                                onHandlerStateChange={onPinchStateChange}
-                                testID="coin-pinch"
-                            >
-                                <RotationGestureHandler
-                                    ref={rotateRef}
-                                    enabled={isZoomed}
-                                    simultaneousHandlers={[pinchRef, panRef]}
-                                    onGestureEvent={onRotateEvent}
-                                    onHandlerStateChange={onRotateStateChange}
+        <PinchGestureHandler
+            ref={pinchRef}
+            simultaneousHandlers={[panRef, rotateRef]}
+            onGestureEvent={onPinchEvent}
+            onHandlerStateChange={onPinchStateChange}
+            testID="coin-pinch"
+        >
+            <RotationGestureHandler
+                ref={rotateRef}
+                enabled={isZoomed}
+                simultaneousHandlers={[pinchRef, panRef]}
+                onGestureEvent={onRotateEvent}
+                onHandlerStateChange={onRotateStateChange}
+            >
+                <PanGestureHandler
+                    ref={panRef}
+                    enabled={isZoomed}
+                    simultaneousHandlers={[pinchRef, rotateRef]}
+                    onGestureEvent={onPanGestureEvent}
+                    onHandlerStateChange={onPanStateChange}
+                >
+                    <View style={styles.container} {...swipeResponder.panHandlers}>
+                        {!coin && <ActivityIndicator size={64} />}
+                        {coin && (
+                            <>
+                                <TouchableOpacity
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Ava juhend uuesti"
+                                    onPress={handleRestartTutorial}
+                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                    style={{
+                                        position: "absolute",
+                                        top: insets.top + 12,
+                                        right: 16,
+                                        padding: 10,
+                                        borderRadius: 18,
+                                        backgroundColor: "rgba(23, 24, 35, 0.85)",
+                                        borderWidth: 1,
+                                        borderColor: "#32403d",
+                                        zIndex: 22,
+                                        shadowColor: "#000",
+                                        shadowOpacity: 0.2,
+                                        shadowRadius: 4,
+                                        shadowOffset: { width: 0, height: 2 },
+                                    }}
                                 >
-                                    <PanGestureHandler
-                                        ref={panRef}
-                                        enabled={isZoomed}
-                                        simultaneousHandlers={[pinchRef, rotateRef]}
-                                        onGestureEvent={onPanGestureEvent}
-                                        onHandlerStateChange={onPanStateChange}
+                                    <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
+                                </TouchableOpacity>
+
+                                {/* top spacer keeps coin centered even when result appears */}
+                                <View style={styles.coinTopSpacer} />
+
+                                {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
+                                <TapGestureHandler
+                                    ref={doubleTapRef}
+                                    numberOfTaps={2}
+                                    waitFor={[pinchRef, panRef, rotateRef]}
+                                    onHandlerStateChange={onDoubleTap}
+                                >
+                                    <TapGestureHandler
+                                        ref={singleTapRef}
+                                        waitFor={[doubleTapRef, pinchRef, panRef, rotateRef]}
+                                        onHandlerStateChange={onSingleTap}
+                                        testID="coin-tap"
                                     >
                                         <Animated.View
                                             pointerEvents="box-none"
@@ -923,73 +925,63 @@ export default function Flipper() {
                                                 resizeMode="contain"
                                             />
                                         </Animated.View>
-                                    </PanGestureHandler>
-                                </RotationGestureHandler>
-                            </PinchGestureHandler>
-                        </TapGestureHandler>
-                    </TapGestureHandler>
+                                    </TapGestureHandler>
+                                </TapGestureHandler>
 
-                    {/* bottom area holds the result; hidden while zoomed */}
-                    <View style={styles.bottomArea}>
-                        {lastResult !== null && !isZoomed && (
-                            <BottomArea
-                                side={lastResult}
-                                coinName={coin?.name ?? ""}
-                                predicted={resultSource === "flip" ? pendingPrediction : null}
-                                isFlipping={isFlipping}
-                                resultSource={resultSource}
-                                justAddedToWallet={justAddedToWallet}
-                            />
+                                {/* bottom area holds the result; hidden while zoomed */}
+                                <View style={styles.bottomArea}>
+                                    {lastResult !== null && !isZoomed && (
+                                        <BottomArea
+                                            side={lastResult}
+                                            coinName={coin?.name ?? ""}
+                                            predicted={resultSource === "flip" ? pendingPrediction : null}
+                                            isFlipping={isFlipping}
+                                            resultSource={resultSource}
+                                            justAddedToWallet={justAddedToWallet}
+                                        />
+                                    )}
+                                </View>
+
+                                <PredictionDialog
+                                    visible={isDialogVisible}
+                                    dragY={dragY}
+                                    panHandlers={sheetPanResponder.panHandlers}
+                                    onChoosePrediction={handleChoosePrediction}
+                                    onFlipWithoutPrediction={handleFlipWithoutPrediction}
+                                    onClose={() => {
+                                        setPendingPrediction(null);
+                                        pendingPredictionRef.current = null;
+                                        setIsDialogVisible(false);
+                                    }}
+                                />
+
+                                {/* BOTTOM SHEET */}
+                                {isInfoVisible && (
+                                    <InfoBottomSheet
+                                        coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
+                                        onClose={closeInfoSheet}
+                                        bottomSheetAnim={bottomSheetAnim}
+                                        dragY={dragY}
+                                    />
+                                )}
+
+                                {/* TUTORIAL OVERLAY */}
+                                <FirstRunTutorial
+                                    key={tutorialRunKey}
+                                    progress={tutorial}
+                                    onSkipStep={handleSkipStep}
+                                    onSkipAll={handleSkipAll}
+                                    allowedSteps={COIN_TUTORIAL_STEPS}
+                                    onFinish={handleFinishTutorialHere}
+                                />
+                            </>
                         )}
                     </View>
-
-                    <PredictionDialog
-                        visible={isDialogVisible}
-                        dragY={dragY}
-                        panHandlers={sheetPanResponder.panHandlers}
-                        onChoosePrediction={handleChoosePrediction}
-                        onFlipWithoutPrediction={handleFlipWithoutPrediction}
-                        onClose={() => {
-                            setPendingPrediction(null);
-                            pendingPredictionRef.current = null;
-                            setIsDialogVisible(false);
-                        }}
-                    />
-
-                    {/* BOTTOM SHEET */}
-                    {isInfoVisible && (
-                        <InfoBottomSheet
-                            coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
-                            onClose={closeInfoSheet}
-                            bottomSheetAnim={bottomSheetAnim}
-                            dragY={dragY}
-                        />
-                    )}
-
-                    {/* TUTORIAL OVERLAY */}
-                    <FirstRunTutorial
-                        key={tutorialRunKey}
-                        progress={tutorial}
-                        onSkipStep={handleSkipStep}
-                        onSkipAll={handleSkipAll}
-                        allowedSteps={COIN_TUTORIAL_STEPS}
-                        onFinish={handleFinishTutorialHere}
-                    />
-                </>
-            )}
-        </View>
+                </PanGestureHandler>
+            </RotationGestureHandler>
+        </PinchGestureHandler>
     );
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
