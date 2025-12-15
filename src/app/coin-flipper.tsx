@@ -434,6 +434,7 @@ export default function Flipper() {
     // Pan handlers (when zoomed)
     const onPanGestureEvent = ({ nativeEvent }: any) => {
         if (!isZoomed) return;
+        if (nativeEvent.numberOfPointers < 2) return;
         const x = panOffset.current.x + nativeEvent.translationX;
         const y = panOffset.current.y + nativeEvent.translationY;
         translate.setValue({ x, y });
@@ -831,6 +832,7 @@ export default function Flipper() {
                 <PanGestureHandler
                     ref={panRef}
                     enabled={isZoomed}
+                    minPointers={2}
                     simultaneousHandlers={[pinchRef, rotateRef]}
                     onGestureEvent={onPanGestureEvent}
                     onHandlerStateChange={onPanStateChange}
