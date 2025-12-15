@@ -385,10 +385,12 @@ export const indexStyles = StyleSheet.create({
 
     pageBase: {
         width,
+        height,
         flex: 1,
         justifyContent: "flex-start",
         alignItems: "flex-start",
         paddingHorizontal: width * 0.1,
+        position: "relative",
     },
 
     page1: {
@@ -465,7 +467,7 @@ export const indexStyles = StyleSheet.create({
     skipButton: {
         position: "absolute",
         right: width * 0.08,
-        bottom: height * 0.07,
+        bottom: height * 0.001,
     },
 
     bottomGradient: {

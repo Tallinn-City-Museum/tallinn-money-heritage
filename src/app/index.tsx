@@ -65,7 +65,15 @@ export default function HomeScreen() {
               ja majandus on ajas muutunud. Need väikesed esemed on väga
               mitmekesised ajalooallikad.
             </Text>
-                      </View>
+
+            {/* Skip button – only on pages 1–3 */}
+            <TouchableOpacity
+              onPress={handleExplore}
+              style={[indexStyles.exploreButton, indexStyles.skipButton]}
+            >
+              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Page 2 */}
           <View style={[indexStyles.pageBase, indexStyles.page2]}>
@@ -78,6 +86,13 @@ export default function HomeScreen() {
               sümbolid või dekoratiivne kujundus. Servale lisati sooned või tekst,
               et vältida mündi võltsimist.
             </Text>
+
+            <TouchableOpacity
+              onPress={handleExplore}
+              style={[indexStyles.exploreButton, indexStyles.skipButton]}
+            >
+              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Page 3 */}
@@ -90,6 +105,13 @@ export default function HomeScreen() {
               pea” abil, kes alustab mängu või saab eelise. Hiljem levis see
               tava üle maailma kui lihtne ja õiglane otsustamisviis.
             </Text>
+
+            <TouchableOpacity
+              onPress={handleExplore}
+              style={[indexStyles.exploreButton, indexStyles.skipButton]}
+            >
+              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Page 4 */}
@@ -139,14 +161,6 @@ export default function HomeScreen() {
             );
           })}
         </View>
-
-        <TouchableOpacity
-          onPress={handleExplore}
-          style={[indexStyles.exploreButton, indexStyles.skipButton]}
-        >
-          <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
-        </TouchableOpacity>
-
       </LinearGradient>
     </SafeAreaView>
   );
