@@ -452,7 +452,7 @@ export const indexStyles = StyleSheet.create({
         paddingHorizontal: 40,
         borderRadius: 8,
         marginTop: 32,
-        marginBottom: 0,
+        marginBottom: 30,
     },
 
     exploreButtonText: {
@@ -460,6 +460,12 @@ export const indexStyles = StyleSheet.create({
         color: "#22223b",
         textAlign: "left",
         fontFamily: "ProzaDisplay-SemiBold",
+    },
+
+    skipButton: {
+        position: "absolute",
+        right: width * 0.08,
+        bottom: height * 0.07,
     },
 
     bottomGradient: {

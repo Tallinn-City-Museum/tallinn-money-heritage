@@ -8,6 +8,7 @@ import {
     Pressable,
     PanResponder,
     ActivityIndicator,
+    BackHandler,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -126,6 +127,17 @@ export default function FilterView() {
     useEffect(() => {
         fetchData()
     }, []);
+
+    // Prevent navigating back to the onboarding/index stack from the filter screen
+    useFocusEffect(
+        useCallback(() => {
+            const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+                router.replace("/coin-flipper");
+                return true;
+            });
+            return () => sub.remove();
+        }, [router])
+    );
 
     const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialTutorial);
     const [tutorialHydrated, setTutorialHydrated] = useState(false);
