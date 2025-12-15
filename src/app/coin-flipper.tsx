@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
-import { View, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable } from "react-native";
+import { View, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable, Dimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
     import {
     TapGestureHandler,
@@ -33,6 +33,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const PAN_MARGIN_X = 10;
+const PAN_MARGIN_Y = 10;
+
 const COIN_TUTORIAL_STEPS: TutorialStepKey[] = [
     "filterCoins",
     "tapTwice",
@@ -435,11 +439,32 @@ export default function Flipper() {
     const onPanGestureEvent = ({ nativeEvent }: any) => {
         if (!isZoomed) return;
         if (nativeEvent.numberOfPointers < 2) return;
-        const x = panOffset.current.x + nativeEvent.translationX;
-        const y = panOffset.current.y + nativeEvent.translationY;
-        translate.setValue({ x, y });
+
+        // Start from the stored origin and add this gesture's translation
+        const rawX = panOffset.current.x + nativeEvent.translationX;
+        const rawY = panOffset.current.y + nativeEvent.translationY;
+
+        // Clamp so the coin cannot fully leave the screen
+        const maxX = SCREEN_WIDTH / 2 - PAN_MARGIN_X;
+        const maxY = SCREEN_HEIGHT / 2 - PAN_MARGIN_Y;
+
+        const clampedX = Math.max(-maxX, Math.min(rawX, maxX));
+        const clampedY = Math.max(-maxY, Math.min(rawY, maxY));
+
+        translate.setValue({ x: clampedX, y: clampedY });
     };
+
     const onPanStateChange = ({ nativeEvent }: any) => {
+        if (nativeEvent.numberOfPointers < 2) return;
+
+        if (nativeEvent.state === State.BEGAN) {
+            // New drag starts from the *current* visual position
+            const currentX = (translate.x as any)._value ?? 0;
+            const currentY = (translate.y as any)._value ?? 0;
+            panOffset.current = { x: currentX, y: currentY };
+            return;
+        }
+
         if (
             nativeEvent.state === State.END ||
             nativeEvent.state === State.CANCELLED ||
@@ -449,10 +474,18 @@ export default function Flipper() {
                 translate.setValue({ x: 0, y: 0 });
                 panOffset.current = { x: 0, y: 0 };
             } else {
-                panOffset.current = {
-                    x: panOffset.current.x + nativeEvent.translationX,
-                    y: panOffset.current.y + nativeEvent.translationY,
-                };
+                // Persist final, clamped position as new origin for the next drag
+                const currentX = (translate.x as any)._value ?? 0;
+                const currentY = (translate.y as any)._value ?? 0;
+
+                const maxX = SCREEN_WIDTH / 2 - PAN_MARGIN_X;
+                const maxY = SCREEN_HEIGHT / 2 - PAN_MARGIN_Y;
+
+                const clampedX = Math.max(-maxX, Math.min(currentX, maxX));
+                const clampedY = Math.max(-maxY, Math.min(currentY, maxY));
+
+                panOffset.current = { x: clampedX, y: clampedY };
+                translate.setValue({ x: clampedX, y: clampedY });
             }
         }
     };
