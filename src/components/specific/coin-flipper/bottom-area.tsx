@@ -62,7 +62,7 @@ export function BottomArea({
                         <Text style={styles.predictionResultText}>
                             {predictionHit
                                 ? "Ennustus läks täppi!"
-                                : "Ennustus ei läinud täppi"}
+                                : "Ennustus ei läinud täppi."}
                         </Text>
                     )}
 
