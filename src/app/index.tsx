@@ -66,7 +66,7 @@ export default function HomeScreen() {
               mitmekesised ajalooallikad.
             </Text>
 
-            {/* Skip button – only on pages 1–3 */}
+            
             <TouchableOpacity
               onPress={handleExplore}
               style={[indexStyles.exploreButton, indexStyles.skipButton]}
@@ -87,12 +87,6 @@ export default function HomeScreen() {
               et vältida mündi võltsimist.
             </Text>
 
-            <TouchableOpacity
-              onPress={handleExplore}
-              style={[indexStyles.exploreButton, indexStyles.skipButton]}
-            >
-              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Page 3 */}
@@ -106,12 +100,6 @@ export default function HomeScreen() {
               tava üle maailma kui lihtne ja õiglane otsustamisviis.
             </Text>
 
-            <TouchableOpacity
-              onPress={handleExplore}
-              style={[indexStyles.exploreButton, indexStyles.skipButton]}
-            >
-              <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Page 4 */}

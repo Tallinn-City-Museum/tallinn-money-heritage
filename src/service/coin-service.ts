@@ -2,8 +2,8 @@ import { getDataConnect } from "firebase/data-connect"
 import { Coin } from "../data/entity/coin"
 import {
     connectorConfig,
-    coinMeta2Count,
-    coinMeta2ById,
+    coinMeta2count,
+    coinMeta2byId,
     materialStats,
     regionStats,
     nominalStats,
@@ -30,15 +30,15 @@ export class CoinService {
      */
     public async generateNewCoin(): Promise<Coin> {
         if (this.coinCount === undefined) {
-            this.coinCount = (await coinMeta2Count()).data.coinMetas2?.id_count
+            this.coinCount = (await coinMeta2count()).data.coinMetas2?.id_count
         }
 
         const idx = Math.floor(Math.random() * (this.coinCount === undefined ? 1 : this.coinCount) + 1)
 
-        const coin = (await coinMeta2ById({id: `${idx}`})).data.coinMetas2s[0]
+        const coin = (await coinMeta2byId({id: `${idx}`})).data.coinMetas2s[0]
 
-        const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
-        const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
+        const headsURL = await getDownloadURL(ref(storage, 'images/museaal-${coin.muisId}-head.webp'))
+        const tailsURL = await getDownloadURL(ref(storage, 'images/museaal-${coin.muisId}-tails.webp'))
 
         // Pre-fetch images so the UI can show them instantly
         await Image.prefetch(headsURL)
