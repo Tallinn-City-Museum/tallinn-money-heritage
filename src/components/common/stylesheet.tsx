@@ -467,7 +467,7 @@ export const indexStyles = StyleSheet.create({
     skipButton: {
         position: "absolute",
         right: width * 0.08,
-        bottom: height * 0.001,
+        bottom: height * 0.08,
     },
 
     bottomGradient: {
