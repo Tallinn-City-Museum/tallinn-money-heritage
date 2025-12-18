@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect, useCallback } from "react";
 import { View, Animated, Easing, PanResponder, ActivityIndicator, TouchableOpacity, Pressable, Dimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-    import {
+import {
     TapGestureHandler,
     PinchGestureHandler,
     PanGestureHandler,
