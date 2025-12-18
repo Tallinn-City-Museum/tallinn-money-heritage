@@ -26,10 +26,11 @@ import {
 import { InfoBottomSheet } from "../components/common/InfoBottomSheet";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
+import { CoinFilterRow, CountryStat, MaterialStat, NameStat, NominalStat } from "../data/entity/aggregated-meta";
 const PROGRESS_KEY = "tutorial.progress";
 import { PredictionDialog } from "../components/specific/coin-flipper/prediction-dialog";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import FilterView from "./filter";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
@@ -91,10 +92,6 @@ export default function Flipper() {
     const [coin, setCoin] = useState<WalletCoin | null>(null);
     const [coinSize, setCoinSize] = useState<number>(200);
 
-    const [materialStats, setMaterialStats] = useState<MaterialStat[] | null>(null);
-    const [countryStats, setCountryStats] = useState<CountryStat[] | null>(null);
-    const [nominalStats, setNominalStats] = useState<NominalStat[] | null>(null);
-    const [nameStats, setNameStats] = useState<NameStat[] | null>(null);
     const insets = useSafeAreaInsets();
     const hydrateCoin = (base: Coin, materialOverride?: string | null): WalletCoin => {
         const diameterMm =
@@ -115,7 +112,11 @@ export default function Flipper() {
         };
     };
 
-    const fetchData = async (forceNew: boolean = false) => {
+    // Filter properties
+    const [showFilter, setShowFilter] = useState(false);
+    const [coinFilter, setCoinFilter] = useState<CoinFilterRow>({});
+
+    const fetchData = async (coinFilter: CoinFilterRow, forceNew: boolean = false) => {
         // If it came from Wallet with a specific coinId, do not generate a new coin unless forced
         if (routeParams?.coinId && !forceNew) return;
         setCoin(null);
@@ -123,13 +124,8 @@ export default function Flipper() {
         setPendingPrediction(null);
         setJustAddedToWallet(false);
 
-        const generatedCoin = await coinService.generateNewCoin();
+        const generatedCoin = await coinService.generateNewCoin(coinFilter);
         const hydrated = hydrateCoin(generatedCoin, generatedCoin.material);
-
-        setMaterialStats(await coinStatsService.getMaterialStats());
-        setCountryStats(await coinStatsService.getCountryStats());
-        setNominalStats(await coinStatsService.getNominalStats());
-        setNameStats(await coinStatsService.getNameStats());
 
         setCoin(hydrated);
         setCoinSize((160 * hydrated.diameter) / 25.4);
@@ -165,48 +161,8 @@ export default function Flipper() {
     // Only fetch a random coin if it didn't come from Wallet with a coinId
     useEffect(() => {
         if (routeParams?.coinId) return; // wallet will provide the coin
-        fetchData();
-    }, [routeParams?.coinId]);
-
-    // Apply filters coming back from the dedicated filter view
-    useEffect(() => {
-        const filterReq = getParam(routeParams?.filterReq);
-        if (!filterReq) return;
-
-        const action = getParam(routeParams?.filterAction);
-        const material = getParam(routeParams?.filterMaterial);
-        const country = getParam(routeParams?.filterCountry);
-        const nominal = getParam(routeParams?.filterNominal);
-        const name = getParam(routeParams?.filterName);
-
-        const applyFilters = async () => {
-            setLastResult(null);
-            setResultSource("manual");
-            setPendingPrediction(null);
-            pendingPredictionRef.current = null;
-            clearFlipTimers();
-            setJustAddedToWallet(false);
-
-            if (action === "random") {
-                await fetchData(true);
-                return;
-            }
-
-            const generatedCoin = await coinService.generateCoinByMaterial(material);
-            const hydrated = hydrateCoin(generatedCoin, material || generatedCoin.material);
-
-            setCoin({
-                ...hydrated,
-                region: country || hydrated.region,
-                nomValue: nominal || (hydrated as any).nomValue,
-                name: name || (hydrated as any).name,
-            });
-            setCoinSize((160 * hydrated.diameter) / 25.4);
-            resetCoinPose();
-        };
-
-        applyFilters();
-    }, [routeParams?.filterReq]);
+        fetchData(coinFilter);
+    }, [routeParams?.coinId, coinFilter]);
 
     // prediction dialog
     const [isDialogVisible, setIsDialogVisible] = useState(false);
@@ -231,15 +187,6 @@ export default function Flipper() {
     // ROTATION (two-finger)
     const renderRotation = useRef(new Animated.Value(0)).current;
     const lastRotationRef = useRef(0);
-    const resetCoinPose = () => {
-        renderScale.setValue(1);
-        lastScaleRef.current = 1;
-        translate.setValue({ x: 0, y: 0 });
-        panOffset.current = { x: 0, y: 0 };
-        renderRotation.setValue(0);
-        lastRotationRef.current = 0;
-        setIsZoomed(false);
-    };
 
     // Gesture handler refs to control priority/simultaneity
     const pinchRef = useRef<any>(null);
@@ -342,7 +289,7 @@ export default function Flipper() {
         useCallback(() => {
             // Whenever we return from Wallet with a back-swipe, always generate a fresh coin
             if (routeParams?.fromWallet === "back" && !routeParams?.coinId) {
-                fetchData();
+                fetchData(coinFilter);
             }
         }, [routeParams?.fromWallet, routeParams?.coinId])
     );
@@ -784,7 +731,7 @@ export default function Flipper() {
 
                 if (!isInfoVisible && swipedRight) {
                     setTutorial((prev) => ({ ...prev, filterCoins: true }));
-                    router.push({ pathname: "/filter" });
+                    setShowFilter(true);
                     return;
                 }
 
@@ -848,28 +795,21 @@ export default function Flipper() {
 
     // --- Render ---
     return (
-        <PinchGestureHandler
-            ref={pinchRef}
-            simultaneousHandlers={[panRef, rotateRef]}
-            onGestureEvent={onPinchEvent}
-            onHandlerStateChange={onPinchStateChange}
-            testID="coin-pinch"
-        >
-            <RotationGestureHandler
-                ref={rotateRef}
-                enabled={isZoomed}
-                simultaneousHandlers={[pinchRef, panRef]}
-                onGestureEvent={onRotateEvent}
-                onHandlerStateChange={onRotateStateChange}
-            >
-                <PanGestureHandler
-                    ref={panRef}
-                    enabled={isZoomed}
-                    minPointers={2}
-                    simultaneousHandlers={[pinchRef, rotateRef]}
-                    onGestureEvent={onPanGestureEvent}
-                    onHandlerStateChange={onPanStateChange}
-                >
+        <>
+            {showFilter && (
+                <>
+                    <FilterView
+                        onFilterApply={(filter) => {
+                            setCoinFilter(filter);
+                            setShowFilter(false);
+                        }}
+                        onFilterCancel={() => setShowFilter(false)}
+                    />
+                </>
+            )}
+            {
+                !showFilter && (
+
                     <View style={styles.container} {...swipeResponder.panHandlers}>
                         {!coin && <ActivityIndicator size={64} />}
                         {coin && (
@@ -900,6 +840,8 @@ export default function Flipper() {
 
                                 {/* top spacer keeps coin centered even when result appears */}
                                 <View style={styles.coinTopSpacer} />
+                                {/* top spacer keeps coin centered even when result appears */}
+                                <View style={styles.coinTopSpacer} />
 
                                 {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
                                 <TapGestureHandler
@@ -914,55 +856,93 @@ export default function Flipper() {
                                         onHandlerStateChange={onSingleTap}
                                         testID="coin-tap"
                                     >
-                                        <Animated.View
-                                            pointerEvents="box-none"
-                                            style={[
-                                                styles.coinLayer,
-                                                isInfoVisible && styles.coinLayerRaised,
-                                                { zIndex: isInfoVisible ? 1 : 2 },
-                                            ]}
+                                        {/* Pinch, rotate and pan recognize simultaneously (rotate/pan only when zoomed) */}
+                                        <PinchGestureHandler
+                                            ref={pinchRef}
+                                            simultaneousHandlers={[panRef, rotateRef]}
+                                            onGestureEvent={onPinchEvent}
+                                            onHandlerStateChange={onPinchStateChange}
+                                            testID="coin-pinch"
                                         >
-                                            <Animated.Image
-                                                source={{ uri: coinSide === CoinSide.HEADS ? coin.headImageResource : coin.tailsImageResource }}
-                                                style={[
-                                                    {
-                                                        width: coinSize,
-                                                        height: coinSize,
-                                                    },
-                                                    {
-                                                        transform: [
-                                                            { translateX: translate.x },
-                                                            { translateY: translate.y },
-                                                            { scale: renderScale },
-                                                            {
-                                                                rotate: renderRotation.interpolate({
-                                                                    inputRange: [-Math.PI * 2, Math.PI * 2],
-                                                                    outputRange: ["-6.2832rad", "6.2832rad"],
-                                                                }),
-                                                            },
-                                                            { scaleY: flipped },
-                                                            {
-                                                                rotateX: flipAnimation.interpolate({
-                                                                    inputRange: [0, 1],
-                                                                    outputRange: ["0deg", "180deg"],
-                                                                }),
-                                                            },
-                                                            // coin shift
-                                                            {
-                                                                translateY: coinShiftAnim.interpolate({
-                                                                    inputRange: [0, 1],
-                                                                    outputRange: [0, -170],
-                                                                }),
-                                                            },
-                                                        ],
-                                                    },
-                                                ]}
-                                                resizeMode="contain"
-                                            />
-                                        </Animated.View>
+                                            <RotationGestureHandler
+                                                ref={rotateRef}
+                                                enabled={isZoomed}
+                                                simultaneousHandlers={[pinchRef, panRef]}
+                                                onGestureEvent={onRotateEvent}
+                                                onHandlerStateChange={onRotateStateChange}
+                                            >
+                                                <PanGestureHandler
+                                                    ref={panRef}
+                                                    enabled={isZoomed}
+                                                    simultaneousHandlers={[pinchRef, rotateRef]}
+                                                    onGestureEvent={onPanGestureEvent}
+                                                    onHandlerStateChange={onPanStateChange}
+                                                >
+                                                    <Animated.View
+                                                        pointerEvents="box-none"
+                                                        style={[
+                                                            styles.coinLayer,
+                                                            isInfoVisible && styles.coinLayerRaised,
+                                                            { zIndex: isInfoVisible ? 1 : 2 },
+                                                        ]}
+                                                    >
+                                                        <Animated.Image
+                                                            source={{ uri: coinSide === CoinSide.HEADS ? coin.headImageResource : coin.tailsImageResource }}
+                                                            style={[
+                                                                {
+                                                                    width: coinSize,
+                                                                    height: coinSize,
+                                                                },
+                                                                {
+                                                                    transform: [
+                                                                        { translateX: translate.x },
+                                                                        { translateY: translate.y },
+                                                                        { scale: renderScale },
+                                                                        {
+                                                                            rotate: renderRotation.interpolate({
+                                                                                inputRange: [-Math.PI * 2, Math.PI * 2],
+                                                                                outputRange: ["-6.2832rad", "6.2832rad"],
+                                                                            }),
+                                                                        },
+                                                                        { scaleY: flipped },
+                                                                        {
+                                                                            rotateX: flipAnimation.interpolate({
+                                                                                inputRange: [0, 1],
+                                                                                outputRange: ["0deg", "180deg"],
+                                                                            }),
+                                                                        },
+                                                                        // coin shift
+                                                                        {
+                                                                            translateY: coinShiftAnim.interpolate({
+                                                                                inputRange: [0, 1],
+                                                                                outputRange: [0, -170],
+                                                                            }),
+                                                                        },
+                                                                    ],
+                                                                },
+                                                            ]}
+                                                            resizeMode="contain"
+                                                        />
+                                                    </Animated.View>
+                                                </PanGestureHandler>
+                                            </RotationGestureHandler>
+                                        </PinchGestureHandler>
                                     </TapGestureHandler>
                                 </TapGestureHandler>
 
+                                {/* bottom area holds the result; hidden while zoomed */}
+                                <View style={styles.bottomArea}>
+                                    {lastResult !== null && !isZoomed && (
+                                        <BottomArea
+                                            side={lastResult}
+                                            coinName={coin?.name ?? ""}
+                                            predicted={resultSource === "flip" ? pendingPrediction : null}
+                                            isFlipping={isFlipping}
+                                            resultSource={resultSource}
+                                            justAddedToWallet={justAddedToWallet}
+                                        />
+                                    )}
+                                </View>
                                 {/* bottom area holds the result; hidden while zoomed */}
                                 <View style={styles.bottomArea}>
                                     {lastResult !== null && !isZoomed && (
@@ -989,7 +969,28 @@ export default function Flipper() {
                                         setIsDialogVisible(false);
                                     }}
                                 />
+                                <PredictionDialog
+                                    visible={isDialogVisible}
+                                    dragY={dragY}
+                                    panHandlers={sheetPanResponder.panHandlers}
+                                    onChoosePrediction={handleChoosePrediction}
+                                    onFlipWithoutPrediction={handleFlipWithoutPrediction}
+                                    onClose={() => {
+                                        setPendingPrediction(null);
+                                        pendingPredictionRef.current = null;
+                                        setIsDialogVisible(false);
+                                    }}
+                                />
 
+                                {/* BOTTOM SHEET */}
+                                {isInfoVisible && (
+                                    <InfoBottomSheet
+                                        coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
+                                        onClose={closeInfoSheet}
+                                        bottomSheetAnim={bottomSheetAnim}
+                                        dragY={dragY}
+                                    />
+                                )}
                                 {/* BOTTOM SHEET */}
                                 {isInfoVisible && (
                                     <InfoBottomSheet
@@ -1012,9 +1013,9 @@ export default function Flipper() {
                             </>
                         )}
                     </View>
-                </PanGestureHandler>
-            </RotationGestureHandler>
-        </PinchGestureHandler>
+                )
+            }
+        </>
     );
 }
 
