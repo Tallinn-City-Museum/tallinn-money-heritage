@@ -3,9 +3,10 @@ import buildTreemapBuckets, { BACK_KEY, OTHER_KEY } from "@/src/utils/treemap-bu
 import { useMemo, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import BaseTreemap from "./treemap";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Minimum supported height
-const MIN_HEIGHT = 180;
+const MIN_HEIGHT = 100;
 
 export interface HorizontalFilterSheetProps {
     enabled: boolean;
@@ -27,8 +28,9 @@ export default function HorizontalFilterSheet({
     displayHeightRatio,
     onLayout
 }: HorizontalFilterSheetProps) {
-    const screenHeight = Dimensions.get("window").height;
-    const screenWidth = Dimensions.get("window").width;
+    const insets = useSafeAreaInsets();
+    const screenHeight = Dimensions.get("window").height - insets.top - insets.bottom;
+    const screenWidth = Dimensions.get("window").width - insets.left - insets.right;
     const sheetHeight = Math.max(screenHeight * displayHeightRatio, MIN_HEIGHT);
     const [containerSize, setContainerSize] = useState({ w: screenWidth, h: sheetHeight })
     const [page, setPage] = useState(0)
