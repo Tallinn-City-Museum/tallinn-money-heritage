@@ -2,13 +2,12 @@ import { getDataConnect } from "firebase/data-connect"
 import { Coin } from "../data/entity/coin"
 import {
     connectorConfig,
-    coinMeta2count,
-    coinMeta2byId,
     materialStats,
     regionStats,
     nominalStats,
     nameStats,
-    coinFilterData
+    coinFilterData,
+    listCoinsByFilter
 } from '@dataconnect/generated'
 import { app  } from "../config"
 import { getStorage, ref, getDownloadURL } from "firebase/storage"
@@ -28,14 +27,18 @@ export class CoinService {
      * Generates new coin for the coin flipper game
      * and returns its value
      */
-    public async generateNewCoin(): Promise<Coin> {
-        if (this.coinCount === undefined) {
-            this.coinCount = (await coinMeta2count()).data.coinMetas2?.id_count
-        }
+    public async generateNewCoin(filter: CoinFilterRow): Promise<Coin> {
+        const coins = (await listCoinsByFilter({
+            country: filter.country ?? "%",
+            material: filter.material ?? "%",
+            nominal: filter.nominal ?? "%",
+            name: filter.name ?? "%",
+            period: filter.period ?? "%"
+        })).data.coinMetas2s
 
-        const idx = Math.floor(Math.random() * (this.coinCount === undefined ? 1 : this.coinCount) + 1)
+        const idx = Math.floor(coins.length * Math.random())
 
-        const coin = (await coinMeta2byId({id: `${idx}`})).data.coinMetas2s[0]
+        const coin = coins[idx]
 
         const headsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-head.webp`))
         const tailsURL = await getDownloadURL(ref(storage, `images/museaal-${coin.muisId}-tails.webp`))
@@ -57,22 +60,6 @@ export class CoinService {
             lemmaName: coin.lemmaName,
             headImageResource: headsURL,
             tailsImageResource: tailsURL,
-        }
-    }
-
-    /**
-     * Generate a coin by material. Backend does not yet expose material-based queries,
-     * so we fall back to a random coin while tagging it with the selected material.
-     */
-    public async generateCoinByMaterial(material: string): Promise<Coin> {
-        const randomCoin = await this.generateNewCoin()
-        if (!material) {
-            return randomCoin
-        }
-
-        return {
-            ...randomCoin,
-            material,
         }
     }
 }
