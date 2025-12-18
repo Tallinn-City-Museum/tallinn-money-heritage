@@ -1,0 +1,26 @@
+query ListCoinsByFilter($country: String, $material: String, $nominal: String, $name: String, $period: String) @auth(level: PUBLIC, insecureReason: "Anyone can query coins") {
+  coinMetas2s(
+    where: {
+        _and: [
+            {region: {contains: $country}},
+            {material: {contains: $material}},
+            {nomValue: {contains: $nominal}},
+            {lemmaName: {contains: $name}},
+            {dateCluster: {contains: $period}}
+        ]
+    },
+    limit: 10000
+) {
+    id
+    muisId
+    ref
+    name
+    date
+    material
+    diameter
+    region
+    nomValue
+    lemmaName
+    dateCluster
+  }
+}
