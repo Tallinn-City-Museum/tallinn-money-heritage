@@ -803,7 +803,10 @@ export default function Flipper() {
                             setCoinFilter(filter);
                             setShowFilter(false);
                         }}
-                        onFilterCancel={() => setShowFilter(false)}
+                        onFilterCancel={() => {
+                            setShowFilter(false);
+                            setCoinFilter({});
+                        }}
                     />
                 </>
             )}

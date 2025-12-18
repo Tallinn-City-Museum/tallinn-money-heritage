@@ -30,9 +30,9 @@ export class CoinService {
     public async generateNewCoin(filter: CoinFilterRow): Promise<Coin> {
         const coins = (await listCoinsByFilter({
             country: filter.country ?? "%",
-            material: filter.material ?? "%",
+            material: (filter.material ?? "%").toLowerCase(),
             nominal: filter.nominal ?? "%",
-            name: filter.name ?? "%",
+            name: (filter.name ?? "%").toLowerCase(),
             period: filter.period ?? "%"
         })).data.coinMetas2s
 
