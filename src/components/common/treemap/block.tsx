@@ -2,7 +2,7 @@ import { Text } from "@react-navigation/elements";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 export interface TreemapBlockProps {
-    key: string;
+    keyValue: string;
     label: string;
     x: number;
     y: number;
@@ -25,7 +25,7 @@ const MIN_BLOCK_HEIGHT = 48;
  * before using the component
  */
 export default function TreemapBlock({
-    key,
+    keyValue,
     label,
     x,
     y,
@@ -37,11 +37,11 @@ export default function TreemapBlock({
     opacity,
     disabled = false
 }: TreemapBlockProps) {
-    const onPress = () => onSelect(key);
+    const onPress = () => onSelect(keyValue);
 
     return (
         <TouchableOpacity
-            key={`${key}-${x}-${y}`}
+            key={`${keyValue}-${x}-${y}`}
             style={[
                 stylesheet.treemapBlock,
                 {
