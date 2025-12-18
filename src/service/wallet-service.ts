@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Coin, CoinSide } from "../data/entity/coin";
 
 // WalletCoin object extends basic Coin with extra info: which side, position, flip timestamp
@@ -8,6 +9,8 @@ export interface WalletCoin extends Coin {
     x: number;
     y: number;
 }
+
+const COINS_KEY = "coins";
 
 class WalletServiceClass {
     // Private array holds the current coins in wallet
@@ -31,12 +34,19 @@ class WalletServiceClass {
 
         // Add coin to wallet array
         this.coins.push(walletCoin);
+        AsyncStorage.setItem(COINS_KEY, JSON.stringify(this.coins)).then();
         return walletCoin;
     }
 
     // Get current coins array (copy, so mutations don't affect state)
     getCoins(): WalletCoin[] {
-        return [...this.coins];
+        // sync with AsyncStorage if the wallet is empty
+        if (this.coins.length == 0) {
+            AsyncStorage.getItem(COINS_KEY).then(data => {
+                if (data) this.coins = JSON.parse(data) as WalletCoin[];
+            });
+        }
+        return this.coins;
     }
 
     // Update a coin's drag position (called from UI)
@@ -56,6 +66,7 @@ class WalletServiceClass {
     // Remove all coins from wallet
     clearWallet() {
         this.coins = [];
+        AsyncStorage.setItem(COINS_KEY, JSON.stringify(this.coins)).then();
     }
 }
 
