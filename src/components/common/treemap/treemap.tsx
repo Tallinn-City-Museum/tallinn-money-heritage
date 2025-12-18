@@ -65,6 +65,7 @@ function renderSlice(
         return [
             <TreemapBlock
                 key={m.key}
+                keyValue={m.key}
                 label={m.label}
                 x={x}
                 y={y}
