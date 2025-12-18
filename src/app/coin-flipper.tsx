@@ -129,7 +129,6 @@ export default function Flipper() {
 
         setCoin(hydrated);
         setCoinSize((160 * hydrated.diameter) / 25.4);
-        resetCoinPose();
     };
 
     // Load a specific coin from Wallet when coinId is provided via route params
@@ -153,7 +152,6 @@ export default function Flipper() {
                         : 25.4; // sensible fallback
 
             setCoinSize((160 * diameterMm) / 25.4);
-            resetCoinPose();
         }
         // if not found, do nothing; fetchData() doesn't run when coinId exists
     }, [routeParams?.coinId, coins]);
