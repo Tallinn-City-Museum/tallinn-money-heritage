@@ -1,11 +1,11 @@
-import { coinMeta2byIdRef, coinByIdRef, coinMeta2countRef, coinCountRef, coinFilterDataRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } from '../../esm/index.esm.js';
+import { coinMeta2ByIdRef, coinByIdRef, coinMeta2CountRef, coinCountRef, listCoinsByFilterRef, coinFilterDataRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } from '../../esm/index.esm.js';
 import { CallerSdkTypeEnum } from 'firebase/data-connect';
 import { useDataConnectQuery, validateReactArgs } from '@tanstack-query-firebase/react/data-connect';
 
 
-export function useCoinMeta2byId(dcOrVars, varsOrOptions, options) {
+export function useCoinMeta2ById(dcOrVars, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  const ref = coinMeta2byIdRef(dcInstance, inputVars);
+  const ref = coinMeta2ByIdRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
@@ -15,15 +15,21 @@ export function useCoinById(dcOrVars, varsOrOptions, options) {
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
-export function useCoinMeta2count(dcOrOptions, options) {
+export function useCoinMeta2Count(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
-  const ref = coinMeta2countRef(dcInstance);
+  const ref = coinMeta2CountRef(dcInstance);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
 export function useCoinCount(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
   const ref = coinCountRef(dcInstance);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
+
+export function useListCoinsByFilter(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, false);
+  const ref = listCoinsByFilterRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 

@@ -12,16 +12,18 @@ For each operation, there is a wrapper hook that can be used to call the operati
 
 Here are all of the hooks that get generated:
 ```ts
-import { useCoinMeta2byId, useCoinById, useCoinMeta2count, useCoinCount, useCoinFilterData, useMaterialStats, useRegionStats, useNominalStats, useNameStats } from '@dataconnect/generated/react';
+import { useCoinMeta2ById, useCoinById, useCoinMeta2Count, useCoinCount, useListCoinsByFilter, useCoinFilterData, useMaterialStats, useRegionStats, useNominalStats, useNameStats } from '@dataconnect/generated/react';
 // The types of these hooks are available in react/index.d.ts
 
-const { data, isPending, isSuccess, isError, error } = useCoinMeta2byId(coinMeta2byIdVars);
+const { data, isPending, isSuccess, isError, error } = useCoinMeta2ById(coinMeta2ByIdVars);
 
 const { data, isPending, isSuccess, isError, error } = useCoinById(coinByIdVars);
 
-const { data, isPending, isSuccess, isError, error } = useCoinMeta2count();
+const { data, isPending, isSuccess, isError, error } = useCoinMeta2Count();
 
 const { data, isPending, isSuccess, isError, error } = useCoinCount();
+
+const { data, isPending, isSuccess, isError, error } = useListCoinsByFilter(listCoinsByFilterVars);
 
 const { data, isPending, isSuccess, isError, error } = useCoinFilterData();
 
@@ -70,20 +72,23 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { coinMeta2byId, coinById, coinMeta2count, coinCount, coinFilterData, materialStats, regionStats, nominalStats, nameStats } from '@dataconnect/generated';
+import { coinMeta2ById, coinById, coinMeta2Count, coinCount, listCoinsByFilter, coinFilterData, materialStats, regionStats, nominalStats, nameStats } from '@dataconnect/generated';
 
 
-// Operation CoinMeta2ById:  For variables, look at type CoinMeta2byIdVars in ../index.d.ts
-const { data } = await CoinMeta2byId(dataConnect, coinMeta2byIdVars);
+// Operation CoinMeta2ById:  For variables, look at type CoinMeta2ByIdVars in ../index.d.ts
+const { data } = await CoinMeta2ById(dataConnect, coinMeta2ByIdVars);
 
 // Operation CoinById:  For variables, look at type CoinByIdVars in ../index.d.ts
 const { data } = await CoinById(dataConnect, coinByIdVars);
 
 // Operation CoinMeta2Count: 
-const { data } = await CoinMeta2count(dataConnect);
+const { data } = await CoinMeta2Count(dataConnect);
 
 // Operation CoinCount: 
 const { data } = await CoinCount(dataConnect);
+
+// Operation ListCoinsByFilter:  For variables, look at type ListCoinsByFilterVars in ../index.d.ts
+const { data } = await ListCoinsByFilter(dataConnect, listCoinsByFilterVars);
 
 // Operation CoinFilterData: 
 const { data } = await CoinFilterData(dataConnect);

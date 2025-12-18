@@ -7,16 +7,16 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
-const coinMeta2byIdRef = (dcOrVars, vars) => {
+const coinMeta2ByIdRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
   return queryRef(dcInstance, 'CoinMeta2ById', inputVars);
 }
-coinMeta2byIdRef.operationName = 'CoinMeta2ById';
-exports.coinMeta2byIdRef = coinMeta2byIdRef;
+coinMeta2ByIdRef.operationName = 'CoinMeta2ById';
+exports.coinMeta2ByIdRef = coinMeta2ByIdRef;
 
-exports.coinMeta2byId = function coinMeta2byId(dcOrVars, vars) {
-  return executeQuery(coinMeta2byIdRef(dcOrVars, vars));
+exports.coinMeta2ById = function coinMeta2ById(dcOrVars, vars) {
+  return executeQuery(coinMeta2ByIdRef(dcOrVars, vars));
 };
 
 const coinByIdRef = (dcOrVars, vars) => {
@@ -31,16 +31,16 @@ exports.coinById = function coinById(dcOrVars, vars) {
   return executeQuery(coinByIdRef(dcOrVars, vars));
 };
 
-const coinMeta2countRef = (dc) => {
+const coinMeta2CountRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
   return queryRef(dcInstance, 'CoinMeta2Count');
 }
-coinMeta2countRef.operationName = 'CoinMeta2Count';
-exports.coinMeta2countRef = coinMeta2countRef;
+coinMeta2CountRef.operationName = 'CoinMeta2Count';
+exports.coinMeta2CountRef = coinMeta2CountRef;
 
-exports.coinMeta2count = function coinMeta2count(dc) {
-  return executeQuery(coinMeta2countRef(dc));
+exports.coinMeta2Count = function coinMeta2Count(dc) {
+  return executeQuery(coinMeta2CountRef(dc));
 };
 
 const coinCountRef = (dc) => {
@@ -53,6 +53,18 @@ exports.coinCountRef = coinCountRef;
 
 exports.coinCount = function coinCount(dc) {
   return executeQuery(coinCountRef(dc));
+};
+
+const listCoinsByFilterRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListCoinsByFilter', inputVars);
+}
+listCoinsByFilterRef.operationName = 'ListCoinsByFilter';
+exports.listCoinsByFilterRef = listCoinsByFilterRef;
+
+exports.listCoinsByFilter = function listCoinsByFilter(dcOrVars, vars) {
+  return executeQuery(listCoinsByFilterRef(dcOrVars, vars));
 };
 
 const coinFilterDataRef = (dc) => {

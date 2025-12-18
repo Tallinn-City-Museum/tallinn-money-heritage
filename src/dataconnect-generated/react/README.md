@@ -21,6 +21,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*CoinById*](#coinbyid)
   - [*CoinMeta2Count*](#coinmeta2count)
   - [*CoinCount*](#coincount)
+  - [*ListCoinsByFilter*](#listcoinsbyfilter)
   - [*CoinFilterData*](#coinfilterdata)
   - [*MaterialStats*](#materialstats)
   - [*RegionStats*](#regionstats)
@@ -122,18 +123,18 @@ Below are examples of how to use the `example` connector's generated Query hook 
 You can execute the `CoinMeta2ById` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
 
 ```javascript
-useCoinMeta2byId(dc: DataConnect, vars: CoinMeta2byIdVariables, options?: useDataConnectQueryOptions<CoinMeta2byIdData>): UseDataConnectQueryResult<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+useCoinMeta2ById(dc: DataConnect, vars: CoinMeta2ByIdVariables, options?: useDataConnectQueryOptions<CoinMeta2ByIdData>): UseDataConnectQueryResult<CoinMeta2ByIdData, CoinMeta2ByIdVariables>;
 ```
 You can also pass in a `DataConnect` instance to the Query hook function.
 ```javascript
-useCoinMeta2byId(vars: CoinMeta2byIdVariables, options?: useDataConnectQueryOptions<CoinMeta2byIdData>): UseDataConnectQueryResult<CoinMeta2byIdData, CoinMeta2byIdVariables>;
+useCoinMeta2ById(vars: CoinMeta2ByIdVariables, options?: useDataConnectQueryOptions<CoinMeta2ByIdData>): UseDataConnectQueryResult<CoinMeta2ByIdData, CoinMeta2ByIdVariables>;
 ```
 
 ### Variables
-The `CoinMeta2ById` Query requires an argument of type `CoinMeta2byIdVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+The `CoinMeta2ById` Query requires an argument of type `CoinMeta2ByIdVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 
 ```javascript
-export interface CoinMeta2byIdVariables {
+export interface CoinMeta2ByIdVariables {
   id: Int64String;
 }
 ```
@@ -142,9 +143,9 @@ Recall that calling the `CoinMeta2ById` Query hook function returns a `UseQueryR
 
 To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
 
-To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2ById` Query is of type `CoinMeta2byIdData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2ById` Query is of type `CoinMeta2ByIdData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
-export interface CoinMeta2byIdData {
+export interface CoinMeta2ByIdData {
   coinMetas2s: ({
     id: Int64String;
     muisId: Int64String;
@@ -166,33 +167,33 @@ To learn more about the `UseQueryResult` object, see the [TanStack React Query d
 
 ```javascript
 import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, CoinMeta2byIdVariables } from '@dataconnect/generated';
-import { useCoinMeta2byId } from '@dataconnect/generated/react'
+import { connectorConfig, CoinMeta2ByIdVariables } from '@dataconnect/generated';
+import { useCoinMeta2ById } from '@dataconnect/generated/react'
 
-export default function CoinMeta2byIdComponent() {
-  // The `useCoinMeta2byId` Query hook requires an argument of type `CoinMeta2byIdVariables`:
-  const coinMeta2byIdVars: CoinMeta2byIdVariables = {
+export default function CoinMeta2ByIdComponent() {
+  // The `useCoinMeta2ById` Query hook requires an argument of type `CoinMeta2ByIdVariables`:
+  const coinMeta2ByIdVars: CoinMeta2ByIdVariables = {
     id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
   // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
-  const query = useCoinMeta2byId(coinMeta2byIdVars);
+  const query = useCoinMeta2ById(coinMeta2ByIdVars);
   // Variables can be defined inline as well.
-  const query = useCoinMeta2byId({ id: ..., });
+  const query = useCoinMeta2ById({ id: ..., });
 
   // You can also pass in a `DataConnect` instance to the Query hook function.
   const dataConnect = getDataConnect(connectorConfig);
-  const query = useCoinMeta2byId(dataConnect, coinMeta2byIdVars);
+  const query = useCoinMeta2ById(dataConnect, coinMeta2ByIdVars);
 
   // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2byId(coinMeta2byIdVars, options);
+  const query = useCoinMeta2ById(coinMeta2ByIdVars, options);
 
   // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2byId(dataConnect, coinMeta2byIdVars, options);
+  const query = useCoinMeta2ById(dataConnect, coinMeta2ByIdVars, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -304,11 +305,11 @@ export default function CoinByIdComponent() {
 You can execute the `CoinMeta2Count` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
 
 ```javascript
-useCoinMeta2count(dc: DataConnect, options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+useCoinMeta2Count(dc: DataConnect, options?: useDataConnectQueryOptions<CoinMeta2CountData>): UseDataConnectQueryResult<CoinMeta2CountData, undefined>;
 ```
 You can also pass in a `DataConnect` instance to the Query hook function.
 ```javascript
-useCoinMeta2count(options?: useDataConnectQueryOptions<CoinMeta2countData>): UseDataConnectQueryResult<CoinMeta2countData, undefined>;
+useCoinMeta2Count(options?: useDataConnectQueryOptions<CoinMeta2CountData>): UseDataConnectQueryResult<CoinMeta2CountData, undefined>;
 ```
 
 ### Variables
@@ -318,9 +319,9 @@ Recall that calling the `CoinMeta2Count` Query hook function returns a `UseQuery
 
 To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
 
-To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2Count` Query is of type `CoinMeta2countData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `CoinMeta2Count` Query is of type `CoinMeta2CountData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
 ```javascript
-export interface CoinMeta2countData {
+export interface CoinMeta2CountData {
   coinMetas2?: {
     id_count: number;
   };
@@ -334,25 +335,25 @@ To learn more about the `UseQueryResult` object, see the [TanStack React Query d
 ```javascript
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@dataconnect/generated';
-import { useCoinMeta2count } from '@dataconnect/generated/react'
+import { useCoinMeta2Count } from '@dataconnect/generated/react'
 
-export default function CoinMeta2countComponent() {
+export default function CoinMeta2CountComponent() {
   // You don't have to do anything to "execute" the Query.
   // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
-  const query = useCoinMeta2count();
+  const query = useCoinMeta2Count();
 
   // You can also pass in a `DataConnect` instance to the Query hook function.
   const dataConnect = getDataConnect(connectorConfig);
-  const query = useCoinMeta2count(dataConnect);
+  const query = useCoinMeta2Count(dataConnect);
 
   // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2count(options);
+  const query = useCoinMeta2Count(options);
 
   // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
-  const query = useCoinMeta2count(dataConnect, options);
+  const query = useCoinMeta2Count(dataConnect, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -437,6 +438,114 @@ export default function CoinCountComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.coinMeta);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListCoinsByFilter
+You can execute the `ListCoinsByFilter` Query using the following Query hook function, which is defined in [dataconnect-generated/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListCoinsByFilter(dc: DataConnect, vars?: ListCoinsByFilterVariables, options?: useDataConnectQueryOptions<ListCoinsByFilterData>): UseDataConnectQueryResult<ListCoinsByFilterData, ListCoinsByFilterVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListCoinsByFilter(vars?: ListCoinsByFilterVariables, options?: useDataConnectQueryOptions<ListCoinsByFilterData>): UseDataConnectQueryResult<ListCoinsByFilterData, ListCoinsByFilterVariables>;
+```
+
+### Variables
+The `ListCoinsByFilter` Query has an optional argument of type `ListCoinsByFilterVariables`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListCoinsByFilterVariables {
+  country?: string | null;
+  material?: string | null;
+  nominal?: string | null;
+  name?: string | null;
+  period?: string | null;
+}
+```
+### Return Type
+Recall that calling the `ListCoinsByFilter` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListCoinsByFilter` Query is of type `ListCoinsByFilterData`, which is defined in [dataconnect-generated/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListCoinsByFilterData {
+  coinMetas2s: ({
+    id: Int64String;
+    muisId: Int64String;
+    ref: string;
+    name: string;
+    date?: string | null;
+    material?: string | null;
+    diameter: number;
+    region?: string | null;
+    nomValue?: string | null;
+    lemmaName?: string | null;
+    dateCluster?: string | null;
+  } & CoinMetas2_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListCoinsByFilter`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListCoinsByFilterVariables } from '@dataconnect/generated';
+import { useListCoinsByFilter } from '@dataconnect/generated/react'
+
+export default function ListCoinsByFilterComponent() {
+  // The `useListCoinsByFilter` Query hook has an optional argument of type `ListCoinsByFilterVariables`:
+  const listCoinsByFilterVars: ListCoinsByFilterVariables = {
+    country: ..., // optional
+    material: ..., // optional
+    nominal: ..., // optional
+    name: ..., // optional
+    period: ..., // optional
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListCoinsByFilter(listCoinsByFilterVars);
+  // Variables can be defined inline as well.
+  const query = useListCoinsByFilter({ country: ..., material: ..., nominal: ..., name: ..., period: ..., });
+  // Since all variables are optional for this Query, you can omit the `ListCoinsByFilterVariables` argument.
+  // (as long as you don't want to provide any `options`!)
+  const query = useListCoinsByFilter();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListCoinsByFilter(dataConnect, listCoinsByFilterVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListCoinsByFilter(listCoinsByFilterVars, options);
+  // If you'd like to provide options without providing any variables, you must
+  // pass `undefined` where you would normally pass the variables.
+  const query = useListCoinsByFilter(undefined, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListCoinsByFilter(dataConnect, listCoinsByFilterVars /** or undefined */, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.coinMetas2s);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }

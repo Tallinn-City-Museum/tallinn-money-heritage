@@ -1,11 +1,11 @@
-const { coinMeta2byIdRef, coinByIdRef, coinMeta2countRef, coinCountRef, coinFilterDataRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } = require('../index.cjs.js');
+const { coinMeta2ByIdRef, coinByIdRef, coinMeta2CountRef, coinCountRef, listCoinsByFilterRef, coinFilterDataRef, materialStatsRef, regionStatsRef, nominalStatsRef, nameStatsRef, connectorConfig } = require('../index.cjs.js');
 const { CallerSdkTypeEnum } = require('firebase/data-connect');
 const { useDataConnectQuery, validateReactArgs } = require('@tanstack-query-firebase/react/data-connect');
 
 
-exports.useCoinMeta2byId = function useCoinMeta2byId(dcOrVars, varsOrOptions, options) {
+exports.useCoinMeta2ById = function useCoinMeta2ById(dcOrVars, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  const ref = coinMeta2byIdRef(dcInstance, inputVars);
+  const ref = coinMeta2ByIdRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
@@ -15,15 +15,21 @@ exports.useCoinById = function useCoinById(dcOrVars, varsOrOptions, options) {
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
-exports.useCoinMeta2count = function useCoinMeta2count(dcOrOptions, options) {
+exports.useCoinMeta2Count = function useCoinMeta2Count(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
-  const ref = coinMeta2countRef(dcInstance);
+  const ref = coinMeta2CountRef(dcInstance);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
 exports.useCoinCount = function useCoinCount(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts } = validateReactArgs(connectorConfig, dcOrOptions, options);
   const ref = coinCountRef(dcInstance);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
+
+exports.useListCoinsByFilter = function useListCoinsByFilter(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, false);
+  const ref = listCoinsByFilterRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
