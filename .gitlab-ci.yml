@@ -25,6 +25,7 @@ build-android:
   stage: build
   script:
     - npm install -g eas-cli
+    - npx expo install expo-dev-client --npm
     - eas build --platform android --profile development --non-interactive --local --output=app.apk
   artifacts:
     paths:
