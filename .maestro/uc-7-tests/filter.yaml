@@ -1,0 +1,47 @@
+appId: ee.ut.coinfinder
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+    
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+
+- extendedWaitUntil:
+    visible: 
+        id: coin-tap
+    timeout: 10000
+
+# 1. → The user swipes right
+
+- swipe:
+    direction: RIGHT
+
+# 2. ← The system displays different attributes such as material, country, time period, etc.)
+- assertVisible: Rakenda
+
+# 3. → The user chooses "Rootsi" and "Hõbe"
+- tapOn: Rootsi
+- tapOn: Hõbe
+
+# 4. -> The user confirms the filter by tapping "Rakenda"
+- tapOn: Rakenda
+
+# 5. <- The system returns to the coin view and shows a random coin that fits the criteria.
+- assertVisible:
+    id: coin-tap
+
+- swipe:
+    direction: UP
+
+- assertVisible: Rootsi
+- assertVisible: hõbe

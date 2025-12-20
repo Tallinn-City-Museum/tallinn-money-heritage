@@ -1,0 +1,25 @@
+appId: ee.ut.coinfinder
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+    
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+
+- extendedWaitUntil:
+    visible: 
+        id: coin-tap
+    timeout: 10000
+
+- tapOn:
+    id: coin-tap

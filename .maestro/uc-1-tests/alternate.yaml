@@ -1,0 +1,31 @@
+appId: ee.ut.coinfinder
+---
+# 0. Precondition: The app is open, there is at least 1 coin in the wallet
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+- extendedWaitUntil:
+    visible:
+      id: coin-tap
+    timeout: 10000
+
+# 1. → User navigates to the wallet by swiping left.
+- swipe:
+    direction: LEFT
+
+- assertVisible: Minu Rahakott
+
+# 2. App displays “Rahakott on tühi” message.
+- assertVisible: Rahakott on tühi

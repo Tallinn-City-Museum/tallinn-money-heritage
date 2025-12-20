@@ -17,6 +17,32 @@ stages:
   - test
   - build # build, now runs only if test passes
 
+variables:
+  MAESTRO_CLOUD_API_KEY: $MAESTRO_CLOUD_API_KEY
+
+# 1. BUILD STAGE: Generate the artifacts first
+build-android:
+  stage: build
+  script:
+    - npm install -g eas-cli
+    - eas build --platform android --profile development --non-interactive --local --output=app.apk
+  artifacts:
+    paths:
+      - app.apk
+    expire_in: 1 hour
+
+build-ios:
+  stage: build
+  tags: [macos] # EAS local build for iOS requires a Mac runner
+  script:
+    - npm install -g eas-cli
+    - eas build --platform ios --profile development --non-interactive --local --output=app.tar.gz
+    - tar -xzf app.tar.gz # Maestro needs the .app folder inside
+  artifacts:
+    paths:
+      - "*.app"
+    expire_in: 1 hour
+
 before_script:
   - apt update
   - apt install -y openjdk-17-jdk curl unzip
@@ -36,7 +62,6 @@ unit-tests:
   script:
     - npm test -- --ci --runInBand
 
-
 eas-build:
   stage: build
   artifacts:
@@ -46,3 +71,33 @@ eas-build:
     - npx expo prebuild
     - cd android
     - ANDROID_HOME=/android/sdk ./gradlew assembleRelease
+
+# E2E TESTS (Maestro)
+maestro-android:
+  stage: test
+  needs: ["build-android"]
+  script:
+    - curl -Ls "https://get.maestro.mobile.dev" | bash
+    - export PATH="$PATH:$HOME/.maestro/bin"
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-1-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-2-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-4-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-5-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-6-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-7-tests/
+
+
+maestro-ios:
+  stage: test
+  needs: ["build-ios"]
+  script:
+    - curl -Ls "https://get.maestro.mobile.dev" | bash
+    - export PATH="$PATH:$HOME/.maestro/bin"
+    # Zip the .app folder for Maestro Cloud
+    - zip -r MyApp.zip *.app
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-1-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-2-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-4-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-5-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-6-tests/
+    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-7-tests/

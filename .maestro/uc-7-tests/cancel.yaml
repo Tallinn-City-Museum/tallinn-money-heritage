@@ -1,0 +1,40 @@
+appId: ee.ut.coinfinder
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+- extendedWaitUntil:
+    visible:
+      id: coin-tap
+    timeout: 10000
+
+# 1. → The user swipes right
+
+- swipe:
+    direction: RIGHT
+
+# 2. ← The system displays different attributes such as material, country, time period, etc.)
+- assertVisible: Rakenda
+
+# 3. → The user chooses "1800-1900" and "Fennig"
+- tapOn: Rootsi
+- tapOn: Hõbe
+
+# 4. -> The user cancels the filter by tapping "Tühjenda valikud"
+- tapOn: Tühjenda valikud
+
+# 5. ← The system unselects the filters
+- assertVisible: 
+    id: coin-tap
