@@ -293,15 +293,7 @@ export default function Wallet() {
             {/* Screen title*/}
             <View
                 pointerEvents="box-none"
-                style={{
-                    position: "absolute",
-                    top: insets.top + 20,
-                    left: 0,
-                    right: 0,
-                    zIndex: 5,
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                }}
+                style={[styles.walletTitleArea, { top: insets.top + 20 }]}
             >
                 <Text style={styles.walletTitle}>Minu Rahakott</Text>
             </View>

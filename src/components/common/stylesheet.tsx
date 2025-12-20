@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "rgb(29, 31, 31)",
     },
-    
+
     coinLayer: {
         zIndex: 20,
         elevation: 20,
@@ -149,6 +149,21 @@ export const styles = StyleSheet.create({
         fontWeight: "700",
     },
 
+    tutorialRestartButton: {
+        position: "absolute",
+        right: 16,
+        padding: 10,
+        borderRadius: 18,
+        backgroundColor: "rgba(23, 24, 35, 0.85)",
+        borderWidth: 1,
+        borderColor: "#32403d",
+        zIndex: 22,
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+    },
+
     // Bottom Sheet Styles    
     bottomSheet: {
         position: "absolute",
@@ -249,6 +264,14 @@ export const styles = StyleSheet.create({
     },
 
     // Wallet Styles
+    walletTitleArea: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        zIndex: 5,
+        alignItems: "center",
+        justifyContent: "flex-start",
+    },
     walletTitle: {
         fontSize: 28,
         fontFamily: "ProzaDisplay-Bold",

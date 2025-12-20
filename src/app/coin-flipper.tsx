@@ -831,21 +831,7 @@ export default function Flipper() {
                                     accessibilityLabel="Ava juhend uuesti"
                                     onPress={handleRestartTutorial}
                                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                    style={{
-                                        position: "absolute",
-                                        top: insets.top + 12,
-                                        right: 16,
-                                        padding: 10,
-                                        borderRadius: 18,
-                                        backgroundColor: "rgba(23, 24, 35, 0.85)",
-                                        borderWidth: 1,
-                                        borderColor: "#32403d",
-                                        zIndex: 22,
-                                        shadowColor: "#000",
-                                        shadowOpacity: 0.2,
-                                        shadowRadius: 4,
-                                        shadowOffset: { width: 0, height: 2 },
-                                    }}
+                                    style={[styles.tutorialRestartButton, { top: insets.top + 12 }]}
                                 >
                                     <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
                                 </TouchableOpacity>
