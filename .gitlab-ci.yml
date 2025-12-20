@@ -14,8 +14,8 @@ cache:
     #- .yarn
 
 stages:
+  - build 
   - test
-  - build # build, now runs only if test passes
 
 variables:
   MAESTRO_CLOUD_API_KEY: $MAESTRO_CLOUD_API_KEY
@@ -76,28 +76,32 @@ eas-build:
 maestro-android:
   stage: test
   needs: ["build-android"]
+  parallel:
+    matrix:
+      - TEST_SUITE: ["uc-1-tests", "uc-2-tests", "uc-4-tests", "uc-5-tests", "uc-6-tests", "uc-7-tests"]
   script:
     - curl -Ls "https://get.maestro.mobile.dev" | bash
     - export PATH="$PATH:$HOME/.maestro/bin"
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-1-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-2-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-4-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-5-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-6-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-7-tests/
-
+    - >
+      maestro cloud 
+      --apiKey $MAESTRO_CLOUD_API_KEY 
+      --project-id proj_01kcvjjbhtext9sp6g71tqnccy 
+      app.apk 
+      .maestro/${TEST_SUITE}/
 
 maestro-ios:
   stage: test
   needs: ["build-ios"]
+  parallel:
+    matrix:
+      - TEST_SUITE: ["uc-1-tests", "uc-2-tests", "uc-4-tests", "uc-5-tests", "uc-6-tests", "uc-7-tests"]
   script:
     - curl -Ls "https://get.maestro.mobile.dev" | bash
     - export PATH="$PATH:$HOME/.maestro/bin"
-    # Zip the .app folder for Maestro Cloud
+    # Zip the .app folder specifically for this parallel run
     - zip -r MyApp.zip *.app
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-1-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-2-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-4-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-5-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-6-tests/
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY MyApp.zip .maestro/uc-7-tests/
+    - >
+      maestro cloud 
+      --apiKey $MAESTRO_CLOUD_API_KEY 
+      MyApp.zip 
+      .maestro/${TEST_SUITE}/
