@@ -26,7 +26,7 @@ build-android:
   script:
     - npm install -g eas-cli
     - npx expo install expo-dev-client --npm
-    - eas build --platform android --profile development --non-interactive --local --output=app.apk
+    - eas build --platform android --profile development --non-interactive --local --output=app.apk --verbose
   artifacts:
     paths:
       - app.apk
@@ -47,6 +47,9 @@ build-ios:
 before_script:
   - apt update
   - apt install -y openjdk-17-jdk curl unzip
+  - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+  - export ANDROID_HOME=/android/sdk
+  - export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
   - npm ci --cache .npm
   - mkdir -p /android/sdk
   - curl https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o cmdtools.zip
