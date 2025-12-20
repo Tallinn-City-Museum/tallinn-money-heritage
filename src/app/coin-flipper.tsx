@@ -129,6 +129,7 @@ export default function Flipper() {
 
         setCoin(hydrated);
         setCoinSize((160 * hydrated.diameter) / 25.4);
+        resetCoinSize();
     };
 
     // Load a specific coin from Wallet when coinId is provided via route params
@@ -152,6 +153,7 @@ export default function Flipper() {
                         : 25.4; // sensible fallback
 
             setCoinSize((160 * diameterMm) / 25.4);
+            resetCoinSize();
         }
         // if not found, do nothing; fetchData() doesn't run when coinId exists
     }, [routeParams?.coinId, coins]);
@@ -185,6 +187,15 @@ export default function Flipper() {
     // ROTATION (two-finger)
     const renderRotation = useRef(new Animated.Value(0)).current;
     const lastRotationRef = useRef(0);
+    const resetCoinSize = () => {
+        renderScale.setValue(1);
+        lastScaleRef.current = 1;
+        translate.setValue({ x: 0, y: 0 });
+        panOffset.current = { x: 0, y: 0 };
+        renderRotation.setValue(0);
+        lastRotationRef.current = 0;
+        setIsZoomed(false);
+    };
 
     // Gesture handler refs to control priority/simultaneity
     const pinchRef = useRef<any>(null);
