@@ -13,13 +13,13 @@ export const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "rgb(29, 31, 31)",
     },
+    
     coinLayer: {
-        // default layer for coin
-        zIndex: 20, // above bottomSheet
+        zIndex: 20,
         elevation: 20,
     },
+
     coinLayerRaised: {
-        // used while the sheet is open; keeps coin above the sheet even if Android re-sorts
         zIndex: 22,
         elevation: 22,
     },

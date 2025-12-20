@@ -841,8 +841,6 @@ export default function Flipper() {
 
                                 {/* top spacer keeps coin centered even when result appears */}
                                 <View style={styles.coinTopSpacer} />
-                                {/* top spacer keeps coin centered even when result appears */}
-                                <View style={styles.coinTopSpacer} />
 
                                 {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
                                 <TapGestureHandler
@@ -944,19 +942,6 @@ export default function Flipper() {
                                         />
                                     )}
                                 </View>
-                                {/* bottom area holds the result; hidden while zoomed */}
-                                <View style={styles.bottomArea}>
-                                    {lastResult !== null && !isZoomed && (
-                                        <BottomArea
-                                            side={lastResult}
-                                            coinName={coin?.name ?? ""}
-                                            predicted={resultSource === "flip" ? pendingPrediction : null}
-                                            isFlipping={isFlipping}
-                                            resultSource={resultSource}
-                                            justAddedToWallet={justAddedToWallet}
-                                        />
-                                    )}
-                                </View>
 
                                 <PredictionDialog
                                     visible={isDialogVisible}
@@ -970,28 +955,7 @@ export default function Flipper() {
                                         setIsDialogVisible(false);
                                     }}
                                 />
-                                <PredictionDialog
-                                    visible={isDialogVisible}
-                                    dragY={dragY}
-                                    panHandlers={sheetPanResponder.panHandlers}
-                                    onChoosePrediction={handleChoosePrediction}
-                                    onFlipWithoutPrediction={handleFlipWithoutPrediction}
-                                    onClose={() => {
-                                        setPendingPrediction(null);
-                                        pendingPredictionRef.current = null;
-                                        setIsDialogVisible(false);
-                                    }}
-                                />
 
-                                {/* BOTTOM SHEET */}
-                                {isInfoVisible && (
-                                    <InfoBottomSheet
-                                        coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
-                                        onClose={closeInfoSheet}
-                                        bottomSheetAnim={bottomSheetAnim}
-                                        dragY={dragY}
-                                    />
-                                )}
                                 {/* BOTTOM SHEET */}
                                 {isInfoVisible && (
                                     <InfoBottomSheet
