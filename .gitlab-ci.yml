@@ -1,5 +1,7 @@
 image:
   name: node:latest
+  entrypoint:
+    - /usr/bin/env
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -14,10 +16,6 @@ cache:
 stages:
   - build 
   - test
-
-variables:
-  MAESTRO_CLOUD_API_KEY: $MAESTRO_CLOUD_API_KEY
-
 
 before_script:
   - apt update
@@ -58,4 +56,6 @@ maestro-android:
   script:
     - curl -Ls "https://get.maestro.mobile.dev" | bash
     - export PATH="$PATH":"$HOME/.maestro/bin"
+    # Fail fast if the key isn't actually present
+    - test -n "$MAESTRO_CLOUD_API_KEY" || (echo "MAESTRO_CLOUD_API_KEY is empty/missing" && exit 1)
     - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/
