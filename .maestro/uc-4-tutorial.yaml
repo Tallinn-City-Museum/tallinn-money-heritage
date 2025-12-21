@@ -55,7 +55,7 @@ appId: ee.ut.coinfinder
 
 # Cannot test zooming or rotating
 - repeat:
-    times: 3
+    times: 2
     commands:
       - tapOn: Jäta samm vahele
 
