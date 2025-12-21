@@ -1,7 +1,5 @@
 image:
   name: node:latest
-  entrypoint:
-    - /usr/bin/env
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
