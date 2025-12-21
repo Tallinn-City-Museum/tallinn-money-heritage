@@ -51,13 +51,41 @@ eas-build:
 
 eas-build-ios:
   stage: build
-  script:
+  variables:
+    ARTIFACT_DIR: "./ios-build"
+  before_script:
+    - npm ci --cache .npm
     - npm install -g eas-cli
-    - eas build --platform ios --profile e2e-test --non-interactive --output=app.tar.gz
-    - tar -xzf app.tar.gz # Maestro needs the .app folder inside
+    - mkdir -p $ARTIFACT_DIR
+  script:
+    # Build and wait in one command, then parse the URL
+    - |
+      echo "Building iOS app..."
+      
+      # Run build and capture output
+      BUILD_OUTPUT=$(eas build --platform ios --profile e2e-test --non-interactive --wait 2>&1)
+      echo "Build output:"
+      echo "$BUILD_OUTPUT"
+      
+      # Extract download URL from output (looking for expo.dev/artifacts URL)
+      DOWNLOAD_URL=$(echo "$BUILD_OUTPUT" | grep -o 'https://expo.dev/artifacts/[^ ]*' | head -1)
+      
+      if [ -z "$DOWNLOAD_URL" ]; then
+        echo "ERROR: Could not find download URL"
+        exit 1
+      fi
+      
+      echo "Downloading from: $DOWNLOAD_URL"
+      curl -L "$DOWNLOAD_URL" -o $ARTIFACT_DIR/ios-build.tar.gz
+      
+      # Extract and find .app
+      tar -xzf $ARTIFACT_DIR/ios-build.tar.gz -C $ARTIFACT_DIR/
+      APP_PATH=$(find $ARTIFACT_DIR -name "*.app" -type d | head -1)
+      echo "APP_PATH=$APP_PATH" > build.env
   artifacts:
     paths:
-      - "*.app"
+      - $ARTIFACT_DIR/
+      - build.env
 
 # E2E TESTS (Maestro)
 maestro-android:
