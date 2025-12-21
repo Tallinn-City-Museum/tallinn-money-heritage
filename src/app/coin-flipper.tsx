@@ -806,177 +806,182 @@ export default function Flipper() {
     return (
         <>
             {showFilter && (
-                <>
-                    <FilterView
-                        onFilterApply={(filter) => {
-                            setCoinFilter(filter);
-                            setShowFilter(false);
-                        }}
-                        onFilterCancel={() => {
-                            setShowFilter(false);
-                            setCoinFilter({});
-                        }}
-                    />
-                </>
+                <FilterView
+                    onFilterApply={(filter) => {
+                        setCoinFilter(filter);
+                        setShowFilter(false);
+                    }}
+                    onFilterCancel={() => {
+                        setShowFilter(false);
+                        setCoinFilter({});
+                    }}
+                />
             )}
-            {
-                !showFilter && (
 
-                    <View style={styles.container} {...swipeResponder.panHandlers}>
-                        {!coin && <ActivityIndicator size={64} />}
-                        {coin && (
-                            <>
-                                <TouchableOpacity
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Ava juhend uuesti"
-                                    onPress={handleRestartTutorial}
-                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                    style={[styles.tutorialRestartButton, { top: insets.top + 12 }]}
-                                >
-                                    <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
-                                </TouchableOpacity>
+            {!showFilter && (
+                <PinchGestureHandler
+                    ref={pinchRef}
+                    simultaneousHandlers={[panRef, rotateRef]}
+                    onGestureEvent={onPinchEvent}
+                    onHandlerStateChange={onPinchStateChange}
+                    testID="coin-pinch"
+                >
+                    <RotationGestureHandler
+                        ref={rotateRef}
+                        enabled={isZoomed}
+                        simultaneousHandlers={[pinchRef, panRef]}
+                        onGestureEvent={onRotateEvent}
+                        onHandlerStateChange={onRotateStateChange}
+                    >
+                        <PanGestureHandler
+                            ref={panRef}
+                            enabled={isZoomed}
+                            minPointers={2}
+                            simultaneousHandlers={[pinchRef, rotateRef]}
+                            onGestureEvent={onPanGestureEvent}
+                            onHandlerStateChange={onPanStateChange}
+                        >
+                            <View style={styles.container} {...swipeResponder.panHandlers}>
+                                {!coin && <ActivityIndicator size={64} />}
 
-                                {/* top spacer keeps coin centered even when result appears */}
-                                <View style={styles.coinTopSpacer} />
-
-                                {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
-                                <TapGestureHandler
-                                    ref={doubleTapRef}
-                                    numberOfTaps={2}
-                                    waitFor={[pinchRef, panRef, rotateRef]}
-                                    onHandlerStateChange={onDoubleTap}
-                                >
-                                    <TapGestureHandler
-                                        ref={singleTapRef}
-                                        waitFor={[doubleTapRef, pinchRef, panRef, rotateRef]}
-                                        onHandlerStateChange={onSingleTap}
-                                        testID="coin-tap"
-                                    >
-                                        {/* Pinch, rotate and pan recognize simultaneously (rotate/pan only when zoomed) */}
-                                        <PinchGestureHandler
-                                            ref={pinchRef}
-                                            simultaneousHandlers={[panRef, rotateRef]}
-                                            onGestureEvent={onPinchEvent}
-                                            onHandlerStateChange={onPinchStateChange}
-                                            testID="coin-pinch"
+                                {coin && (
+                                    <>
+                                        <TouchableOpacity
+                                            accessibilityRole="button"
+                                            accessibilityLabel="Ava juhend uuesti"
+                                            onPress={handleRestartTutorial}
+                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                            style={[styles.tutorialRestartButton, { top: insets.top + 12 }]}
                                         >
-                                            <RotationGestureHandler
-                                                ref={rotateRef}
-                                                enabled={isZoomed}
-                                                simultaneousHandlers={[pinchRef, panRef]}
-                                                onGestureEvent={onRotateEvent}
-                                                onHandlerStateChange={onRotateStateChange}
+                                            <MaterialCommunityIcons name="lightbulb-on-outline" size={22} color="#dce9e6" />
+                                        </TouchableOpacity>
+
+                                        {/* top spacer keeps coin centered even when result appears */}
+                                        <View style={styles.coinTopSpacer} />
+
+                                        {/* Double-tap wraps single-tap; taps wait for gesture handlers (pinch/pan/rotate) */}
+                                        <TapGestureHandler
+                                            ref={doubleTapRef}
+                                            numberOfTaps={2}
+                                            waitFor={[pinchRef, panRef, rotateRef]}
+                                            onHandlerStateChange={onDoubleTap}
+                                        >
+                                            <TapGestureHandler
+                                                ref={singleTapRef}
+                                                waitFor={[doubleTapRef, pinchRef, panRef, rotateRef]}
+                                                onHandlerStateChange={onSingleTap}
+                                                testID="coin-tap"
                                             >
-                                                <PanGestureHandler
-                                                    ref={panRef}
-                                                    enabled={isZoomed}
-                                                    simultaneousHandlers={[pinchRef, rotateRef]}
-                                                    onGestureEvent={onPanGestureEvent}
-                                                    onHandlerStateChange={onPanStateChange}
+                                                <Animated.View
+                                                    pointerEvents="box-none"
+                                                    style={[
+                                                        styles.coinLayer,
+                                                        isInfoVisible && styles.coinLayerRaised,
+                                                        { zIndex: isInfoVisible ? 1 : 2 },
+                                                    ]}
                                                 >
-                                                    <Animated.View
-                                                        pointerEvents="box-none"
+                                                    <Animated.Image
+                                                        source={{
+                                                            uri:
+                                                                coinSide === CoinSide.HEADS
+                                                                    ? coin.headImageResource
+                                                                    : coin.tailsImageResource,
+                                                        }}
                                                         style={[
-                                                            styles.coinLayer,
-                                                            isInfoVisible && styles.coinLayerRaised,
-                                                            { zIndex: isInfoVisible ? 1 : 2 },
+                                                            {
+                                                                width: coinSize,
+                                                                height: coinSize,
+                                                            },
+                                                            {
+                                                                transform: [
+                                                                    ...(isZoomed
+                                                                        ? [
+                                                                            { translateX: translate.x },
+                                                                            { translateY: translate.y },
+                                                                            { scale: renderScale },
+                                                                            {
+                                                                                rotate: renderRotation.interpolate({
+                                                                                    inputRange: [-Math.PI * 2, Math.PI * 2],
+                                                                                    outputRange: ["-6.2832rad", "6.2832rad"],
+                                                                                }),
+                                                                            },
+                                                                        ]
+                                                                        : []),
+                                                                    { scaleY: flipped },
+                                                                    {
+                                                                        rotateX: flipAnimation.interpolate({
+                                                                            inputRange: [0, 1],
+                                                                            outputRange: ["0deg", "180deg"],
+                                                                        }),
+                                                                    },
+                                                                    {
+                                                                        translateY: coinShiftAnim.interpolate({
+                                                                            inputRange: [0, 1],
+                                                                            outputRange: [0, -170],
+                                                                        }),
+                                                                    },
+                                                                ],
+                                                            },
                                                         ]}
-                                                    >
-                                                        <Animated.Image
-                                                            source={{ uri: coinSide === CoinSide.HEADS ? coin.headImageResource : coin.tailsImageResource }}
-                                                            style={[
-                                                                {
-                                                                    width: coinSize,
-                                                                    height: coinSize,
-                                                                },
-                                                                {
-                                                                    transform: [
-                                                                        { translateX: translate.x },
-                                                                        { translateY: translate.y },
-                                                                        { scale: renderScale },
-                                                                        {
-                                                                            rotate: renderRotation.interpolate({
-                                                                                inputRange: [-Math.PI * 2, Math.PI * 2],
-                                                                                outputRange: ["-6.2832rad", "6.2832rad"],
-                                                                            }),
-                                                                        },
-                                                                        { scaleY: flipped },
-                                                                        {
-                                                                            rotateX: flipAnimation.interpolate({
-                                                                                inputRange: [0, 1],
-                                                                                outputRange: ["0deg", "180deg"],
-                                                                            }),
-                                                                        },
-                                                                        // coin shift
-                                                                        {
-                                                                            translateY: coinShiftAnim.interpolate({
-                                                                                inputRange: [0, 1],
-                                                                                outputRange: [0, -170],
-                                                                            }),
-                                                                        },
-                                                                    ],
-                                                                },
-                                                            ]}
-                                                            resizeMode="contain"
-                                                        />
-                                                    </Animated.View>
-                                                </PanGestureHandler>
-                                            </RotationGestureHandler>
-                                        </PinchGestureHandler>
-                                    </TapGestureHandler>
-                                </TapGestureHandler>
+                                                        resizeMode="contain"
+                                                    />
+                                                </Animated.View>
+                                            </TapGestureHandler>
+                                        </TapGestureHandler>
 
-                                {/* bottom area holds the result; hidden while zoomed */}
-                                <View style={styles.bottomArea}>
-                                    {lastResult !== null && !isZoomed && (
-                                        <BottomArea
-                                            side={lastResult}
-                                            coinName={coin?.name ?? ""}
-                                            predicted={resultSource === "flip" ? pendingPrediction : null}
-                                            isFlipping={isFlipping}
-                                            resultSource={resultSource}
-                                            justAddedToWallet={justAddedToWallet}
+                                        {/* bottom area holds the result; hidden while zoomed */}
+                                        <View style={styles.bottomArea}>
+                                            {lastResult !== null && !isZoomed && (
+                                                <BottomArea
+                                                    side={lastResult}
+                                                    coinName={coin?.name ?? ""}
+                                                    predicted={resultSource === "flip" ? pendingPrediction : null}
+                                                    isFlipping={isFlipping}
+                                                    resultSource={resultSource}
+                                                    justAddedToWallet={justAddedToWallet}
+                                                />
+                                            )}
+                                        </View>
+
+                                        <PredictionDialog
+                                            visible={isDialogVisible}
+                                            dragY={dragY}
+                                            panHandlers={sheetPanResponder.panHandlers}
+                                            onChoosePrediction={handleChoosePrediction}
+                                            onFlipWithoutPrediction={handleFlipWithoutPrediction}
+                                            onClose={() => {
+                                                setPendingPrediction(null);
+                                                pendingPredictionRef.current = null;
+                                                setIsDialogVisible(false);
+                                            }}
                                         />
-                                    )}
-                                </View>
 
-                                <PredictionDialog
-                                    visible={isDialogVisible}
-                                    dragY={dragY}
-                                    panHandlers={sheetPanResponder.panHandlers}
-                                    onChoosePrediction={handleChoosePrediction}
-                                    onFlipWithoutPrediction={handleFlipWithoutPrediction}
-                                    onClose={() => {
-                                        setPendingPrediction(null);
-                                        pendingPredictionRef.current = null;
-                                        setIsDialogVisible(false);
-                                    }}
-                                />
+                                        {/* BOTTOM SHEET */}
+                                        {isInfoVisible && (
+                                            <InfoBottomSheet
+                                                coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
+                                                onClose={closeInfoSheet}
+                                                bottomSheetAnim={bottomSheetAnim}
+                                                dragY={dragY}
+                                            />
+                                        )}
 
-                                {/* BOTTOM SHEET */}
-                                {isInfoVisible && (
-                                    <InfoBottomSheet
-                                        coin={coins.find((c) => String(c.id) === String(coin?.id)) ?? coin}
-                                        onClose={closeInfoSheet}
-                                        bottomSheetAnim={bottomSheetAnim}
-                                        dragY={dragY}
-                                    />
+                                        {/* TUTORIAL OVERLAY */}
+                                        <FirstRunTutorial
+                                            key={tutorialRunKey}
+                                            progress={tutorial}
+                                            onSkipStep={handleSkipStep}
+                                            onSkipAll={handleSkipAll}
+                                            allowedSteps={COIN_TUTORIAL_STEPS}
+                                            onFinish={handleFinishTutorialHere}
+                                        />
+                                    </>
                                 )}
-
-                                {/* TUTORIAL OVERLAY */}
-                                <FirstRunTutorial
-                                    key={tutorialRunKey}
-                                    progress={tutorial}
-                                    onSkipStep={handleSkipStep}
-                                    onSkipAll={handleSkipAll}
-                                    allowedSteps={COIN_TUTORIAL_STEPS}
-                                    onFinish={handleFinishTutorialHere}
-                                />
-                            </>
-                        )}
-                    </View>
-                )
-            }
+                            </View>
+                        </PanGestureHandler>
+                    </RotationGestureHandler>
+                </PinchGestureHandler>
+            )}
         </>
     );
 }
