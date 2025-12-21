@@ -14,12 +14,15 @@ cache:
     #- .yarn
 
 stages:
+  - build 
   - test
-  - build # build, now runs only if test passes
 
 before_script:
   - apt update
   - apt install -y openjdk-17-jdk curl unzip
+  - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+  - export ANDROID_HOME=/android/sdk
+  - export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
   - npm ci --cache .npm
   - mkdir -p /android/sdk
   - curl https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o cmdtools.zip
@@ -36,7 +39,6 @@ unit-tests:
   script:
     - npm test -- --ci --runInBand
 
-
 eas-build:
   stage: build
   artifacts:
@@ -46,3 +48,12 @@ eas-build:
     - npx expo prebuild
     - cd android
     - ANDROID_HOME=/android/sdk ./gradlew assembleRelease
+
+# E2E TESTS (Maestro)
+maestro-android:
+  stage: test
+  needs: ["eas-build"]
+  script:
+    - curl -Ls "https://get.maestro.mobile.dev" | bash
+    - export PATH="$PATH":"$HOME/.maestro/bin"
+    - maestro cloud --apiKey rb_44RFkFLeklUHTcZFP930JKIRSxXvjHYiLumlBXAt7ww71VXxviY7XWiNdSeYpIJQwpCl8FzVMt0zZvZr14La5hI3rHsS0MVUTRe --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/

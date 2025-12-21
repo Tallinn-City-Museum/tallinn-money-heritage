@@ -1,0 +1,46 @@
+appId: ee.ut.coinfinder
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+- extendedWaitUntil:
+    visible:
+      id: coin-tap
+    timeout: 10000
+
+# 1. → The user swipes up.
+- swipe:
+    direction: UP
+
+# 2. ← The system displays the coin’s basic info (name, accession number, date, region, diameter, material, what was predicted, date collected).
+- assertVisible: Nimetus
+- assertVisible: Dateering
+- assertVisible: Riik
+- assertVisible: Läbimõõt
+- assertVisible: Materjal
+- assertVisible: Museaali nr
+
+# 3. → The user swipes down.
+- swipe:
+    start: 43%, 53%
+    end: 43%, 80%
+
+# 4. ← The system returns to the coin view.
+- assertNotVisible: Nimetus
+- assertNotVisible: Dateering
+- assertNotVisible: Riik
+- assertNotVisible: Läbimõõt
+- assertNotVisible: Materjal
+- assertNotVisible: Museaali nr

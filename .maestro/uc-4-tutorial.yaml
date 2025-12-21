@@ -1,0 +1,92 @@
+appId: ee.ut.coinfinder
+---
+- launchApp:
+    clearState: true
+
+# Introduction page
+- extendedWaitUntil:
+    visible: Iga münt jutustab loo
+    timeout: 10000
+
+- swipe:
+    direction: LEFT
+
+- assertVisible: Avers, revers ja serv
+
+- swipe:
+    direction: LEFT
+
+- assertVisible: Kull või kiri - juhuse võim
+
+- swipe:
+    direction: LEFT
+
+- assertVisible: Mine avastama
+
+- tapOn: Mine avastama
+
+# Follow tutorial
+- assertVisible: Kuidas alustada
+
+- swipe:
+    direction: RIGHT
+
+- assertVisible: Vali meelepärased kitsendused väljadele vajutades.
+
+- tapOn: Venemaa
+
+- assertVisible: Kui filtrid on valitud, vajuta all nuppu „Rakenda“, et minna münti vaatama ja viskama.
+
+- tapOn: Rakenda
+
+- assertVisible: |-
+    Kliki mündil, et külge vahetada.
+    Vaheta külge kaks korda, et näha järgmist juhist.
+
+- tapOn:
+    id: coin-tap
+
+- tapOn:
+    id: coin-tap
+
+- assertVisible: Suurenda münti kahe sõrmega, et vaadata lähemalt.
+
+# Cannot test zooming or rotating
+- repeat:
+    times: 3
+    commands:
+      - tapOn: Jäta samm vahele
+
+- assertVisible: Tee mündil topeltklikk, et valida ennustus ja visata münti.
+
+- doubleTapOn:
+    id: coin-tap
+    delay: 100
+
+- tapOn: Viska ilma ennustuseta
+
+- assertVisible: Libista ekraanil alt äärest üles, et näha mündi infot.
+
+- swipe:
+    direction: UP
+
+- assertVisible: Nimetus
+
+- assertVisible: Libista ekraanil paremalt vasakule, et avada rahakott.
+
+- swipe:
+    direction: LEFT
+
+- assertVisible: Lohista münti mööda ekraani.
+
+- tapOn: Jäta samm vahele
+
+- assertVisible: |-
+    Rahakotis mündile vajutades liigud tagasi mündi info juurde.
+    Kui tahad uut münti visata, libista ekraanil vasakult paremale.
+
+- tapOn: Jäta samm vahele
+
+- assertVisible: Mine mängima
+
+- tapOn: Mine mängima

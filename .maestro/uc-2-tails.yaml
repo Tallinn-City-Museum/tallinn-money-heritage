@@ -1,0 +1,50 @@
+appId: ee.ut.coinfinder
+---
+# Test Title: UC-2 Coin Flip Game - Main Success Scenario (Predict Heads)
+
+# 0. Precondition: The app is open and displays a random coin.
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: Jäta vahele
+    timeout: 10000
+
+- tapOn: Jäta vahele
+
+- extendedWaitUntil:
+    visible: Jäta õpetus vahele
+    timeout: 100000
+
+- tapOn: Jäta õpetus vahele
+
+# 1. The app displays a random coin on a random side
+- extendedWaitUntil:
+    visible:
+      id: coin-tap
+    timeout: 10000
+
+# 2. The user double-taps on the coin.
+- doubleTapOn:
+    id: coin-tap
+    delay: 100
+
+# 3.  The app shows a dialog asking the user to guess if the coin will land on heads or tails or skip the prediction
+- assertVisible: Vali oma ennustus
+- assertVisible: Kull
+- assertVisible: Kiri
+- assertVisible: Viska ilma ennustuseta
+
+# 4. The user taps tails (kull)
+- tapOn: Kull
+
+# 5. The coin has flipped
+- assertVisible: Münt on lisatud rahakotti
+
+# 6. The coin is added to the user's wallet
+- swipe:
+    direction: LEFT
+
+- assertVisible: Minu Rahakott
+
+- assertNotVisible: Rahakott on tühi
