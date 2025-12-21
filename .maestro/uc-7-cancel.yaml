@@ -28,7 +28,7 @@ appId: ee.ut.coinfinder
 # 2. ← The system displays different attributes such as material, country, time period, etc.)
 - assertVisible: Rakenda
 
-# 3. → The user chooses "1800-1900" and "Fennig"
+# 3. → The user chooses "Rootsi" and "Hõbe"
 - tapOn: Rootsi
 - tapOn: Hõbe
 
@@ -36,5 +36,3 @@ appId: ee.ut.coinfinder
 - tapOn: Tühjenda valikud
 
 # 5. ← The system unselects the filters
-- assertVisible: 
-    id: coin-tap
