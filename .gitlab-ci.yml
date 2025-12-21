@@ -55,8 +55,8 @@ eas-build-ios:
     - npm install -g eas-cli
     - npm ci
     # Build and get the download URL
-    - export DOWNLOAD_URL=$(eas build --platform ios --profile preview --non-interactive --json | jq -r '.[] | select(.platform=="ios") | .artifacts.buildUrl')
-    - echo $DOWNLOAD_URL > ios_build_url.txt
+    - export DOWNLOAD_URL=$(eas build --platform ios --profile preview --non-interactive --json | jq -r '.[0].artifacts.buildUrl // .artifacts.buildUrl')
+    - echo "$DOWNLOAD_URL" > ios_build_url.txt
   artifacts:
     paths:
       - ios_build_url.txt
@@ -75,6 +75,12 @@ maestro-ios:
   needs: ["eas-build-ios"]
   script:
     - export DOWNLOAD_URL=$(cat ios_build_url.txt)
+    # Check if URL is empty to avoid the "Missing required parameter" error
+    - |
+      if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" == "null" ]; then
+        echo "Error: Download URL is empty. Check the build-ios job logs."
+        exit 1
+      fi
     - curl -Ls "https://get.maestro.mobile.dev" | bash
     - export PATH="$PATH":"$HOME/.maestro/bin"
     - maestro cloud --apiKey rb_44RFkFLeklUHTcZFP930JKIRSxXvjHYiLumlBXAt7ww71VXxviY7XWiNdSeYpIJQwpCl8FzVMt0zZvZr14La5hI3rHsS0MVUTRe --project-id proj_01kcvjjbhtext9sp6g71tqnccy $DOWNLOAD_URL .maestro/
