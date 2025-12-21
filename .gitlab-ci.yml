@@ -75,6 +75,7 @@ maestro-android:
     - maestro cloud 
       --apiKey $MAESTRO_CLOUD_API_KEY 
       --project-id proj_01kcvjjbhtext9sp6g71tqnccy 
+      --include "**/*.yaml"
       android/app/build/outputs/apk/release/app-release.apk 
       .maestro
 
