@@ -68,14 +68,9 @@ eas-build:
 # E2E TESTS (Maestro)
 maestro-android:
   stage: test
+  image: pradapjackie/maestro:1.39.1
   needs: ["eas-build"]
   script:
-    - rm -rf ~/.maestro
-    - curl -Ls "https://get.maestro.mobile.dev" | bash
-    - export PATH="$PATH:$HOME/.maestro/bin"
-    - ls -la .maestro
-    - maestro test .maestro --dry-run
-    - export MAESTRO_CLI_NO_ANALYTICS=true
     - maestro cloud 
       --apiKey $MAESTRO_CLOUD_API_KEY 
       --project-id proj_01kcvjjbhtext9sp6g71tqnccy 
