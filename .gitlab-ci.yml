@@ -53,7 +53,7 @@ eas-build-ios:
   stage: build
   script:
     - npm install -g eas-cli
-    - eas build --platform ios --profile e2e-test --non-interactive --local --output=app.tar.gz
+    - eas build --platform ios --profile e2e-test --non-interactive --output=app.tar.gz
     - tar -xzf app.tar.gz # Maestro needs the .app folder inside
   artifacts:
     paths:
