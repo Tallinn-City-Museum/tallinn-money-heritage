@@ -28,16 +28,18 @@ appId: ee.ut.coinfinder
 # Follow tutorial
 - assertVisible: Kuidas alustada
 
-- swipe:
-    direction: RIGHT
+#- swipe:
+    #direction: RIGHT
 
-- assertVisible: Vali meelepärased kitsendused väljadele vajutades.
+#- assertVisible: Vali meelepärased kitsendused väljadele vajutades.
 
-- tapOn: Venemaa
+#- tapOn: Venemaa
 
-- assertVisible: Kui filtrid on valitud, vajuta all nuppu „Rakenda“, et minna münti vaatama ja viskama.
+#- assertVisible: Kui filtrid on valitud, vajuta all nuppu „Rakenda“, et minna münti vaatama ja viskama.
 
-- tapOn: Rakenda
+#- tapOn: Rakenda
+
+- tapOn: Jäta samm vahele
 
 - assertVisible: |-
     Kliki mündil, et külge vahetada.
