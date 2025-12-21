@@ -59,6 +59,12 @@ appId: ee.ut.coinfinder
     commands:
       - tapOn: Jäta samm vahele
 
+- runFlow:
+    when:
+        visible: Muuda münt tagasi algsuurusesse, et jätkata.
+    commands:
+        - tapOn: Jäta samm vahele
+
 - assertVisible: Tee mündil topeltklikk, et valida ennustus ja visata münti.
 
 - doubleTapOn:
