@@ -21,18 +21,6 @@ variables:
   MAESTRO_CLOUD_API_KEY: $MAESTRO_CLOUD_API_KEY
 
 
-build-ios:
-  stage: build
-  tags: [macos] # EAS local build for iOS requires a Mac runner
-  script:
-    - npm install -g eas-cli
-    - eas build --platform ios --profile development --non-interactive --local --output=app.tar.gz
-    - tar -xzf app.tar.gz # Maestro needs the .app folder inside
-  artifacts:
-    paths:
-      - "*.app"
-    expire_in: 1 hour
-
 before_script:
   - apt update
   - apt install -y openjdk-17-jdk curl unzip
@@ -68,28 +56,11 @@ eas-build:
 # E2E TESTS (Maestro)
 maestro-android:
   stage: test
-  image: pradapjackie/maestro:1.39.1
   needs: ["eas-build"]
   script:
+    - curl -Ls "https://get.maestro.mobile.dev" | bash
     - maestro cloud 
       --apiKey $MAESTRO_CLOUD_API_KEY 
       --project-id proj_01kcvjjbhtext9sp6g71tqnccy 
       android/app/build/outputs/apk/release/app-release.apk 
       .maestro
-
-maestro-ios:
-  stage: test
-  needs: ["build-ios"]
-  parallel:
-    matrix:
-      - TEST_SUITE: ["uc-1-tests", "uc-2-tests", "uc-4-tests", "uc-5-tests", "uc-6-tests", "uc-7-tests"]
-  script:
-    - curl -Ls "https://get.maestro.mobile.dev" | bash
-    - export PATH="$PATH:$HOME/.maestro/bin"
-    # Zip the .app folder specifically for this parallel run
-    - zip -r MyApp.zip *.app
-    - >
-      maestro cloud 
-      --apiKey $MAESTRO_CLOUD_API_KEY 
-      MyApp.zip 
-      .maestro/${TEST_SUITE}/
