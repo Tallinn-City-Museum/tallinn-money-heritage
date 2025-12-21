@@ -59,6 +59,7 @@ maestro-android:
   needs: ["eas-build"]
   script:
     - curl -Ls "https://get.maestro.mobile.dev" | bash
+    - export PATH="$PATH":"$HOME/.maestro/bin"
     - maestro cloud 
       --apiKey $MAESTRO_CLOUD_API_KEY 
       --project-id proj_01kcvjjbhtext9sp6g71tqnccy 
