@@ -72,7 +72,6 @@ maestro-android:
   script:
     - rm -rf ~/.maestro
     - curl -Ls "https://get.maestro.mobile.dev" | bash
-    - maestro --version
     - export PATH="$PATH:$HOME/.maestro/bin"
     - ls -la .maestro
     - maestro test .maestro --dry-run
