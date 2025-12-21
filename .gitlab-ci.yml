@@ -58,4 +58,4 @@ maestro-android:
     - export PATH="$PATH":"$HOME/.maestro/bin"
     # Fail fast if the key isn't actually present
     - test -n "$MAESTRO_CLOUD_API_KEY" || (echo "MAESTRO_CLOUD_API_KEY is empty/missing" && exit 1)
-    - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/
+    - maestro cloud --apiKey rb_44RFkFLeklUHTcZFP930JKIRSxXvjHYiLumlBXAt7ww71VXxviY7XWiNdSeYpIJQwpCl8FzVMt0zZvZr14La5hI3rHsS0MVUTRe --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/
