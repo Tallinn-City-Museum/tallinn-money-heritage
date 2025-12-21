@@ -6,16 +6,19 @@ import {
   ScrollView,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  SafeAreaView,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { indexStyles, screenWidth } from "../components/common/stylesheet";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const insets = useSafeAreaInsets();
+  const { height } = Dimensions.get("window");
 
   const handleExplore = async () => {
     router.replace("/coin-flipper");
@@ -66,10 +69,13 @@ export default function HomeScreen() {
               mitmekesised ajalooallikad.
             </Text>
 
-            
             <TouchableOpacity
               onPress={handleExplore}
-              style={[indexStyles.exploreButton, indexStyles.skipButton]}
+              style={[
+                indexStyles.exploreButton,
+                indexStyles.skipButton,
+                { bottom: Math.max(height * 0.16, insets.bottom + 16) },
+              ]}
             >
               <Text style={indexStyles.exploreButtonText}>Jäta vahele</Text>
             </TouchableOpacity>

@@ -4,6 +4,7 @@
 import { Dimensions, StyleSheet } from "react-native";
 const { width, height } = Dimensions.get("window");
 const verticalPadding = height * 0.05;
+const textLift = 80; // lift onboarding content upwards for safer bottom spacing
 export const screenWidth = width;
 
 export const styles = StyleSheet.create({
@@ -417,19 +418,19 @@ export const indexStyles = StyleSheet.create({
     },
 
     page1: {
-        paddingTop: verticalPadding * 8,
+        paddingTop: verticalPadding * 8 - textLift,
     },
 
     page2: {
-        paddingTop: verticalPadding * 6,
+        paddingTop: verticalPadding * 6 - textLift,
     },
 
     page3: {
-        paddingTop: verticalPadding * 7,
+        paddingTop: verticalPadding * 7 - textLift,
     },
 
     page4: {
-        paddingTop: verticalPadding * 9,
+        paddingTop: verticalPadding * 9 - textLift,
     },
 
     titleText: {
@@ -490,7 +491,7 @@ export const indexStyles = StyleSheet.create({
     skipButton: {
         position: "absolute",
         right: width * 0.08,
-        bottom: height * 0.08,
+        bottom: height * 0.16,
     },
 
     bottomGradient: {

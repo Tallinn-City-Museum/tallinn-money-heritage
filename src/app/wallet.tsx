@@ -289,7 +289,10 @@ export default function Wallet() {
     }, [tutorialDone, tutHydrated]);
 
     return (
-        <View style={styles.container} {...screenSwipe.panHandlers}>
+        <View
+            style={[styles.container, { paddingBottom: insets.bottom }]}
+            {...screenSwipe.panHandlers}
+        >
             {/* Screen title*/}
             <View
                 pointerEvents="box-none"
@@ -543,7 +546,6 @@ function DraggableCoin({
         </Animated.View>
     );
 }
-
 
 
 

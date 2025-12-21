@@ -841,7 +841,10 @@ export default function Flipper() {
                             onGestureEvent={onPanGestureEvent}
                             onHandlerStateChange={onPanStateChange}
                         >
-                            <View style={styles.container} {...swipeResponder.panHandlers}>
+                    <View
+                        style={[styles.container, { paddingBottom: insets.bottom }]}
+                        {...swipeResponder.panHandlers}
+                    >
                                 {!coin && <ActivityIndicator size={64} />}
 
                                 {coin && (
@@ -985,7 +988,6 @@ export default function Flipper() {
         </>
     );
 }
-
 
 
 

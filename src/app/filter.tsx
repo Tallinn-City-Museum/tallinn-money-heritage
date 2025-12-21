@@ -1,10 +1,13 @@
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AggregatedCoinMeta, CoinFilterRow } from "../data/entity/aggregated-meta";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { coinStatsService } from "../service/coin-service";
 import HorizontalFilterSheet from "../components/common/treemap/horizontal-filter-sheet";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, PanResponder, TouchableOpacity, View } from "react-native";
 import { Text } from "@react-navigation/elements";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FirstRunTutorial, TutorialProgress, TutorialStepKey } from "../components/tutorial/first-run-tutorial";
+import { useRouter } from "expo-router";
 
 /**
  * Mainly specifies the callback function to when filtering is applied
@@ -15,6 +18,7 @@ export interface FilterViewProps {
 }
 
 const FILTER_HEIGHT_RATIO = 0.18;
+const PROGRESS_KEY = "tutorial.progress";
 
 /**
  * Utility function for converting provided string values
@@ -68,6 +72,7 @@ export default function FilterView({
      *** Layout calculation variables ***
      ************************************/
     const insets = useSafeAreaInsets();
+    const router = useRouter();
 
     /**********************
      *** Data variables ***
@@ -110,10 +115,89 @@ export default function FilterView({
 
     // Fetch data from coinStatsService
     const fetchData = async () => {
-        let rawFilterRows = (await coinStatsService.getCoinFilterData());
+        const rawFilterRows = await coinStatsService.getCoinFilterData();
         setOriginalFilterRows(rawFilterRows);
     };
-    useEffect(() => { fetchData() }, []);
+    useEffect(() => { fetchData(); }, []);
+
+    /**********************
+     *** Tutorial state ***
+     **********************/
+    const buildInitialTutorial = useCallback(
+        (): TutorialProgress => ({
+            filterCoins: true,
+            filteringChoice: false,
+            filterNavigation: false,
+            tapTwice: false,
+            zoomedIn: false,
+            rotated: false,
+            zoomedOut: false,
+            doubleTapped: false,
+            openedInfo: false,
+            swipeWallet: false,
+            dragCoin: false,
+            walletInfo: false,
+            last: false,
+        }),
+        []
+    );
+
+    const [tutorial, setTutorial] = useState<TutorialProgress>(buildInitialTutorial);
+    const [tutorialHydrated, setTutorialHydrated] = useState(false);
+    const [tutorialRunKey, setTutorialRunKey] = useState(0);
+    const swipeResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: (_, g) => {
+                const single = (g.numberActiveTouches ?? 1) === 1;
+                return single && Math.abs(g.dx) > 12;
+            },
+            onMoveShouldSetPanResponder: (_, g) => {
+                const single = (g.numberActiveTouches ?? 1) === 1;
+                return single && Math.abs(g.dx) > Math.abs(g.dy) && Math.abs(g.dx) > 12;
+            },
+            onPanResponderRelease: (_, g) => {
+                if (g.dx < -80 && Math.abs(g.dx) > Math.abs(g.dy)) {
+                    router.replace("/coin-flipper");
+                }
+            },
+            onPanResponderTerminationRequest: () => true,
+        })
+    ).current;
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const [rawProgress, rawDone] = await Promise.all([
+                    AsyncStorage.getItem(PROGRESS_KEY),
+                    AsyncStorage.getItem("tutorial.done"),
+                ]);
+                let merged = buildInitialTutorial();
+                if (rawProgress) {
+                    merged = { ...merged, ...JSON.parse(rawProgress) };
+                }
+                merged.filterCoins = true;
+                if (rawDone !== "1") {
+                    merged.filteringChoice = false;
+                    merged.filterNavigation = false;
+                }
+                setTutorial(merged);
+            } catch {
+                setTutorial(buildInitialTutorial());
+            } finally {
+                setTutorialHydrated(true);
+                setTutorialRunKey((k) => k + 1);
+            }
+        })();
+    }, [buildInitialTutorial]);
+
+    useEffect(() => {
+        if (!tutorialHydrated) return;
+        AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(tutorial)).catch(() => { });
+    }, [tutorial, tutorialHydrated]);
+
+    const markTutorial = useCallback((update: Partial<TutorialProgress>) => {
+        setTutorial((prev) => ({ ...prev, ...update }));
+    }, []);
 
     /**************************
      *** Callback functions ***
@@ -126,6 +210,7 @@ export default function FilterView({
             name: pendingFilter.name,
             period: pendingFilter.period
         });
+        markTutorial({ filteringChoice: true });
     };
 
     const onSelectCountry = (country: string) => {
@@ -136,6 +221,7 @@ export default function FilterView({
             name: pendingFilter.name,
             period: pendingFilter.period
         });
+        markTutorial({ filteringChoice: true });
     };
 
     const onSelectNominal = (nominal: string) => {
@@ -146,6 +232,7 @@ export default function FilterView({
             name: pendingFilter.name,
             period: pendingFilter.period
         });
+        markTutorial({ filteringChoice: true });
     };
 
     const onSelectName = (name: string) => {
@@ -156,6 +243,7 @@ export default function FilterView({
             name: pendingFilter.name === name ? undefined : name,
             period: pendingFilter.period
         });
+        markTutorial({ filteringChoice: true });
     };
 
     const onSelectPeriod = (period: string) => {
@@ -166,6 +254,7 @@ export default function FilterView({
             name: pendingFilter.name,
             period: pendingFilter.period === period ? undefined : period
         });
+        markTutorial({ filteringChoice: true });
     };
 
     return (
@@ -177,6 +266,7 @@ export default function FilterView({
                 width: "100%",
                 height: "100%"
             }}
+            {...swipeResponder.panHandlers}
         >
             {(countryStats.length == 0 || periodStats.length == 0 || nominalStats.length == 0 || nameStats.length == 0 || materialStats.length == 0) &&
                 <ActivityIndicator size={64} />
@@ -226,18 +316,21 @@ export default function FilterView({
                         }}
                     >
                         <TouchableOpacity
-                            style={{
-                                backgroundColor: "#b4cecc",
-                                width: "50%",
-                                borderColor: "#b4cecc",
-                                borderWidth: 0,
-                                paddingHorizontal: 22,
-                                paddingVertical: 10,
-                                borderRadius: 10,
-                                shadowOpacity: 0.18
-                            }}
-                            onPress={() => onFilterApply(pendingFilter)}
-                        >
+                        style={{
+                            backgroundColor: "#b4cecc",
+                            width: "50%",
+                            borderColor: "#b4cecc",
+                            borderWidth: 0,
+                            paddingHorizontal: 22,
+                            paddingVertical: 10,
+                            borderRadius: 10,
+                            shadowOpacity: 0.18
+                        }}
+                        onPress={() => {
+                            markTutorial({ filterNavigation: true });
+                            onFilterApply(pendingFilter);
+                        }}
+                    >
                             <Text
                                 style={{
                                     color: "#1b1f1f",
@@ -260,7 +353,7 @@ export default function FilterView({
                                 borderRadius: 10,
                                 shadowOpacity: 0.18
                             }}
-                            onPress={() => onFilterCancel()}
+                            onPress={() => setPendingFilter({})}
                         >
                             <Text
                                 style={{
@@ -274,6 +367,35 @@ export default function FilterView({
                             </Text>
                         </TouchableOpacity>
                     </View>
+                    {tutorialHydrated && (
+                        <View
+                            pointerEvents="box-none"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                zIndex: 999,
+                            }}
+                        >
+                            <FirstRunTutorial
+                                key={tutorialRunKey}
+                                progress={tutorial}
+                                onSkipStep={(step: TutorialStepKey) =>
+                                    markTutorial({ [step]: true } as Partial<TutorialProgress>)
+                                }
+                                onSkipAll={() =>
+                                    markTutorial({
+                                        filterCoins: true,
+                                        filteringChoice: true,
+                                        filterNavigation: true,
+                                    })
+                                }
+                                allowedSteps={["filteringChoice", "filterNavigation"]}
+                            />
+                        </View>
+                    )}
                 </>
             }
         </SafeAreaView>
