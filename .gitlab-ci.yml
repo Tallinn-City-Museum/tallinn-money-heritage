@@ -73,8 +73,7 @@ maestro-android:
     - curl -Ls "https://get.maestro.mobile.dev" | bash
     - export PATH="$PATH:$HOME/.maestro/bin"
     - pwd
-    - ls -R .maestro/
-    - ls -lh app.apk
+    - ls -lh android/app/build/outputs/apk/release/app-release.apk
     - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-1-tests/
     - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-2-tests/
     - maestro cloud --apiKey $MAESTRO_CLOUD_API_KEY --project-id proj_01kcvjjbhtext9sp6g71tqnccy android/app/build/outputs/apk/release/app-release.apk .maestro/uc-4-tests/
