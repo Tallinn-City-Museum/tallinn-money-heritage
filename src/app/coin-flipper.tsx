@@ -51,7 +51,8 @@ const COIN_TUTORIAL_STEPS: TutorialStepKey[] = [
 ];
 
 export default function Flipper() {
-    const { addCoin, coins } = useWallet();
+    const { addCoin, getCoins } = useWallet();
+    const coins = getCoins()
     const router = useRouter();
     const routeParams = useLocalSearchParams<{
         coinId?: string;

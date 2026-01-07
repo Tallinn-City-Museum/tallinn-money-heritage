@@ -49,7 +49,7 @@ async function saveProgress(update: Partial<TutorialProgress>) {
         const current = await loadProgress();
         const merged = { ...current, ...update };
         await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(merged));
-    } catch {}
+    } catch { }
 }
 
 // Small hook to check "tutorial.done" and avoid showing the overlay after completion
@@ -95,7 +95,8 @@ export default function Wallet() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const params = useLocalSearchParams<{ teach?: string }>();
-    const { coins, updateCoinPosition } = useWallet();
+    const { getCoins, updateCoinPosition } = useWallet();
+    const coins = getCoins();
     const navigation = React.useContext(NavigationContext);
     const { hydrated: tutHydrated, done: tutorialDone } = useTutorialDone(); // gate overlay
     const [tutorialRunKey, setTutorialRunKey] = useState(0);
@@ -138,7 +139,7 @@ export default function Wallet() {
     // Reset wallet tutorial state when a new resetToken is observed (set by coin-flipper reset button)
     const resetWalletTutorial = useCallback(async (token: string | null) => {
         // clear persisted wallet skips/progress to allow showing steps again
-        await AsyncStorage.multiRemove(["tutorial.skips", PROGRESS_KEY]).catch(() => {});
+        await AsyncStorage.multiRemove(["tutorial.skips", PROGRESS_KEY]).catch(() => { });
         setTutorial(buildInitialWalletTutorial());
         setForceLastHere(false);
         setTutorialRunKey((k) => k + 1);
@@ -280,7 +281,7 @@ export default function Wallet() {
     useEffect(() => {
         if (tutHydrated && !tutorialDone) {
             // clear persisted wallet skips/progress to allow showing steps again
-            AsyncStorage.multiRemove(["tutorial.skips", PROGRESS_KEY]).catch(() => {});
+            AsyncStorage.multiRemove(["tutorial.skips", PROGRESS_KEY]).catch(() => { });
             // reset local wallet tutorial state
             setTutorial(buildInitialWalletTutorial());
             setForceLastHere(false);
@@ -368,7 +369,7 @@ export default function Wallet() {
                         await AsyncStorage.multiSet([
                             [PROGRESS_KEY, JSON.stringify(allDone)],
                             ["tutorial.done", "1"],
-                        ]).catch(() => {});
+                        ]).catch(() => { });
                         saveProgress(allDone);
 
                         // IMPORTANT: pass a one-shot param so Coin-Flipper suppresses overlay immediately
@@ -437,16 +438,16 @@ function DraggableCoin({
             onStartShouldSetPanResponderCapture: () => true,
             onMoveShouldSetPanResponderCapture: () => true,
 
-    // When user starts dragging, set drag offset to last position and zero deltas
-    onPanResponderGrant: () => {
-        touchStartTs.current = Date.now();
-        movedOnce.current = false;
-        firstDragSent.current = false;
+            // When user starts dragging, set drag offset to last position and zero deltas
+            onPanResponderGrant: () => {
+                touchStartTs.current = Date.now();
+                movedOnce.current = false;
+                firstDragSent.current = false;
 
-        // Use the stable pattern: setOffset(lastPosition), setValue(0,0)
-        pan.setOffset({
-            x: lastPosition.current.x,
-            y: lastPosition.current.y,
+                // Use the stable pattern: setOffset(lastPosition), setValue(0,0)
+                pan.setOffset({
+                    x: lastPosition.current.x,
+                    y: lastPosition.current.y,
                 });
                 pan.setValue({ x: 0, y: 0 });
                 // Notify tutorial immediately when drag starts
