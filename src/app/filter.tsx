@@ -5,6 +5,7 @@ import { coinStatsService } from "../service/coin-service";
 import HorizontalFilterSheet from "../components/common/treemap/horizontal-filter-sheet";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Text } from "@react-navigation/elements";
+import { styles } from "../components/common/stylesheet";
 
 /**
  * Mainly specifies the callback function to when filtering is applied
@@ -179,7 +180,9 @@ export default function FilterView({
             }}
         >
             {(countryStats.length == 0 || periodStats.length == 0 || nominalStats.length == 0 || nameStats.length == 0 || materialStats.length == 0) &&
-                <ActivityIndicator size={64} />
+                <View style={styles.container}>
+                    <ActivityIndicator size={64} />
+                </View>
             }
             {(countryStats.length != 0 && periodStats.length != 0 && nominalStats.length != 0 && nameStats.length != 0 && materialStats.length != 0) &&
                 <>
