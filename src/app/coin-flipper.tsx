@@ -590,6 +590,7 @@ export default function Flipper() {
 
             if (!alreadyInWallet && coin !== null) {
                 const chosenPrediction = pendingPredictionRef.current ?? null;
+                const predictionHit = chosenPrediction !== null && chosenPrediction === finalSide;
 
                 const updatedCoin = {
                     ...coin,
@@ -598,8 +599,10 @@ export default function Flipper() {
                 };
                 setCoin(updatedCoin);
 
-                addCoin(coin, finalSide, chosenPrediction);
-                added = true;
+                if (predictionHit) {
+                    addCoin(coin, finalSide, chosenPrediction);
+                    added = true;
+                }
             }
             setJustAddedToWallet(added);
         });
