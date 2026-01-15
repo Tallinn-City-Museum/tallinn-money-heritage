@@ -1,6 +1,9 @@
 import { AggregatedCoinMeta } from "../data/entity/aggregated-meta";
 
-const DEFAULT_CHUNK_SIZE = 6;
+const DEFAULT_MAX_CHUNK_SIZE = 6;
+
+// The ratio threshold by which we should consider using "other" option for treemap
+const COUNT_SUM_THRESHOLD = 0.5
 
 export const OTHER_KEY = "__other__"
 export const BACK_KEY = "__back__"
@@ -10,12 +13,12 @@ export const BACK_KEY = "__back__"
  * by descending count order
  *
  * @param items specifies the array of AggregatedCoinMetas to bucket
- * @param chunkSize specifies the maximum bucket size
+ * @param maxChunkSize specifies the maximum bucket size
  * @returns a 2D array of bucketed items
  */
 export default function buildTreemapBuckets(
     items: AggregatedCoinMeta[],
-    chunkSize: number = DEFAULT_CHUNK_SIZE
+    maxChunkSize: number = DEFAULT_MAX_CHUNK_SIZE
 ): AggregatedCoinMeta[][] {
     // sort the array in descending order by its count
     items.sort((a, b) => b.count - a.count);
@@ -26,15 +29,22 @@ export default function buildTreemapBuckets(
         if (i != countSums.length - 1)
             countSums[i] += countSums[i+1]
 
+    // calculate the so called "others" available count for each bucket
+    let availableCountSums = items.map(v => v.availableCount || 0)
+    for (let i = availableCountSums.length - 1; i >= 0; i--)
+        if (i != availableCountSums.length - 1)
+            availableCountSums[i] += availableCountSums[i+1]
+
     const buckets: AggregatedCoinMeta[][] = []
     let currentBucket: AggregatedCoinMeta[] = []
     for (let i = 0; i < items.length; i++) {
         // flush the currentBucket if new bucket should be created
-        if (i % chunkSize === 0 && currentBucket.length !== 0) {
+        if (currentBucket.length === maxChunkSize-1 || ((countSums[i] - countSums[i+1]) / countSums[i] > COUNT_SUM_THRESHOLD && currentBucket.length > 0)) {
             currentBucket.push({
                 key: OTHER_KEY,
                 label: "Muud",
                 count: countSums[i],
+                availableCount: availableCountSums[i],
                 available: true
             });
             buckets.push(currentBucket);
