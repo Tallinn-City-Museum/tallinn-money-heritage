@@ -66,7 +66,7 @@ function renderSlice(
             <TreemapBlock
                 key={m.key}
                 keyValue={m.key}
-                label={m.label}
+                label={m.availableCount ? `${m.label} (${m.availableCount})` : m.label}
                 x={x}
                 y={y}
                 w={w}
