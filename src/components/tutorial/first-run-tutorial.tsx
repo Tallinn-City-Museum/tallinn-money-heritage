@@ -84,7 +84,7 @@ const TEXTS: Record<TutorialStepKey, string> = {
     zoomedOut:
         "Muuda münt tagasi algsuurusesse, et jätkata.",
     doubleTapped:
-        "Tee mündil topeltklikk, et valida ennustus ja visata münti.",
+        "Tee mündil topeltklikk, et valida ennustus ja visata münti. Kui ennustad õigesti siis münt lisatakse rahakotti. ",
     openedInfo:
         "Libista ekraanil alt äärest üles, et näha mündi infot.",
     swipeWallet:
